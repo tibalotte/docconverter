@@ -1,0 +1,49 @@
+/* app.css — Styles de l'application d'authoring (vue auteur).
+   Les styles de la vue apprenant (paquet exporté) vivront dans
+   css/export-runtime.css. Ces deux mondes ne partagent pas d'état. */
+
+:root {
+  --app-nav-width: 230px;
+}
+
+body {
+  margin: 0;
+}
+
+.app-topbar {
+  background: #fff;
+}
+
+.app-nav {
+  width: var(--app-nav-width);
+  overflow-y: auto;
+}
+
+.app-nav .nav-link {
+  border-radius: .375rem;
+  font-size: .9rem;
+}
+
+.app-content {
+  background: #f8f9fa;
+}
+
+/* Dropzone du module 1 */
+.m1-drop {
+  border-color: #adb5bd !important;
+  transition: background-color .15s, border-color .15s;
+  cursor: pointer;
+}
+.m1-drop.border-primary {
+  border-style: dashed !important;
+}
+
+.m1-thumb img {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Bordure pointillée utilitaire (Bootstrap n'a pas de dashed natif) */
+.border-dashed {
+  border-style: dashed !important;
+}

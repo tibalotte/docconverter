@@ -10,9 +10,24 @@ module de questions interactives Moodle.
 
 ## Statut
 
-🚧 **Phase de conception.** Aucun code applicatif n'est encore écrit. Le plan
-d'architecture est le contrat de référence ; le développement se fait
-**un module à la fois**.
+🚧 **En développement — un module à la fois.**
+
+- ✅ **Cœur applicatif** : coquille (`app-shell`), état central (`state-store`),
+  bus d'événements, schéma + migrations, store de médias (IndexedDB),
+  persistance `.dcproj`.
+- ✅ **Module 1 — Extracteur PPTX** : lecture slide par slide (JSZip), extraction
+  textes/tableaux/positions/notes, médias → IndexedDB + zip téléchargeable,
+  rastérisation des formes/groupes en PNG.
+- ⏳ Modules 2 à 6 : à venir (contrats définis dans `docs/`).
+
+### Lancer l'application
+
+Servir le dossier en local (modules ES → nécessite HTTP, pas `file://`) :
+
+```bash
+python3 -m http.server 8000
+# puis ouvrir http://localhost:8000
+```
 
 ## Modules
 

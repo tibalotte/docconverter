@@ -335,15 +335,18 @@ pour que M4/M5 puissent l'appeler sans attendre.
 
 ---
 
-## 10. Décisions ouvertes (à trancher avant le code)
+## 10. Décisions tranchées (verrouillées pour le développement)
 
-- **Persistance projet** : sérialisation `.json` téléchargeable seule, ou aussi
-  un format `.dcproj` (zip JSON + médias) ? *(Recommandation : `.dcproj` pour
-  rapatrier les médias.)*
-- **Versionnage du schéma** : stratégie de migration si `schemaVersion` évolue.
-- **Tests automatisés** : introduire un mini-runner natif ou attendre un
-  éventuel build.
-- **i18n** : interface FR uniquement, ou prévoir une couche de chaînes ?
+- **Persistance projet** : format **`.dcproj`** = un `.zip` contenant
+  `project.json` + un dossier `media/` (blobs). Permet de rapatrier les médias
+  avec le projet. *(Tranché.)* Implémenté dans `core/persistence.js`.
+- **Versionnage du schéma** : `project-schema.js` porte une constante
+  `SCHEMA_VERSION` et un **registre de migrations** `MIGRATIONS[fromVersion]`
+  appliqué en chaîne au chargement. *(Tranché.)*
+- **Tests automatisés** : **différés** tant qu'il n'y a pas d'étape de build ;
+  validation manuelle via le simulateur (M6) en attendant. *(Tranché.)*
+- **i18n** : **interface FR uniquement** pour l'instant, sans couche de chaînes.
+  *(Tranché.)*
 
 ---
 
