@@ -1,0 +1,28 @@
+/* animations.css — Animations CSS PURES, activables par bloc (Module 3).
+   Embarquées dans la vue apprenant exportée. Une animation s'active en posant
+   la classe `dc-anim-<nom>` sur un bloc ; la désactiver = retirer la classe.
+   Aucune dépendance JS. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .dc-anim-fade-in   { animation: dc-fade-in   .5s ease both; }
+  .dc-anim-slide-up  { animation: dc-slide-up  .5s ease both; }
+  .dc-anim-slide-left{ animation: dc-slide-left .5s ease both; }
+  .dc-anim-zoom-in   { animation: dc-zoom-in   .45s ease both; }
+}
+
+@keyframes dc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes dc-slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dc-slide-left {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes dc-zoom-in {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
+}

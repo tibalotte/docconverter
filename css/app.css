@@ -47,3 +47,21 @@ body {
 .border-dashed {
   border-style: dashed !important;
 }
+
+/* Éditeur de blocs (Module 3) */
+.m3-block {
+  background: #fff;
+}
+.m3-block .card-header {
+  background: #f1f3f5;
+}
+.m3-col-stack:empty::after {
+  content: "Colonne vide";
+  display: block;
+  color: #adb5bd;
+  font-size: .8rem;
+  text-align: center;
+  padding: 1rem .5rem;
+  border: 1px dashed #dee2e6;
+  border-radius: .375rem;
+}

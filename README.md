@@ -22,7 +22,11 @@ module de questions interactives Moodle.
   génération du Prompt Phase 1 (création pédagogique HTML/Bootstrap, contrat
   `dc-*`) et Phase 2 (prescription technique : pont SCORM, resize iframe,
   nettoyage, Loi 25), JSON enrichi copiable/téléchargeable.
-- ⏳ Modules 3 à 6 : à venir (contrats définis dans `docs/`).
+- ✅ **Module 3 — Éditeur de blocs + import HTML** : importe le HTML du LLM
+  (coller/fichier) selon le contrat `dc-*`, fusionne par `stepId` (préserve
+  notes et médias), nettoie le HTML, et édite les blocs par colonnes (1/2/3),
+  réorganisation, animations CSS, conservation/suppression des formes.
+- ⏳ Modules 4 à 6 : à venir (contrats définis dans `docs/`).
 
 Le contrat HTML produit par le LLM (et réimporté par M3) est figé dans
 [`docs/contrat-html-llm.md`](docs/contrat-html-llm.md).
