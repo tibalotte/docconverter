@@ -7,6 +7,7 @@
 
 import { shell } from './core/app-shell.js';
 import { module1 } from './modules/m1-pptx-extractor/index.js';
+import { module2 } from './modules/m2-json-prompt/index.js';
 
 // Placeholder d'onglets pour les modules non encore implémentés : ils
 // apparaissent grisés tant que leur dépendance amont n'est pas satisfaite.
@@ -30,7 +31,7 @@ const hasSlides = () => store.getProject().slides.length > 0;
 
 shell
   .register(module1)
-  .register(placeholder('m2', '2 · JSON + double prompt', 2, hasSlides))
+  .register(module2)
   .register(placeholder('m3', '3 · Éditeur de blocs', 3, hasSlides))
   .register(placeholder('m4', '4 · Questions Moodle', 4, hasSlides))
   .register(placeholder('m5', '5 · Navigation', 5, hasSlides))
