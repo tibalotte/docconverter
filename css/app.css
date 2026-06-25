@@ -65,3 +65,15 @@ body {
   border: 1px dashed #dee2e6;
   border-radius: .375rem;
 }
+
+/* Questions (Module 4) — aperçu et runtime */
+.dc-q-choice { cursor: pointer; }
+.dc-q-choice:hover { background: #f8f9fa; }
+.dc-token { user-select: none; }
+.dc-gap { vertical-align: middle; }
+.dc-gap .dc-token,
+.dc-dropzone .dc-token { cursor: default; }
+.dc-hotspot-stage img,
+.dc-ddimage-stage img { pointer-events: none; }
+.dc-dropzone { transition: background-color .12s; }
+.dc-dropzone:hover { background: rgba(108, 117, 125, .22) !important; }

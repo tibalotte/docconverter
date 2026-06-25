@@ -9,6 +9,7 @@ import { shell } from './core/app-shell.js';
 import { module1 } from './modules/m1-pptx-extractor/index.js';
 import { module2 } from './modules/m2-json-prompt/index.js';
 import { module3 } from './modules/m3-block-editor/index.js';
+import { module4 } from './modules/m4-questions/index.js';
 
 // Placeholder d'onglets pour les modules non encore implémentés : ils
 // apparaissent grisés tant que leur dépendance amont n'est pas satisfaite.
@@ -34,7 +35,7 @@ shell
   .register(module1)
   .register(module2)
   .register(module3)
-  .register(placeholder('m4', '4 · Questions Moodle', 4, hasSlides))
+  .register(module4)
   .register(placeholder('m5', '5 · Navigation', 5, hasSlides))
   .register(placeholder('m6', '6 · Validation + export', 6, hasSlides))
   .start('#app');

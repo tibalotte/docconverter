@@ -26,7 +26,11 @@ module de questions interactives Moodle.
   (coller/fichier) selon le contrat `dc-*`, fusionne par `stepId` (préserve
   notes et médias), nettoie le HTML, et édite les blocs par colonnes (1/2/3),
   réorganisation, animations CSS, conservation/suppression des formes.
-- ⏳ Modules 4 à 6 : à venir (contrats définis dans `docs/`).
+- ✅ **Module 4 — Questions interactives Moodle** : choix multiple (unique/
+  multiple), appariement, glisser-déposer sur texte, glisser-déposer sur image
+  (éditeur visuel de zones), rétroaction par choix + « haut-parleur sur la
+  pensée », aperçu interactif, agrégation pondérée des scores → `activityComplete`.
+- ⏳ Modules 5 et 6 : à venir (contrats définis dans `docs/`).
 
 Le contrat HTML produit par le LLM (et réimporté par M3) est figé dans
 [`docs/contrat-html-llm.md`](docs/contrat-html-llm.md).
