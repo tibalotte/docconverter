@@ -52,7 +52,7 @@ async function renderBlock(block, slide, opts) {
     const host = document.createElement('div');
     el.appendChild(host);
     if (q && opts.renderQuestion) {
-      await opts.renderQuestion(q, host, { onScore: opts.onScore });
+      await opts.renderQuestion(q, host, { onScore: opts.onScore, resolveMediaUrl: opts.resolveMediaUrl });
     } else if (q) {
       host.innerHTML = `<div class="border rounded p-2 small text-muted">Question : ${escapeHtml(q.type)}</div>`;
     }

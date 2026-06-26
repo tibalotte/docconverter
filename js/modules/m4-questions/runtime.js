@@ -37,8 +37,9 @@ export async function renderQuestion(question, host, opts = {}) {
   const checkBtn = card.querySelector('[data-role="check"]');
   const retryBtn = card.querySelector('[data-role="retry"]');
 
-  // renderRuntime peut être asynchrone (ddimage charge l'image).
-  let control = await t.renderRuntime(question, bodyEl);
+  // renderRuntime peut être asynchrone (ddimage charge l'image) ; opts porte le
+  // résolveur de média (ObjectURL en aperçu, chemin fichier à l'export).
+  let control = await t.renderRuntime(question, bodyEl, opts);
 
   checkBtn.addEventListener('click', () => {
     const response = control.getResponse();
@@ -57,6 +58,6 @@ export async function renderQuestion(question, host, opts = {}) {
     feedbackEl.innerHTML = '';
     checkBtn.hidden = false;
     retryBtn.hidden = true;
-    control = await t.renderRuntime(question, bodyEl);
+    control = await t.renderRuntime(question, bodyEl, opts);
   });
 }

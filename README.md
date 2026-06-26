@@ -34,7 +34,14 @@ module de questions interactives Moodle.
   titres, boutons Précédent/Suivant, indicateur de progression, et appels
   `activityProgress(stepId)` à chaque changement de diapositive. Rendu de slide
   partagé (`js/shared/slide-renderer.js`) réutilisé par l'export.
-- ⏳ Module 6 : à venir (contrat défini dans `docs/`).
+- ✅ **Module 6 — Validation + export** : validateur (SDK résiduel, hauteur fixe,
+  SCORM direct, médias manquants…) avec prompts de correction copiables ;
+  simulateur Moodle (fausse API SCORM + journal en temps réel) ; export ZIP
+  **SCORM 1.2** (`imsmanifest.xml` + pont abstrait → `LMSSetValue`) ou **HTML
+  simple** ; script resize iframe ; analyse de conformité **Loi 25**.
+
+**Les 6 modules sont implémentés.** Le pipeline complet PPTX → prompts → édition
+→ questions → navigation → validation → export SCORM est fonctionnel.
 
 Le contrat HTML produit par le LLM (et réimporté par M3) est figé dans
 [`docs/contrat-html-llm.md`](docs/contrat-html-llm.md).

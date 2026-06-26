@@ -43,8 +43,9 @@ export function grade(question, response) {
   return { score, correctness, messages };
 }
 
-export async function renderRuntime(question, host) {
-  const url = question.mediaRef ? await mediaStore.getUrl(question.mediaRef) : null;
+export async function renderRuntime(question, host, opts = {}) {
+  const resolve = opts.resolveMediaUrl || ((ref) => mediaStore.getUrl(ref));
+  const url = question.mediaRef ? await resolve(question.mediaRef) : null;
   host.innerHTML = `<div class="dc-q-prompt mb-2">${question.prompt}</div>
     ${url ? '' : '<div class="alert alert-warning py-2">Image manquante.</div>'}
     <div class="dc-ddimage-stage position-relative d-inline-block border mb-2">
