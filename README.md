@@ -30,7 +30,11 @@ module de questions interactives Moodle.
   multiple), appariement, glisser-déposer sur texte, glisser-déposer sur image
   (éditeur visuel de zones), rétroaction par choix + « haut-parleur sur la
   pensée », aperçu interactif, agrégation pondérée des scores → `activityComplete`.
-- ⏳ Modules 5 et 6 : à venir (contrats définis dans `docs/`).
+- ✅ **Module 5 — Navigation automatique** : menu de progression basé sur les
+  titres, boutons Précédent/Suivant, indicateur de progression, et appels
+  `activityProgress(stepId)` à chaque changement de diapositive. Rendu de slide
+  partagé (`js/shared/slide-renderer.js`) réutilisé par l'export.
+- ⏳ Module 6 : à venir (contrat défini dans `docs/`).
 
 Le contrat HTML produit par le LLM (et réimporté par M3) est figé dans
 [`docs/contrat-html-llm.md`](docs/contrat-html-llm.md).

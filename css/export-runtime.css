@@ -1,0 +1,49 @@
+/* export-runtime.css — Styles de la VUE APPRENANT.
+   Partagés par l'aperçu de navigation (Module 5) et le paquet exporté
+   (Module 6). À embarquer tel quel dans l'export. Pas de hauteur fixe :
+   la hauteur suit le contenu (compatibilité resize iframe Moodle). */
+
+.dc-runtime { max-width: 100%; }
+
+/* Une diapositive à la fois */
+.dc-slide-page[hidden] { display: none !important; }
+.dc-slide-page {
+  animation: dc-slide-enter .25s ease both;
+}
+@keyframes dc-slide-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dc-slide-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Menu de progression */
+.dc-progress-menu .dc-menu-state {
+  width: 1.2em;
+  display: inline-block;
+  text-align: center;
+  opacity: .8;
+}
+
+/* Questions — apparence proche des types natifs Moodle */
+.dc-question .dc-q-choice { transition: background-color .12s, border-color .12s; }
+.dc-question .dc-q-choice:hover { background: #f1f3f5; }
+.dc-token {
+  display: inline-block;
+  padding: .25rem .5rem;
+}
+.dc-gap {
+  vertical-align: middle;
+  border-style: dashed !important;
+}
+.dc-dropzone { box-sizing: border-box; }
+
+/* Cadre d'aperçu dans l'app d'authoring (neutre à l'export) */
+.dc-preview-frame {
+  background: #fff;
+  max-height: 70vh;
+  overflow: auto;
+}
