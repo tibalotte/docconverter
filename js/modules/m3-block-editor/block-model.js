@@ -26,6 +26,7 @@ export const BLOCK_TYPES = [
   { value: 'rasterized', label: 'Forme (PNG)', addable: false },
   { value: 'table', label: 'Tableau', addable: false },
   { value: 'media', label: 'Audio/Vidéo', addable: false },
+  { value: 'audio', label: 'Audio synchronisé', addable: false },
   { value: 'question', label: 'Question', addable: false },
 ];
 

@@ -18,6 +18,8 @@ import { buildManifest } from './scorm-export.js';
 const RUNTIME_JS = [
   'js/shared/utils.js',
   'js/shared/slide-renderer.js',
+  'js/shared/audio-transcript.js',
+  'js/shared/audio-player.js',
   'js/shared/scorm-bridge.js',
   'js/shared/iframe-resize.js',
   'js/core/media-store.js',

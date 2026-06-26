@@ -19,6 +19,9 @@ import { mountUi } from './ui.js';
 let _blockSeq = 0;
 function blockId() { return `b-${++_blockSeq}`; }
 
+const AUDIO_EXT = new Set(['mp3', 'm4a', 'wav', 'wma', 'aac', 'ogg', 'oga']);
+const VIDEO_EXT = new Set(['mp4', 'mov', 'avi', 'wmv', 'm4v', 'webm']);
+
 /** Paragraphes parsés → HTML Bootstrap simple et sûr. */
 function paragraphsToHtml(paragraphs) {
   const nonEmpty = paragraphs.filter((p) => p.text.trim());
@@ -107,6 +110,38 @@ export async function extractPptx(file, { onProgress } = {}) {
         blocks.push({
           id: blockId(), type: 'rasterized', column: 1, order: order++, animation: 'none',
           content: { mediaRef: mediaId, alt: 'groupe de formes', keep: true },
+        });
+      }
+    }
+
+    // 6) Audio (et vidéo) de la diapositive, via les relations de la slide.
+    //    « un audio par diapositive » : on rattache un bloc « audio synchronisé »
+    //    pré-rempli avec les notes du présentateur comme transcription candidate.
+    const seenRel = new Set();
+    for (const [rId, rel] of ctx.rels) {
+      if (rel.external || seenRel.has(rId)) continue;
+      const isAudioVideo = /\/(audio|video|media)$/.test(rel.type || '');
+      if (!isAudioVideo) continue;
+      const ext = (rel.target.split('.').pop() || '').toLowerCase();
+      const kind = AUDIO_EXT.has(ext) ? 'audio' : VIDEO_EXT.has(ext) ? 'video' : null;
+      if (!kind) continue; // ignore les médias non audio/vidéo (ex. icône)
+      seenRel.add(rId);
+      const blob = await ctx.getMediaBlob(rId);
+      const mediaId = await collector.addExtracted(blob, ctx.getMediaName(rId));
+      if (!mediaId) continue;
+      if (kind === 'audio') {
+        blocks.push({
+          id: blockId(), type: 'audio', column: 1, order: order++, animation: 'none',
+          content: {
+            mediaRef: mediaId,
+            transcript: ctx.notes || '',   // candidat : notes du présentateur
+            phrases: [], chapters: [], checkpoints: [], autoTiming: true,
+          },
+        });
+      } else {
+        blocks.push({
+          id: blockId(), type: 'media', column: 1, order: order++, animation: 'none',
+          content: { mediaRef: mediaId, kind: 'video', controls: true },
         });
       }
     }

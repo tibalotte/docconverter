@@ -68,7 +68,7 @@ version majeure.
 | Champ | Type | Description |
 |-------|------|-------------|
 | `id` | string | Identifiant du bloc. |
-| `type` | enum | `text` \| `image` \| `rasterized` \| `table` \| `callout` \| `question` \| `media`. |
+| `type` | enum | `text` \| `image` \| `rasterized` \| `table` \| `callout` \| `question` \| `media` \| `audio`. |
 | `column` | number | Colonne d'affichage (1–3, selon `layout`). |
 | `order` | number | Ordre dans la colonne. |
 | `animation` | string | `"none"` ou nom d'animation CSS pure (cf. `animations.css`). |
@@ -94,6 +94,13 @@ version majeure.
 
 // media
 { "mediaRef": "media-12", "kind": "audio|video", "controls": true }
+
+// audio (écoute active — cf. docs/audio-ecoute-active.md)
+{ "mediaRef": "media-3", "transcript": "Texte de la théorie…",
+  "phrases": [ { "text": "…", "start_ms": 0, "end_ms": 2100 } ],
+  "chapters": [ { "title": "Introduction", "start_ms": 0 } ],
+  "checkpoints": [ { "at_ms": 45000, "questionRef": "q-2" } ],
+  "autoTiming": true }
 ```
 
 ### 4.2 `Question` (résumé — détail au module 4)

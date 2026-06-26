@@ -175,12 +175,88 @@ function fillBlockBody(body, block, mutate) {
     body.appendChild(wrap);
   } else if (block.type === 'table') {
     body.appendChild(renderTablePreview(block.content));
+  } else if (block.type === 'audio') {
+    fillAudioBody(body, block, setContent, mutate);
   } else if (block.type === 'media') {
     body.innerHTML = `<span class="small text-muted">Média : <code>${escapeHtml(block.content.mediaRef || '—')}</code> (${escapeHtml(block.content.kind || '?')})</span>`;
   } else {
     body.innerHTML = `<span class="small text-muted">Type « ${escapeHtml(block.type)} » — édité dans un module dédié.</span>`;
   }
 }
+
+function fillAudioBody(body, block, setContent, mutate) {
+  const slide = store.getProject().slides.find((s) => (s.blocks || []).some((b) => b.id === block.id));
+  const questions = (slide && slide.questions) || [];
+  const c = block.content;
+
+  body.innerHTML = `
+    <label class="form-label small fw-semibold mb-1">Transcription (théorie de l’audio)</label>
+    <textarea class="form-control form-control-sm mb-1" rows="4" data-role="transcript"
+      placeholder="Texte de l’audio (souvent dans les notes du présentateur)…">${escapeHtml(c.transcript || '')}</textarea>
+    <div class="small text-muted mb-2">Minutage automatique (proportionnel à la durée). La phrase courante se surligne pendant la lecture.</div>
+
+    <div class="border-top pt-2">
+      <div class="d-flex align-items-center mb-1"><span class="small fw-semibold">Chapitres</span>
+        <button class="btn btn-sm btn-outline-secondary ms-auto py-0" data-role="add-chapter">+ Chapitre</button></div>
+      <div data-role="chapters" class="d-flex flex-column gap-1"></div>
+    </div>
+
+    <div class="border-top pt-2 mt-2">
+      <div class="d-flex align-items-center mb-1"><span class="small fw-semibold">Points de contrôle (pause + question)</span>
+        <button class="btn btn-sm btn-outline-secondary ms-auto py-0" data-role="add-checkpoint" ${questions.length ? '' : 'disabled'}>+ Point</button></div>
+      ${questions.length ? '' : '<div class="small text-muted">Ajoute d’abord des questions à cette diapositive (Module 4) pour créer des points de contrôle.</div>'}
+      <div data-role="checkpoints" class="d-flex flex-column gap-1"></div>
+    </div>`;
+
+  body.querySelector('[data-role="transcript"]').addEventListener('change', (e) =>
+    setContent({ transcript: e.target.value, phrases: [], autoTiming: true }));
+
+  // Chapitres.
+  const chaptersEl = body.querySelector('[data-role="chapters"]');
+  (c.chapters || []).forEach((ch, i) => {
+    const row = document.createElement('div');
+    row.className = 'd-flex gap-1 align-items-center';
+    row.innerHTML = `
+      <input class="form-control form-control-sm" value="${escapeHtml(ch.title || '')}" data-role="t" placeholder="Titre du chapitre">
+      <input class="form-control form-control-sm" type="number" min="0" step="1" style="max-width:90px" value="${Math.round((ch.start_ms || 0) / 1000)}" data-role="s" title="début (s)">
+      <button class="btn btn-sm btn-outline-danger" data-role="del">✕</button>`;
+    row.querySelector('[data-role="t"]').addEventListener('change', (e) =>
+      mutate((s) => { findBlock(s, block.id).content.chapters[i].title = e.target.value; }, false));
+    row.querySelector('[data-role="s"]').addEventListener('change', (e) =>
+      mutate((s) => { findBlock(s, block.id).content.chapters[i].start_ms = (parseInt(e.target.value, 10) || 0) * 1000; }, false));
+    row.querySelector('[data-role="del"]').addEventListener('click', () =>
+      mutate((s) => { const b = findBlock(s, block.id); b.content.chapters.splice(i, 1); }));
+    chaptersEl.appendChild(row);
+  });
+  body.querySelector('[data-role="add-chapter"]').addEventListener('click', () =>
+    mutate((s) => { const b = findBlock(s, block.id); (b.content.chapters = b.content.chapters || []).push({ title: 'Nouvelle section', start_ms: 0 }); }));
+
+  // Points de contrôle.
+  const cpEl = body.querySelector('[data-role="checkpoints"]');
+  const qOptions = (sel) => questions.map((q, i) =>
+    `<option value="${q.id}" ${q.id === sel ? 'selected' : ''}>Q${i + 1} — ${escapeHtml(stripText(q.prompt))}</option>`).join('');
+  (c.checkpoints || []).forEach((cp, i) => {
+    const row = document.createElement('div');
+    row.className = 'd-flex gap-1 align-items-center';
+    row.innerHTML = `
+      <input class="form-control form-control-sm" type="number" min="0" step="1" style="max-width:90px" value="${Math.round((cp.at_ms || 0) / 1000)}" data-role="at" title="à (s)">
+      <select class="form-select form-select-sm" data-role="q">${qOptions(cp.questionRef)}</select>
+      <button class="btn btn-sm btn-outline-danger" data-role="del">✕</button>`;
+    row.querySelector('[data-role="at"]').addEventListener('change', (e) =>
+      mutate((s) => { findBlock(s, block.id).content.checkpoints[i].at_ms = (parseInt(e.target.value, 10) || 0) * 1000; }, false));
+    row.querySelector('[data-role="q"]').addEventListener('change', (e) =>
+      mutate((s) => { findBlock(s, block.id).content.checkpoints[i].questionRef = e.target.value; }, false));
+    row.querySelector('[data-role="del"]').addEventListener('click', () =>
+      mutate((s) => { findBlock(s, block.id).content.checkpoints.splice(i, 1); }));
+    cpEl.appendChild(row);
+  });
+  const addCp = body.querySelector('[data-role="add-checkpoint"]');
+  if (addCp) addCp.addEventListener('click', () =>
+    mutate((s) => { const b = findBlock(s, block.id); (b.content.checkpoints = b.content.checkpoints || []).push({ at_ms: 0, questionRef: questions[0] && questions[0].id }); }));
+}
+
+function findBlock(slide, blockId) { return slide.blocks.find((b) => b.id === blockId); }
+function stripText(html) { return String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40) || 'question'; }
 
 function textarea(value) {
   const ta = document.createElement('textarea');

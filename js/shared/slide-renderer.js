@@ -13,6 +13,7 @@
 
 import { escapeHtml } from './utils.js';
 import { layoutCols, blocksByColumn } from '../modules/m3-block-editor/block-model.js';
+import { renderAudioPlayer } from './audio-player.js';
 
 function colClass(cols) {
   return cols === 1 ? 'col-12' : cols === 2 ? 'col-md-6' : 'col-md-4';
@@ -47,6 +48,8 @@ async function renderBlock(block, slide, opts) {
     el.innerHTML = `<${tag} controls class="w-100" data-dc-media="${escapeHtml(c.mediaRef || '')}"${url ? ` src="${url}"` : ''}></${tag}>`;
   } else if (block.type === 'table') {
     el.innerHTML = renderTableHtml(c);
+  } else if (block.type === 'audio') {
+    await renderAudioPlayer(block, slide, el, opts);
   } else if (block.type === 'question') {
     const q = (slide.questions || []).find((x) => x.id === c.questionRef);
     const host = document.createElement('div');

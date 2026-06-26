@@ -43,6 +43,17 @@ module de questions interactives Moodle.
 **Les 6 modules sont implémentés.** Le pipeline complet PPTX → prompts → édition
 → questions → navigation → validation → export SCORM est fonctionnel.
 
+### Audio à écoute active
+
+Pour les diaporamas où **chaque diapositive porte un audio** (théorie), un bloc
+`audio` transforme l'écoute passive en activité : transcription **synchronisée**
+(surlignage de la phrase en cours), **chapitres** navigables, **points de
+contrôle** (l'audio se met en pause et pose une question avant de continuer) et
+contrôle de vitesse. Le Module 1 extrait l'audio de chaque diapositive et
+pré-remplit la transcription avec les notes du présentateur. Minutage
+proportionnel **100 % navigateur** par défaut ; calage mot-à-mot Whisper
+possible en option. Détails : [`docs/audio-ecoute-active.md`](docs/audio-ecoute-active.md).
+
 Le contrat HTML produit par le LLM (et réimporté par M3) est figé dans
 [`docs/contrat-html-llm.md`](docs/contrat-html-llm.md).
 
