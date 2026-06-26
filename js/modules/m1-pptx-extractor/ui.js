@@ -38,6 +38,17 @@ export function mountUi(container, api) {
         </div>
       </div>
 
+      <div class="m1-transcript mt-3 p-3 border rounded bg-light d-flex flex-wrap align-items-center gap-2">
+        <div class="flex-grow-1">
+          <span class="fw-semibold">Transcript audio (optionnel)</span>
+          <div class="small text-muted">Enrichir les diapositives avec un bundle <code>.zip</code> généré par
+            <code>tools/audio_to_transcript.py</code> (transcription + reformulation + voix TTS + mots-clés + image).</div>
+        </div>
+        <input type="file" accept=".zip,application/zip" hidden data-role="bundle-input">
+        <button class="btn btn-outline-primary" data-role="bundle-pick">Importer un transcript audio (.zip)</button>
+      </div>
+      <div data-role="bundle-report" class="mt-2"></div>
+
       <div class="m1-results mt-4" data-role="results"></div>
     </div>
   `;
@@ -53,6 +64,29 @@ export function mountUi(container, api) {
   container.querySelector('[data-role="pick"]').addEventListener('click', () => inputEl.click());
   inputEl.addEventListener('change', () => {
     if (inputEl.files.length) start(inputEl.files[0]);
+  });
+
+  // Import d'un bundle transcript audio (.zip).
+  const bundleInput = container.querySelector('[data-role="bundle-input"]');
+  const bundleReport = container.querySelector('[data-role="bundle-report"]');
+  container.querySelector('[data-role="bundle-pick"]').addEventListener('click', () => bundleInput.click());
+  bundleInput.addEventListener('change', async () => {
+    if (!bundleInput.files.length || !api.importTranscriptBundle) return;
+    bundleReport.innerHTML = '<div class="text-muted small">Import du transcript…</div>';
+    try {
+      const r = await api.importTranscriptBundle(bundleInput.files[0]);
+      if (r.error) {
+        bundleReport.innerHTML = `<div class="alert alert-danger py-2 mb-0">${escapeHtml(r.error)}</div>`;
+      } else {
+        bundleReport.innerHTML = `<div class="alert alert-success py-2 mb-0">Transcript importé :
+          <strong>${r.updated}</strong> diapositive(s) enrichie(s), ${r.audios} audio(s), ${r.images} image(s)${r.missing ? `, ${r.missing} non appariée(s)` : ''}.</div>`;
+        await renderResults();
+      }
+    } catch (e) {
+      bundleReport.innerHTML = `<div class="alert alert-danger py-2 mb-0">Échec : ${escapeHtml(e.message)}</div>`;
+    } finally {
+      bundleInput.value = '';
+    }
   });
 
   ['dragenter', 'dragover'].forEach((ev) =>

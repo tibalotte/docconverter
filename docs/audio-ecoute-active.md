@@ -50,17 +50,51 @@ dans l'éditeur (Module 3 → bloc audio).
    tableau `phrases` précis injecté dans `content.phrases`. Dès que ce tableau
    est présent, le lecteur l'utilise tel quel (au lieu de l'estimation).
 
-### Contrat d'import Whisper (à venir)
+### Script compagnon `tools/audio_to_transcript.py`
 
-Le script compagnon devra produire, par bloc audio, un objet :
+Pour la transcription, la reformulation et la voix TTS (qui ne peuvent pas vivre
+dans le navigateur), un **script compagnon** réutilise les fonctions du pipeline
+PPTX de l'utilisateur (`pipeline_pptx_1.py`) :
 
-```json
-{ "mediaRef": "media-3",
-  "phrases": [ { "text": "…", "start_ms": 0, "end_ms": 2100 }, … ] }
+1. `transcribe_audio` (Whisper) : audio original → texte brut ;
+2. `reformuler` (Claude/OpenAI) : texte brut → **script reformulé (moins de
+   mots)** + titre + **3 mots-clés** ;
+3. `generate_tts` : script reformulé → **nouvelle voix TTS** (l'audio entendu
+   correspond exactement au texte affiché → lecture synchronisée propre) ;
+4. `get_word_timings` + `build_subtitle_phrases` : phrases minutées (mot-à-mot) ;
+5. `fetch_image` (Pexels/Pixabay) : une **image illustrative**.
+
+Exécution (dans l'environnement du pipeline, avec ses clés API) :
+
+```bash
+python tools/audio_to_transcript.py cours.pptx \
+    --pipeline ./pipeline_pptx_1.py --tts gemini --reformulator anthropic
+# → cours_bundle.zip
 ```
 
-…que DocConverter recollera dans `content.phrases` (mapping par `mediaRef`).
-Le format est identique à la sortie de `build_subtitle_phrases` (en ms).
+### Bundle produit et import
+
+Le `.zip` contient `transcript.json` + `media/` :
+
+```json
+{ "schema": "dc-transcript@1", "language": "fr",
+  "slides": [
+    { "index": 0, "stepId": "step-1", "title": "…",
+      "transcript": "script reformulé",
+      "phrases": [ { "text": "…", "start_ms": 0, "end_ms": 2100 } ],
+      "keywords": ["…","…","…"],
+      "audioFile": "media/audio-1.mp3", "image": "media/image-1.jpg",
+      "imageAlt": "…" } ] }
+```
+
+Dans DocConverter : **Module 1 → « Importer un transcript audio (.zip) »**.
+L'import enregistre les médias et remplit, par diapositive, le bloc `audio`
+(`transcript`, `phrases`, `keywords`, `imageRef`, et l'audio TTS comme
+`mediaRef`). Le lecteur affiche alors **l'image + les 3 mots-clés + le texte
+synchronisé + le player** — la « page de présentation de la matière » visée.
+
+Le mode `--no-tts` conserve l'audio original et utilise la transcription brute
+(non reformulée) pour garantir la correspondance audio/texte.
 
 ## À l'export
 

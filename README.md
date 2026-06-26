@@ -47,12 +47,21 @@ module de questions interactives Moodle.
 
 Pour les diaporamas où **chaque diapositive porte un audio** (théorie), un bloc
 `audio` transforme l'écoute passive en activité : transcription **synchronisée**
-(surlignage de la phrase en cours), **chapitres** navigables, **points de
-contrôle** (l'audio se met en pause et pose une question avant de continuer) et
-contrôle de vitesse. Le Module 1 extrait l'audio de chaque diapositive et
-pré-remplit la transcription avec les notes du présentateur. Minutage
-proportionnel **100 % navigateur** par défaut ; calage mot-à-mot Whisper
-possible en option. Détails : [`docs/audio-ecoute-active.md`](docs/audio-ecoute-active.md).
+(surlignage de la phrase en cours), **3 mots-clés**, **image** illustrative,
+**chapitres** navigables, **points de contrôle** (l'audio se met en pause et
+pose une question avant de continuer) et contrôle de vitesse.
+
+Le Module 1 extrait l'audio de chaque diapositive. Deux niveaux :
+
+- **Sans outil** : minutage proportionnel **100 % navigateur** ; texte pris des
+  notes du présentateur.
+- **Avec le script compagnon** [`tools/audio_to_transcript.py`](tools/audio_to_transcript.py)
+  (réutilise le pipeline PPTX de l'utilisateur) : **transcription** Whisper +
+  **reformulation** en moins de mots + **3 mots-clés** + **voix TTS** (l'audio
+  lu correspond au texte affiché) + **image**. Il produit un `.zip` importé via
+  *Module 1 → « Importer un transcript audio »*.
+
+Détails : [`docs/audio-ecoute-active.md`](docs/audio-ecoute-active.md).
 
 Le contrat HTML produit par le LLM (et réimporté par M3) est figé dans
 [`docs/contrat-html-llm.md`](docs/contrat-html-llm.md).

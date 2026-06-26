@@ -14,7 +14,10 @@ import { PptxReader } from './pptx-reader.js';
 import { parseSlide } from './slide-parser.js';
 import { rasterizeShape, rasterizeGroup, canvasToPngBlob } from './shape-rasterizer.js';
 import { MediaCollector, buildMediaZip } from './media-extractor.js';
+import { importTranscriptBundle } from './transcript-importer.js';
 import { mountUi } from './ui.js';
+
+export { importTranscriptBundle } from './transcript-importer.js';
 
 let _blockSeq = 0;
 function blockId() { return `b-${++_blockSeq}`; }
@@ -209,7 +212,7 @@ export const module1 = {
   order: 1,
   enabled: () => true,
   mount(container) {
-    mountUi(container, { extractPptx, downloadMediaZip });
+    mountUi(container, { extractPptx, downloadMediaZip, importTranscriptBundle });
   },
   unmount() {
     // L'UI gère elle-même la révocation de ses ObjectURL de prévisualisation.

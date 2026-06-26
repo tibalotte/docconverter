@@ -20,9 +20,19 @@ export async function renderAudioPlayer(block, slide, host, opts = {}) {
   const c = block.content || {};
   const url = opts.resolveMediaUrl ? await opts.resolveMediaUrl(c.mediaRef) : null;
 
+  const imgUrl = c.imageRef && opts.resolveMediaUrl ? await opts.resolveMediaUrl(c.imageRef) : null;
+  const keywords = Array.isArray(c.keywords) ? c.keywords.filter(Boolean) : [];
+
   host.classList.add('dc-audio');
   host.innerHTML = `
     ${url ? '' : '<div class="alert alert-warning py-2">Audio introuvable.</div>'}
+    ${imgUrl || keywords.length ? `
+      <div class="dc-audio-head row g-3 align-items-center mb-2">
+        ${imgUrl ? `<div class="col-sm-4"><img class="img-fluid rounded" alt="${escapeHtml(c.imageAlt || '')}" src="${imgUrl}"></div>` : ''}
+        ${keywords.length ? `<div class="col"><div class="dc-audio-keywords d-flex flex-wrap gap-2">
+          ${keywords.map((k) => `<span class="badge text-bg-primary fs-6">${escapeHtml(k)}</span>`).join('')}
+        </div></div>` : ''}
+      </div>` : ''}
     <div class="dc-audio-bar d-flex align-items-center gap-2 mb-2">
       <audio class="flex-grow-1" controls ${url ? `src="${url}"` : ''} preload="metadata"></audio>
       <div class="btn-group btn-group-sm dc-audio-speed" role="group" aria-label="Vitesse"></div>

@@ -96,8 +96,10 @@ version majeure.
 { "mediaRef": "media-12", "kind": "audio|video", "controls": true }
 
 // audio (écoute active — cf. docs/audio-ecoute-active.md)
-{ "mediaRef": "media-3", "transcript": "Texte de la théorie…",
+{ "mediaRef": "media-3", "transcript": "Texte de la théorie (reformulé)…",
   "phrases": [ { "text": "…", "start_ms": 0, "end_ms": 2100 } ],
+  "keywords": ["Fond blanc", "Mirepoix", "Clarification"],   // 3 repères affichés
+  "imageRef": "media-9", "imageAlt": "cuisine",              // image illustrative
   "chapters": [ { "title": "Introduction", "start_ms": 0 } ],
   "checkpoints": [ { "at_ms": 45000, "questionRef": "q-2" } ],
   "autoTiming": true }
