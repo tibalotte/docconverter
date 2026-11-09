@@ -1,0 +1,13 @@
+{
+  "name": "acmod-web",
+  "version": "0.1.0",
+  "description": "Éditeur web autonome des pneus et suspensions d'une voiture Assetto Corsa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "e2e": "node tests/e2e/browser.e2e.cjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "license": "MIT"
+}
