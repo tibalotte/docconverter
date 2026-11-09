@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>acmod-web : pneus et suspensions</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1>acmod-web <small>pneus et suspensions · Assetto Corsa</small></h1>
+    <div class="status">
+      <span id="folder-name" class="folder" hidden></span>
+      <span id="dirty" class="dirty" hidden title="Modifications non enregistrées">● non enregistré</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Écran d'accueil -->
+    <section id="welcome" class="welcome">
+      <h2>Ouvrir le dossier <code>data</code> d'une voiture</h2>
+      <p>Choisissez le dossier <code>content/cars/&lt;voiture&gt;/data</code> (déjà dépaqueté).
+        Les fichiers <code>tyres.ini</code>, <code>suspensions.ini</code> et <code>setup.ini</code> y seront lus,
+        modifiés et enregistrés <strong>sur place</strong>, après une sauvegarde automatique dans
+        <code>.acmod_backup/</code>.</p>
+
+      <div class="actions-row">
+        <button id="btn-open" class="primary" type="button">Ouvrir le dossier data</button>
+        <button id="btn-reopen" type="button" hidden></button>
+      </div>
+      <p id="compat" class="compat"></p>
+
+      <details id="fallback" class="fallback">
+        <summary>Mode de repli (Firefox, Safari, ou sans accès en écriture)</summary>
+        <p>Importez le dossier <code>data</code> (ou un zip qui le contient). Rien n'est envoyé sur internet :
+          les modifications restent dans la page, puis vous téléchargez les fichiers modifiés pour les recopier
+          vous-même dans le dossier de la voiture.</p>
+        <div class="import-grid">
+          <label class="file-btn">Importer un dossier…<input id="in-folder" type="file" webkitdirectory multiple></label>
+          <label class="file-btn">Importer des fichiers .ini…<input id="in-files" type="file" accept=".ini" multiple></label>
+          <label class="file-btn">Importer un zip…<input id="in-zip" type="file" accept=".zip,application/zip"></label>
+        </div>
+      </details>
+
+      <p class="warn-box"><strong>Attention :</strong> une voiture modifiée ne passe plus les vérifications
+        de fichiers des serveurs en ligne. Gardez ces modifications pour le jeu hors ligne, et respectez la licence
+        du contenu que vous modifiez.</p>
+      <p id="welcome-error" class="error-box" hidden></p>
+    </section>
+
+    <!-- Éditeur -->
+    <section id="editor" hidden>
+      <div class="actionbar" role="toolbar" aria-label="Actions">
+        <button id="btn-save" class="primary" type="button" disabled title="Ctrl+S">Enregistrer</button>
+        <button id="btn-revert" type="button" disabled>Annuler les modifications</button>
+        <button id="btn-diff" type="button">Voir les différences</button>
+        <button id="btn-restore" type="button">Restaurer l'original</button>
+        <span class="spacer"></span>
+        <button id="btn-close" type="button">Changer de dossier</button>
+      </div>
+      <div id="notices"></div>
+      <div id="issues" class="issues" hidden></div>
+
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="tyres" aria-selected="true">Pneus</button>
+        <button role="tab" data-tab="suspension" aria-selected="false">Suspensions</button>
+        <button role="tab" data-tab="setup" aria-selected="false">Réglages joueur</button>
+        <button role="tab" data-tab="backups" aria-selected="false">Sauvegardes</button>
+      </nav>
+      <div id="panel-tyres" class="panel" role="tabpanel"></div>
+      <div id="panel-suspension" class="panel" role="tabpanel" hidden></div>
+      <div id="panel-setup" class="panel" role="tabpanel" hidden></div>
+      <div id="panel-backups" class="panel" role="tabpanel" hidden></div>
+      <p class="legend">
+        <span class="sw edited"></span> modifié, non enregistré
+        <span class="sw modified"></span> différent de l'original
+        <span class="sw warning"></span> avertissement
+        <span class="sw error"></span> erreur
+        · Flèches ↑ ↓ pour ajuster (Maj ×10, Alt ÷10)
+      </p>
+    </section>
+  </main>
+
+  <dialog id="diff-dialog">
+    <form method="dialog" class="dialog-head">
+      <h2>Différences</h2>
+      <button value="close" aria-label="Fermer">✕</button>
+    </form>
+    <div id="diff-body"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
