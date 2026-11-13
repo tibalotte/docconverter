@@ -153,13 +153,18 @@ body.bigui #pageLabel,body.bigui #zoomLabel{font-size:21px}
 body.bigui .widget{font-size:18px}
 body.bigui #toast{font-size:20px}
 .widget.kbw{width:auto!important}
-.kbd{display:flex;flex-direction:column;gap:6px;padding-top:4px}
+.kbd{display:flex;flex-direction:column;gap:8px;padding:10px 8px;background:#d5d9df;border-radius:14px;margin-top:4px}
 .krow{display:flex;gap:6px;justify-content:center}
-.kk{min-width:50px;height:54px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:20px;cursor:pointer;padding:0 8px;box-shadow:0 2px 0 var(--line);touch-action:manipulation}
-.kk.kwide{min-width:72px;background:var(--hover);font-size:18px}
-.kk.kspace{min-width:200px}
-.kk.on{background:var(--accent);color:#fff}.kk.half{background:var(--accent-soft);color:var(--accent)}
-.kk.down{background:var(--accent-soft);transform:translateY(1px)}
+.kk{min-width:52px;height:56px;border:0;border-radius:9px;background:#fff;font-size:22px;cursor:pointer;padding:0 8px;box-shadow:0 1px 0 #8f969f;touch-action:none;color:#111;flex:1 1 0;max-width:62px;position:relative}
+.kk.kvar::after{content:'';position:absolute;right:5px;top:5px;width:4px;height:4px;border-radius:50%;background:#9aa5b1}
+.kk.kfn{background:#aeb4bc;font-size:17px;max-width:96px;min-width:72px}
+.kk.kspace{background:#fff;min-width:230px;max-width:none;flex:4 1 0;font-size:16px;color:#64707d}
+.kk.on{background:var(--accent);color:#fff}.kk.half{background:#fff;color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.kk.down{background:#e8ebef;transform:translateY(1px)}
+.khint{text-align:center;color:var(--muted);font-size:13px;margin:6px 0 0}
+.kpop{position:fixed;z-index:95;display:flex;gap:2px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none}
+.kpop span{min-width:48px;height:56px;display:flex;align-items:center;justify-content:center;font-size:26px;border-radius:9px}
+.kpop span.hot{background:var(--accent);color:#fff}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -3660,49 +3665,96 @@ function refPoint(o) {
 /* Symboles de musique posés sur une portée : vraies notes aimantées */
 const GLYPH_NOTE = { '\u{1D15D}': 'w', '\u{1D15E}': 'h', '\u{1D15F}': 'q', '\u{1D160}': 'e', '\u{1D13B}': 'rw', '\u{1D13C}': 'rh', '\u{1D13D}': 'rq', '\u{1D13E}': 're' };
 
-/* ---------- Clavier virtuel flottant ---------- */
-const KB = { shift: false, caps: false, auto: (() => { try { const v = localStorage.getItem('tableau-clavier-auto'); return v === null ? (navigator.maxTouchPoints || 0) > 0 : v === '1'; } catch (_) { return true; } })(), target: null, autoOpened: false };
-const KB_ROWS = [
-  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '⌫'],
-  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'é', 'è'],
-  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'à', 'ç', '↵'],
-  ['⇧', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', 'ê', 'ù'],
-  ['àâ', '?', '!', '’', '-', '␣', ':', ';', '«', '»', '←', '→'],
-];
-const KB_ACC = ['â', 'ê', 'î', 'ô', 'û', 'ë', 'ï', 'ü', 'œ', 'æ', '«', '»', '°', '$', '%', '(', ')', '/', '+', '='];
+/* ---------- Clavier virtuel flottant (style appareil mobile, appui long = variantes) ---------- */
+const KB = { shift: false, caps: false, layer: 'abc', auto: (() => { try { const v = localStorage.getItem('tableau-clavier-auto'); return v === null ? (navigator.maxTouchPoints || 0) > 0 : v === '1'; } catch (_) { return true; } })(), target: null, autoOpened: false };
+const KB_LAYERS = {
+  abc: [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['⇧', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '⌫'], ['?123', ',', 'é', '␣', '.', '↵']],
+  num: [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['-', '/', ':', ';', '(', ')', '$', '&', '@', '"'], ['=+', '.', ',', '?', '!', '\'', '«', '»', '⌫'], ['ABC', '←', '␣', '→', '↵']],
+  sym: [['[', ']', '{', '}', '#', '%', '^', '*', '+', '='], ['_', '\\', '|', '~', '<', '>', '€', '£', '°', '•'], ['123', '…', '×', '÷', '±', '≤', '≥', '≠', '⌫'], ['ABC', '←', '␣', '→', '↵']],
+};
+// Variantes accessibles par appui long (comme sur un téléphone)
+const KB_VAR = {
+  a: 'aàâäæáã', e: 'eéèêëē', i: 'iîïíì', o: 'oôöœóò', u: 'uùûüú', c: 'cç', y: 'yÿý', n: 'nñ', s: 'sß',
+  é: 'éèêëe', '1': '1¹½⅓¼', '2': '2²⅔', '3': '3³¾', '0': '0°∅', '-': '-–—_', '.': '.…·', ',': ',;', '?': '?¿', '!': '!¡',
+  '\'': '\'’‘', '"': '"«»“”', '$': '$€£¢¥', '/': '/÷\\', '(': '([{<', ')': ')]}>', '=': '=≠≈≤≥', '+': '+±', '*': '*×', '«': '«‹', '»': '»›', '&': '&§',
+};
+const KB_SPECIAL = new Set(['⇧', '⌫', '↵', '␣', '?123', 'ABC', '=+', '123', '←', '→']);
 document.addEventListener('focusin', e => { if (e.target.matches('textarea,input[type=text],input[type=url],input:not([type]),input[type=number]') && !e.target.closest('#wKeyboard')) KB.target = e.target; });
+function kbTarget() { return KB.target && document.contains(KB.target) ? KB.target : (editing ? ted : null); }
+function kbPut(str) {
+  const t = kbTarget(); if (!t) { toast('Touchez d’abord une zone de texte.'); return false; }
+  t.focus();
+  const s0 = t.selectionStart ?? t.value.length, s1 = t.selectionEnd ?? s0;
+  if (typeof t.setRangeText === 'function' && t.type !== 'number') t.setRangeText(str, s0, s1, 'end'); else t.value += str;
+  t.dispatchEvent(new Event('input', { bubbles: true })); return true;
+}
+function kbKey(k) {
+  const t = kbTarget();
+  if (k === '⌫') { if (!t) return; t.focus(); const s0 = t.selectionStart ?? t.value.length, s1 = t.selectionEnd ?? s0; if (s0 !== s1) kbPut(''); else if (s0 > 0) { t.setSelectionRange(s0 - 1, s0); kbPut(''); } return; }
+  if (k === '←' || k === '→') { if (!t) return; t.focus(); const s0 = t.selectionStart ?? 0, n = k === '←' ? Math.max(0, s0 - 1) : s0 + 1; t.setSelectionRange(n, n); return; }
+  if (k === '↵') { if (!t) return; if (t.tagName === 'TEXTAREA') kbPut('\n'); else t.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); return; }
+  if (k === '␣') { kbPut(' '); return; }
+  const up = KB.shift || KB.caps;
+  if (kbPut(up ? k.toUpperCase() : k) && KB.shift) { KB.shift = false; drawKeyboard(); }
+}
+function drawKeyboard() {
+  const el = $('#wKeyboard'); if (!el) return;
+  const up = KB.shift || KB.caps;
+  $('.kbd', el).innerHTML = KB_LAYERS[KB.layer].map(r => `<div class="krow">${r.map(k => {
+    const lab = k === '␣' ? 'espace' : (up && k.length === 1 ? k.toUpperCase() : k);
+    const cls = KB_SPECIAL.has(k) ? 'kfn' + (k === '␣' ? ' kspace' : '') + (k === '⇧' && KB.caps ? ' on' : k === '⇧' && KB.shift ? ' half' : '') : (KB_VAR[k] ? 'kvar' : '');
+    return `<button class="kk ${cls}" data-k="${esc(k)}">${esc(lab)}</button>`; }).join('')}</div>`).join('');
+}
 function openKeyboard(near) {
   const ex = $('#wKeyboard');
   if (ex) { if (near) placeKeyboard(ex, near); return ex; }
   const el = makeWidget('wKeyboard', '⌨ Clavier', `<div class="kbd"></div>
-    <label class="nopt"><input type="checkbox" class="kauto"${KB.auto ? ' checked' : ''}> Ouvrir automatiquement quand j’écris du texte</label>`, 720, () => { KB.autoOpened = false; });
+    <div class="khint">Appui long sur une touche : accents et autres variantes</div>
+    <label class="nopt"><input type="checkbox" class="kauto"${KB.auto ? ' checked' : ''}> Ouvrir automatiquement quand j’écris du texte</label>`, 640, () => { KB.autoOpened = false; $('.kpop')?.remove(); });
   el.classList.add('kbw');
-  const draw = () => {
-    const up = KB.shift || KB.caps;
-    $('.kbd', el).innerHTML = (KB.acc ? [KB_ACC.slice(0, 10), KB_ACC.slice(10), ['àâ', '␣', '⌫', '↵']] : KB_ROWS).map(r => `<div class="krow">${r.map(k => {
-      const lab = k === '␣' ? 'espace' : k === 'àâ' ? (KB.acc ? 'abc' : 'âêî…') : (up && k.length === 1 ? k.toUpperCase() : k);
-      const cls = { '⌫': 'kwide', '↵': 'kwide', '⇧': 'kwide' + (KB.caps ? ' on' : KB.shift ? ' half' : ''), '␣': 'kspace', 'àâ': 'kwide' }[k] || '';
-      return `<button class="kk ${cls}" data-k="${esc(k)}">${esc(lab)}</button>`; }).join('')}</div>`).join('');
-  };
-  draw();
-  let lastShift = 0;
+  drawKeyboard();
+  let lastShift = 0, hold = null;
+  const endHold = () => { if (!hold) return; clearTimeout(hold.timer); clearInterval(hold.rep); hold.pop?.remove(); hold.btn.classList.remove('down'); hold = null; };
   el.addEventListener('pointerdown', e => {
-    const b = e.target.closest('[data-k]'); if (!b) return;
-    e.preventDefault();   // garde le curseur dans la zone de texte
-    const k = b.dataset.k, t = KB.target && document.contains(KB.target) ? KB.target : (editing ? ted : null);
-    if (k === '⇧') { const now = Date.now(); if (now - lastShift < 400) { KB.caps = !KB.caps; KB.shift = false; } else { KB.shift = !KB.shift; KB.caps = false; } lastShift = now; draw(); return; }
-    if (k === 'àâ') { KB.acc = !KB.acc; draw(); return; }
-    if (!t) { toast('Touchez d’abord une zone de texte.'); return; }
-    t.focus();
-    const s0 = t.selectionStart ?? t.value.length, s1 = t.selectionEnd ?? s0;
-    const put = str => { if (typeof t.setRangeText === 'function' && t.type !== 'number') t.setRangeText(str, s0, s1, 'end'); else t.value += str; t.dispatchEvent(new Event('input', { bubbles: true })); };
-    if (k === '⌫') { if (s0 !== s1) put(''); else if (s0 > 0) { t.setSelectionRange(s0 - 1, s0); put(''); } }
-    else if (k === '←') t.setSelectionRange(Math.max(0, s0 - 1), Math.max(0, s0 - 1));
-    else if (k === '→') t.setSelectionRange(s0 + 1, s0 + 1);
-    else if (k === '↵') { if (t.tagName === 'TEXTAREA') put('\n'); else { t.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } }
-    else { put(k === '␣' ? ' ' : (KB.shift || KB.caps) && k.length === 1 ? k.toUpperCase() : k); if (KB.shift) { KB.shift = false; draw(); } }
-    b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 120);
+    const b = e.target.closest('.kbd [data-k]'); if (!b) return;
+    e.preventDefault(); endHold();                    // garde le curseur dans la zone de texte
+    const k = b.dataset.k; b.classList.add('down');
+    if (k === '⇧') { const now = Date.now(); if (now - lastShift < 400) { KB.caps = !KB.caps; KB.shift = false; } else { KB.shift = !KB.shift; KB.caps = false; } lastShift = now; drawKeyboard(); return; }
+    if (k === '?123' || k === '123') { KB.layer = 'num'; drawKeyboard(); return; }
+    if (k === '=+') { KB.layer = 'sym'; drawKeyboard(); return; }
+    if (k === 'ABC') { KB.layer = 'abc'; drawKeyboard(); return; }
+    try { b.setPointerCapture(e.pointerId); } catch (_) {}
+    hold = { btn: b, k, pop: null, hot: 0, vars: null };
+    if (k === '⌫' || k === '←' || k === '→') {   // répétition en maintenant
+      kbKey(k); hold.timer = setTimeout(() => { if (hold) hold.rep = setInterval(() => kbKey(k), 70); }, 420); return;
+    }
+    if (KB_VAR[k]) hold.timer = setTimeout(() => {
+      if (!hold) return;
+      const up = KB.shift || KB.caps, vars = [...KB_VAR[k]].map(c => up ? c.toUpperCase() : c);
+      const r = b.getBoundingClientRect(), pop = document.createElement('div'); pop.className = 'kpop';
+      pop.innerHTML = vars.map((c, i) => `<span class="${i ? '' : 'hot'}">${esc(c)}</span>`).join('');
+      document.body.appendChild(pop);
+      const w = pop.offsetWidth; pop.style.left = clamp(r.left + r.width / 2 - 30, 6, W - w - 6) + 'px'; pop.style.top = (r.top - pop.offsetHeight - 8) + 'px';
+      hold.pop = pop; hold.vars = vars;
+      try { navigator.vibrate?.(10); } catch (_) {}
+    }, 380);
   });
+  el.addEventListener('pointermove', e => {
+    if (!hold || !hold.pop) return;
+    const spans = $$('span', hold.pop); let hot = hold.hot;
+    spans.forEach((s, i) => { const r = s.getBoundingClientRect(); if (e.clientX >= r.left && e.clientX < r.right) hot = i; });
+    if (e.clientX < spans[0].getBoundingClientRect().left) hot = 0;
+    if (e.clientX >= spans[spans.length - 1].getBoundingClientRect().right) hot = spans.length - 1;
+    if (hot !== hold.hot) { hold.hot = hot; spans.forEach((s, i) => s.classList.toggle('hot', i === hot)); }
+  });
+  const release = e => {
+    if (!hold) { $$('.kk.down', el).forEach(x => x.classList.remove('down')); return; }
+    const h = hold;
+    if (KB_SPECIAL.has(h.k)) { endHold(); return; }
+    if (h.pop) { const c = h.vars[h.hot]; endHold(); if (kbPut(c) && KB.shift) { KB.shift = false; drawKeyboard(); } return; }
+    endHold(); if (e.type === 'pointerup') kbKey(h.k);
+  };
+  el.addEventListener('pointerup', release); el.addEventListener('pointercancel', release);
   $('.kauto', el).addEventListener('change', e => { KB.auto = e.target.checked; try { localStorage.setItem('tableau-clavier-auto', KB.auto ? '1' : '0'); } catch (_) {} });
   if (near) placeKeyboard(el, near);
   return el;
@@ -4405,7 +4457,7 @@ function showHelp() {
   <p><b>Univers social et sciences</b> (bouton globe) : cartes du monde, de l’Amérique du Nord, du Canada (avec ou sans noms) et du Québec; ligne du temps modifiable (double-clic); rose des vents; cycles et chaînes d’étapes (cycle de l’eau, chaîne alimentaire, démarche scientifique); diagramme de Venn; tableau de données.</p>
   <p><b>Musique</b> (bouton portée) : choisissez une figure (ronde, blanche, noire, croche) ou un silence, puis touchez une feuille Portée : la note s’aimante sur la ligne ou l’interligne et sonne. ♯ ♭ ♮ s’appliquent à la prochaine note; « do ré mi » affiche le nom des notes; ▶ joue les notes de la page. Clavier de piano (peut écrire sur la portée) et métronome.</p>
   <p><b>Barre d’outils</b> : saisissez-la par sa poignée (les points en haut) et glissez-la; des zones ombragées montrent les trois places possibles (gauche, bas, droite). Elle s’accroche à la plus proche et garde sa place.</p>
-  <p><b>Clavier virtuel</b> : dans les outils de classe; il s’ouvre aussi tout seul à côté d’une zone de texte (option à cocher dans le clavier).</p>
+  <p><b>Clavier virtuel</b> (comme sur un téléphone) : dans les outils de classe; il s’ouvre aussi tout seul à côté d’une zone de texte. <b>Appui long</b> sur une touche (point gris) : accents et variantes (é è ê ë, à â, ç, œ, ½, «…); glissez vers le caractère voulu et relâchez. ?123 : chiffres et symboles. Maintenir ⌫ efface en continu.</p>
   <p><b>Quadrillage</b> : avec l’aimant 🧲, formes, textes, symboles et objets déplacés s’accrochent aux nœuds des feuilles quadrillées, millimétrées, pointillées et du plan cartésien.</p>
   <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
   <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
