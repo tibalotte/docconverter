@@ -249,8 +249,8 @@ select.pill{appearance:auto}
 .gb{width:58px;height:58px;border:0;border-radius:12px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1}
 .gb:hover{background:var(--hover)}
 .gb.on{background:var(--accent-soft);color:var(--accent)}
-.gb.word{font-size:15px;font-weight:700;width:auto;padding:0 6px}
-.grid.words{grid-template-columns:repeat(4,auto)}
+.gb.word{font-size:15px;font-weight:700;width:auto;min-width:100px;height:52px;padding:0 10px;border:1px solid var(--line)}
+.grid.words{grid-template-columns:repeat(4,minmax(100px,auto))}
 .list{display:flex;flex-direction:column;gap:2px;min-width:260px}
 .li{display:flex;align-items:center;gap:12px;border:0;background:transparent;border-radius:10px;padding:10px 12px;font-size:16px;text-align:left;cursor:pointer}
 .li:hover{background:var(--hover)}
@@ -1795,7 +1795,7 @@ const FLY = {
     const sets = stampSets(); if (!sets.includes(S.stampSet)) S.stampSet = sets[0];
     const set = STAMPS[S.stampSet];
     return `<div class="tabs">${sets.map(n => `<button class="tab${n === S.stampSet ? ' on' : ''}" data-set="${n}">${n}</button>`).join('')}</div>
-      <div class="grid g6${set.words ? ' words' : ''}" style="font-family:${esc(FONTS[set.font])}">${set.items.map(s => `<button class="gb${set.words && s.length > 2 ? ' word' : ''}${S.stamp === s ? ' on' : ''}" data-stamp="${esc(s)}" style="${set.bold ? 'font-weight:700;' : ''}${s.includes('\n') ? 'font-size:17px;line-height:1;white-space:pre' : ''}">${esc(s)}</button>`).join('')}</div>
+      <div class="grid g6${set.words ? ' words' : ''}" style="font-family:${esc(FONTS[set.font])}">${set.items.map(s => `<button class="gb${set.words ? ' word' : ''}${S.stamp === s ? ' on' : ''}" data-stamp="${esc(s)}" style="${set.bold ? 'font-weight:700;' : ''}${s.includes('\n') ? 'font-size:17px;line-height:1;white-space:pre' : ''}">${esc(s)}</button>`).join('')}</div>
       <p class="hint" style="margin:10px 4px 0;white-space:normal;max-width:360px">Choisissez un symbole puis touchez le tableau pour le placer (autant de fois que voulu).</p>`;
   },
   insert: () => `<div class="list">
@@ -2120,15 +2120,7 @@ function snapPoint(p, exclude) {
     for (const [x, y] of keyPts(o)) { const d = Math.hypot(x - p.x, y - p.y); if (d < bd) { bd = d; best = { x, y, snapped: 'pt' }; } }
   }
   if (best) return best;
-  const objs = page().objects;
-  for (let i = objs.length - 1; i >= 0; i--) {
-    const sh = objs[i]; if (sh.t !== 'sheet' || p.x < sh.x || p.x > sh.x + sh.w || p.y < sh.y || p.y > sh.y + sh.h) continue;
-    const g = sheetGrid(sh); if (!g) break;
-    const gx = g.ox + Math.round((p.x - g.ox) / g.step) * g.step, gy = g.oy + Math.round((p.y - g.oy) / g.step) * g.step;
-    return { x: gx, y: gy, snapped: 'grid' };   // sur une feuille quadrillée : toujours sur un nœud du quadrillage
-    break;
-  }
-  return { x: p.x, y: p.y };
+  return gridSnap(p) || { x: p.x, y: p.y };   // feuille quadrillée : nœud; feuille lignée : ligne
 }
 // Trait presque droit → vraie ligne droite (0°, 45°, 90°… si proche), extrémités accrochées
 function straighten(o) {
@@ -2779,7 +2771,13 @@ function startInstr(h, p) {
 }
 function moveInstr(p, e) {
   const g = G, o = g.o;
-  if (g.mode === 'move') { o.x = g.ox + p.x - g.start.x; o.y = g.oy + p.y - g.start.y; }
+  if (g.mode === 'move') {
+    o.x = g.ox + p.x - g.start.x; o.y = g.oy + p.y - g.start.y;
+    // point d'accroche : 0 de la règle (sinon son autre bout ou son milieu), coin de l'équerre, centre du rapporteur, pointe du compas
+    const refs = o.type === 'ruler' ? [toW(o, 0, 0), toW(o, o.len, 0), toW(o, Math.round(o.len / 2 / CM) * CM, 0)] : [{ x: o.x, y: o.y }];
+    g.snapAt = null;
+    for (const r of refs) { const q = gridSnap(r); if (q) { o.x += q.x - r.x; o.y += q.y - r.y; g.snapAt = q; break; } }
+  }
   if (g.mode === 'rot') {
     let d = Math.atan2(p.y - g.c.y, p.x - g.c.x) - g.a0, ang = g.ang0 + d, deg = ang * 180 / Math.PI;
     const sn = Math.round(deg / 15) * 15; if (S.magnet && Math.abs(sn - deg) < 3) deg = sn; else deg = Math.round(deg);
@@ -2789,7 +2787,7 @@ function moveInstr(p, e) {
   }
   if (g.mode === 'arm') { const [lx, ly] = toL(o, p); o.arm = clamp(Math.round(Math.atan2(-ly, lx) * 180 / Math.PI), 0, 180); }
   if (g.mode === 'radius') {
-    let r = Math.hypot(p.x - o.x, p.y - o.y); r = S.magnet ? Math.round(r / (CM / 2)) * (CM / 2) : Math.round(r / (CM / 10)) * (CM / 10);
+    let r = Math.hypot(p.x - o.x, p.y - o.y); const gq = gridSnap({ x: o.x, y: o.y }), st = gq && gq.step ? gq.step : (S.magnet ? CM / 2 : CM / 10); r = Math.round(r / st) * st;
     o.r = Math.max(CM / 2, r); o.th = Math.atan2(p.y - o.y, p.x - o.x) - Math.atan2(Math.max(o.r * .6, 2 * CM), o.r / 2) * 0;
   }
   if (g.mode === 'arc') {
@@ -3650,8 +3648,14 @@ function gridSnap(p) {
   const objs = page().objects;
   for (let i = objs.length - 1; i >= 0; i--) {
     const sh = objs[i]; if (sh.t !== 'sheet' || p.x < sh.x || p.x > sh.x + sh.w || p.y < sh.y || p.y > sh.y + sh.h) continue;
-    const g = sheetGrid(sh); if (!g) return null;
-    return { x: g.ox + Math.round((p.x - g.ox) / g.step) * g.step, y: g.oy + Math.round((p.y - g.oy) / g.step) * g.step, snapped: 'grid' };
+    const g = sheetGrid(sh);
+    if (g) return { x: g.ox + Math.round((p.x - g.ox) / g.step) * g.step, y: g.oy + Math.round((p.y - g.oy) / g.step) * g.step, snapped: 'grid', step: g.step };
+    // feuilles lignées : seulement la hauteur s'accroche aux lignes
+    const lines = { lines: [44, [0]], primary: [132, [0, 30, 60, 90]] }[sh.kind];
+    if (!lines) return null;
+    const [P, offs] = lines, ly = p.y - sh.y, k = Math.floor(ly / P); let best = null;
+    for (const kk of [k - 1, k, k + 1]) for (const o of offs) { const y = sh.y + kk * P + o; if (!best || Math.abs(y - p.y) < Math.abs(best - p.y)) best = y; }
+    return { x: p.x, y: best, snapped: 'line' };
   }
   return null;
 }
@@ -4458,7 +4462,7 @@ function showHelp() {
   <p><b>Musique</b> (bouton portée) : choisissez une figure (ronde, blanche, noire, croche) ou un silence, puis touchez une feuille Portée : la note s’aimante sur la ligne ou l’interligne et sonne. ♯ ♭ ♮ s’appliquent à la prochaine note; « do ré mi » affiche le nom des notes; ▶ joue les notes de la page. Clavier de piano (peut écrire sur la portée) et métronome.</p>
   <p><b>Barre d’outils</b> : saisissez-la par sa poignée (les points en haut) et glissez-la; des zones ombragées montrent les trois places possibles (gauche, bas, droite). Elle s’accroche à la plus proche et garde sa place.</p>
   <p><b>Clavier virtuel</b> (comme sur un téléphone) : dans les outils de classe; il s’ouvre aussi tout seul à côté d’une zone de texte. <b>Appui long</b> sur une touche (point gris) : accents et variantes (é è ê ë, à â, ç, œ, ½, «…); glissez vers le caractère voulu et relâchez. ?123 : chiffres et symboles. Maintenir ⌫ efface en continu.</p>
-  <p><b>Quadrillage</b> : avec l’aimant 🧲, formes, textes, symboles et objets déplacés s’accrochent aux nœuds des feuilles quadrillées, millimétrées, pointillées et du plan cartésien.</p>
+  <p><b>Quadrillage</b> : avec l’aimant 🧲, formes, textes, symboles, objets déplacés et instruments (règle, équerre, rapporteur, compas) s’accrochent aux nœuds des feuilles quadrillées, millimétrées, pointillées et du plan cartésien, et aux lignes des feuilles lignées. Le rayon du compas suit le pas du quadrillage.</p>
   <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
   <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
   <p><b>Instruments</b> (bouton règle) : règle graduée (le crayon trace droit le long de ses bords, longueur affichée), équerre, rapporteur (aiguille bleue = angle en degrés), compas (↔ règle le rayon, ✎ trace). ⟳ tourne l’instrument, ✕ le retire. <b>Transformations</b> : sélectionnez une figure, puis Réflexion (tracez l’axe), Translation (tracez la flèche) ou Rotation.</p>
