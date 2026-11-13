@@ -78,6 +78,37 @@ body.locked .lockhide{display:none!important}
 .toolChecks label{display:flex;align-items:center;gap:8px;font-size:15px;padding:4px 0}
 .toolChecks input{width:20px;height:20px}
 details.custom summary{cursor:pointer;font-weight:600;color:var(--accent);margin-top:6px}
+.widget{position:fixed;z-index:22;padding:0 0 12px;max-width:calc(100% - 20px)}
+.widget .wh{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;cursor:move;touch-action:none;border-bottom:1px solid var(--line);font-size:16px}
+.widget .wx{width:36px;height:36px;border:0;border-radius:10px;background:transparent;font-size:18px;cursor:pointer}
+.widget .wx:hover{background:var(--hover)}
+.widget .wb{padding:10px 14px 0}
+.widget .row{margin:8px 0}
+.tdisp{font:700 72px/1.1 "Segoe UI",system-ui,sans-serif;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+.tdisp.warn{color:var(--danger)}
+.widget.big{width:min(92vw,900px)!important}
+.widget.big .tdisp{font-size:min(30vh,240px)}
+.tbar{height:10px;background:var(--hover);border-radius:6px;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--accent);transition:width .2s linear}
+.widget.ring{animation:ring .5s 6}
+@keyframes ring{50%{box-shadow:0 0 0 10px rgba(220,38,38,.5)}}
+.ndisp{font:700 44px/1.2 "Segoe UI",system-ui,sans-serif;text-align:center;min-height:64px;padding:10px;background:var(--accent-soft);border-radius:14px;color:var(--accent);word-break:break-word}
+.ndisp.rolling{opacity:.6}
+.nopt{display:flex;gap:8px;align-items:center;justify-content:center;font-size:15px}
+.nopt input{width:20px;height:20px}
+.ninfo{text-align:center;color:var(--muted);font-size:14px}
+.ddisp{font-size:88px;text-align:center;line-height:1.1}
+.dsum{text-align:center;font:700 22px "Segoe UI",sans-serif;min-height:28px}
+#curtain{position:fixed;left:0;top:0;right:0;z-index:14;background:repeating-linear-gradient(90deg,#2f3a48 0 40px,#36424f 40px 80px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+#curtain[data-dir=h]{right:auto;bottom:0}
+#curtain .cgrip{position:absolute;left:0;right:0;bottom:0;height:48px;background:#1f2933;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;cursor:ns-resize;touch-action:none;font-size:15px}
+#curtain[data-dir=h] .cgrip{left:auto;top:0;width:48px;height:auto;flex-direction:column;cursor:ew-resize}
+#curtain[data-dir=h] .cgrip span{writing-mode:vertical-rl}
+#curtain .cgrip button{width:36px;height:36px;border:0;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;font-size:16px;cursor:pointer}
+#spot{position:fixed;inset:0;z-index:14;pointer-events:none}
+#spot .sring{position:absolute;border-radius:50%;box-shadow:0 0 0 200vmax rgba(10,14,20,.86);border:3px solid rgba(255,255,255,.6)}
+#spot .sh{position:absolute;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#1f2933;font-size:20px;pointer-events:auto;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4);touch-action:none}
+#spot .sclose{color:var(--danger)}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -216,7 +247,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   #print .pp:last-child{page-break-after:auto;break-after:auto}
   #print img{max-width:100%;max-height:190mm}
 }
-@media (max-height:1000px){ :root{--btn:46px} }
+@media (max-height:1000px){ :root{--btn:44px} }
 @media (max-height:860px){ :root{--btn:40px} svg.i{width:23px;height:23px} }
 @media (max-width:700px){ :root{--btn:44px} .grid{grid-template-columns:repeat(4,50px)} .gb{width:50px;height:50px} }
 </style>
@@ -279,6 +310,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-translate" viewBox="0 0 24 24"><path d="M3 20h6v-6H3z"/><path d="M15 10h6V4h-6z" stroke-dasharray="2 1.6"/><path d="M8 13l6-4M11 8.5l3 .5-1 3"/></symbol>
     <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20 3v5h-5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></symbol>
     <symbol id="i-fr" viewBox="0 0 24 24"><path d="M3 15l3.5-9 3.5 9M4.3 12h4.4"/><path d="M13 9.5c1.6-1.2 5-1.2 5 1.5V15M18 12.2c-3.5-.3-5.2.5-5.2 1.6 0 1.4 2.5 1.8 5.2-.4"/><path d="M3 19c3 2.2 6 2.2 9 0M12 19c3 2.2 6 2.2 9 0"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M12 2.5V6M18.5 6.5l1.5-1.5"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -319,6 +351,8 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <div class="vsep"></div>
   <button class="ib" id="bUndo" title="Annuler (Ctrl+Z)"><svg class="i"><use href="#i-undo"/></svg></button>
   <button class="ib" id="bRedo" title="Rétablir (Ctrl+Y)"><svg class="i"><use href="#i-redo"/></svg></button>
+  <div class="vsep"></div>
+  <button class="ib" data-fly="classe" id="bClasse" title="Outils de classe : rideau, projecteur, minuterie, tirage au sort, dés"><svg class="i"><use href="#i-timer"/></svg><span class="more"></span></button>
 </div>
 
 <div id="topRight" class="panel">
@@ -1608,6 +1642,13 @@ const FLY = {
       <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
       <button class="btn lockhide" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
+  classe: () => `<h4>Outils de classe</h4><div class="list">
+      <button class="li" data-cl="curtain"><span style="width:26px;text-align:center;font-size:22px">▤</span><span>Rideau<small>Masquer l’écran et révéler peu à peu</small></span></button>
+      <button class="li" data-cl="spot"><span style="width:26px;text-align:center;font-size:22px">◉</span><span>Projecteur<small>Assombrir tout sauf une zone</small></span></button>
+      <button class="li" data-cl="timer"><span style="width:26px;text-align:center;font-size:22px">⏱</span><span>Minuterie et chronomètre<small>Avec alarme sonore</small></span></button>
+      <button class="li" data-cl="names"><span style="width:26px;text-align:center;font-size:22px">🎲</span><span>Tirage au sort de noms<small>Sans répétition; former des équipes</small></span></button>
+      <button class="li" data-cl="dice"><span style="width:26px;text-align:center;font-size:22px">⚄</span><span>Dés<small>1 à 3 dés, somme affichée</small></span></button>
+    </div>`,
   frtools: () => `<h4>Outils de français</h4><div class="list">${FR_MODES.filter(([k]) => PROF.frModes.includes(k)).map(([k, l, d]) => `<button class="li${S.frMode === k && S.tool === 'fr' ? ' on' : ''}" data-frm="${k}"><span style="width:44px;text-align:center;font-weight:700;font-size:${FR_ICON[k].length > 3 ? 11 : 20}px">${FR_ICON[k]}</span><span>${l}<small>${d}</small></span></button>`).join('')}</div>
     ${PROF.frModes.includes('sons') ? `<h4 style="margin-top:12px">Sons (surligneur)</h4><div class="row">${SOUNDS.map(([n, c]) => `<button class="chip" data-snd="${n}" data-c="${c}" style="background:${c};border-color:${c};color:#1a1a1a;font-weight:700">${n}</button>`).join('')}
       <button class="chip" data-snd="+">+ autre</button></div><button class="btn" id="sndLegend" style="width:100%">Insérer la légende des sons</button>` : ''}`,
@@ -1636,6 +1677,7 @@ const FLY = {
     </div>`,
 };
 const BIND = {
+  classe: () => $$('[data-cl]', fly).forEach(b => b.addEventListener('click', () => ({ curtain: openCurtain, spot: openSpot, timer: openTimer, names: openNames, dice: openDice })[b.dataset.cl]())),
   frtools: () => {
     $$('[data-frm]', fly).forEach(b => b.addEventListener('click', () => { if (b.dataset.frm === 'sons') { fly.querySelector('[data-snd]')?.scrollIntoView({ block: 'nearest' }); return; } S.frMode = b.dataset.frm; setTool('fr'); closeFly(); }));
     $$('[data-snd]', fly).forEach(b => b.addEventListener('click', async () => {
@@ -2836,16 +2878,202 @@ function insertSoundLegend() {
   snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange(); closeFly();
 }
 
+/* ---------- Outils de classe : rideau, projecteur, minuterie, tirage au sort, dés ---------- */
+let wCount = 0;
+function makeWidget(id, title, html, width = 320, onClose) {
+  $('#' + id)?.remove();
+  const el = document.createElement('div'); el.className = 'widget panel'; el.id = id; el.style.width = width + 'px';
+  el.innerHTML = `<div class="wh"><b>${title}</b><button class="wx" title="Fermer">✕</button></div><div class="wb">${html}</div>`;
+  document.body.appendChild(el);
+  el.style.left = clamp(W - width - 24 - (wCount % 4) * 24, 90, W - width - 10) + 'px'; el.style.top = (92 + (wCount++ % 4) * 24) + 'px';
+  const hd = $('.wh', el);
+  hd.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    e.preventDefault(); hd.setPointerCapture(e.pointerId);
+    const r = el.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    const mv = ev => { el.style.left = clamp(ev.clientX - dx, 0, W - 60) + 'px'; el.style.top = clamp(ev.clientY - dy, 0, H - 40) + 'px'; };
+    const up = () => { hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', up); };
+    hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', up);
+  });
+  $('.wx', el).addEventListener('click', () => { el.remove(); onClose && onClose(); });
+  closeFly();
+  return el;
+}
+// Son d'alarme (aucun fichier externe)
+function beep(times = 3) {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < times; i++) {
+      const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = 880;
+      const t = ac.currentTime + i * .45; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.35, t + .02); g.gain.linearRampToValueAtTime(0, t + .35);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + .4);
+    }
+    setTimeout(() => ac.close(), times * 500 + 200);
+  } catch (_) {}
+}
+/* Rideau : masque l'écran, on le tire pour révéler progressivement */
+function openCurtain() {
+  closeFly(); selectNone(); $('#curtain')?.remove();
+  const el = document.createElement('div'); el.id = 'curtain'; el.dataset.dir = 'v';
+  el.innerHTML = `<div class="cgrip"><span>⇕ Glissez pour révéler</span><button data-cd="h" title="Rideau de côté">↔</button><button data-cd="v" title="Rideau du haut">↕</button><button data-cx title="Retirer le rideau">✕</button></div>`;
+  document.body.appendChild(el);
+  const set = v => { if (el.dataset.dir === 'v') { el.style.height = v + 'px'; el.style.width = ''; } else { el.style.width = v + 'px'; el.style.height = ''; } };
+  set(el.dataset.dir === 'v' ? H * .6 : W * .6);
+  const grip = $('.cgrip', el);
+  grip.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    e.preventDefault(); grip.setPointerCapture(e.pointerId);
+    const mv = ev => set(el.dataset.dir === 'v' ? clamp(ev.clientY + 24, 48, H) : clamp(ev.clientX + 24, 48, W));
+    const up = () => { grip.removeEventListener('pointermove', mv); grip.removeEventListener('pointerup', up); };
+    grip.addEventListener('pointermove', mv); grip.addEventListener('pointerup', up);
+  });
+  $$('[data-cd]', el).forEach(b => b.addEventListener('click', () => { el.dataset.dir = b.dataset.cd; el.style.width = el.style.height = ''; set(b.dataset.cd === 'v' ? H * .6 : W * .6); }));
+  $('[data-cx]', el).addEventListener('click', () => el.remove());
+}
+/* Projecteur : assombrit tout sauf un cercle */
+function openSpot() {
+  closeFly(); selectNone(); $('#spot')?.remove();
+  const el = document.createElement('div'); el.id = 'spot';
+  el.innerHTML = `<div class="sring"></div><button class="sh smove" title="Déplacer">✥</button><button class="sh ssize" title="Agrandir / réduire">⤡</button><button class="sh sclose" title="Retirer">✕</button>`;
+  document.body.appendChild(el);
+  const st = { x: W / 2, y: H / 2, r: Math.min(W, H) * .22 };
+  const lay = () => {
+    const ring = $('.sring', el); Object.assign(ring.style, { left: st.x - st.r + 'px', top: st.y - st.r + 'px', width: st.r * 2 + 'px', height: st.r * 2 + 'px' });
+    const pos = (b, a) => { b.style.left = st.x + Math.cos(a) * st.r - 22 + 'px'; b.style.top = st.y + Math.sin(a) * st.r - 22 + 'px'; };
+    pos($('.smove', el), Math.PI / 2); pos($('.ssize', el), Math.PI / 4); pos($('.sclose', el), -Math.PI / 4);
+  };
+  lay();
+  const drag = (btn, fn) => btn.addEventListener('pointerdown', e => {
+    e.preventDefault(); btn.setPointerCapture(e.pointerId);
+    const mv = ev => { fn(ev); lay(); }, up = () => { btn.removeEventListener('pointermove', mv); btn.removeEventListener('pointerup', up); };
+    btn.addEventListener('pointermove', mv); btn.addEventListener('pointerup', up);
+  });
+  drag($('.smove', el), ev => { st.x = ev.clientX; st.y = ev.clientY - st.r; });
+  drag($('.ssize', el), ev => { st.r = clamp(Math.hypot(ev.clientX - st.x, ev.clientY - st.y), 50, Math.max(W, H)); });
+  $('.sclose', el).addEventListener('click', () => el.remove());
+}
+/* Minuterie et chronomètre */
+const TM = { mode: 'down', total: 300, left: 300, run: false, last: 0, iv: 0 };
+const fmtTime = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60); return String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+function openTimer() {
+  const el = makeWidget('wTimer', '⏱ Minuterie', `
+    <div class="row" style="justify-content:center"><button class="chip on" data-tmode="down">Minuterie</button><button class="chip" data-tmode="up">Chronomètre</button></div>
+    <div class="tdisp">05:00</div><div class="tbar"><i></i></div>
+    <div class="row tpre" style="justify-content:center">${[1, 2, 3, 5, 10, 15, 20].map(m => `<button class="chip" data-min="${m}">${m} min</button>`).join('')}</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" data-tadj="-30">−30 s</button><button class="btn primary tgo" style="min-width:120px">▶ Démarrer</button><button class="btn" data-tadj="30">+30 s</button>
+    </div>
+    <div class="row" style="justify-content:center"><button class="btn" data-treset>⟲ Remettre à zéro</button><button class="btn" data-tbig>⛶ Agrandir</button></div>`, 400,
+    () => { clearInterval(TM.iv); TM.run = false; });
+  const disp = $('.tdisp', el), bar = $('.tbar i', el), go = $('.tgo', el);
+  const show = () => {
+    disp.textContent = fmtTime(TM.mode === 'down' ? TM.left : Math.floor(TM.left));
+    bar.style.width = TM.mode === 'down' ? (TM.total ? 100 * TM.left / TM.total : 0) + '%' : '0%';
+    bar.parentElement.style.visibility = TM.mode === 'down' ? '' : 'hidden';
+    disp.classList.toggle('warn', TM.mode === 'down' && TM.left <= 10 && TM.left > 0);
+    go.textContent = TM.run ? '⏸ Pause' : '▶ Démarrer';
+    $$('.tpre, [data-tadj]', el).forEach(x => x.style.display = TM.mode === 'down' ? '' : 'none');
+  };
+  const tick = () => {
+    const now = performance.now(), dt = (now - TM.last) / 1000; TM.last = now;
+    if (TM.mode === 'down') {
+      TM.left -= dt;
+      if (TM.left <= 0) { TM.left = 0; TM.run = false; clearInterval(TM.iv); el.classList.add('ring'); beep(3); setTimeout(() => el.classList.remove('ring'), 4000); }
+    } else TM.left += dt;
+    show();
+  };
+  go.addEventListener('click', () => {
+    if (TM.run) { TM.run = false; clearInterval(TM.iv); }
+    else { if (TM.mode === 'down' && TM.left <= 0) TM.left = TM.total; TM.run = true; TM.last = performance.now(); clearInterval(TM.iv); TM.iv = setInterval(tick, 200); }
+    show();
+  });
+  $$('[data-min]', el).forEach(b => b.addEventListener('click', () => { TM.total = TM.left = +b.dataset.min * 60; show(); }));
+  $$('[data-tadj]', el).forEach(b => b.addEventListener('click', () => { TM.left = Math.max(0, TM.left + +b.dataset.tadj); TM.total = Math.max(TM.total, TM.left); show(); }));
+  $('[data-treset]', el).addEventListener('click', () => { TM.run = false; clearInterval(TM.iv); TM.left = TM.mode === 'down' ? TM.total : 0; show(); });
+  $('[data-tbig]', el).addEventListener('click', () => el.classList.toggle('big'));
+  $$('[data-tmode]', el).forEach(b => b.addEventListener('click', () => {
+    TM.mode = b.dataset.tmode; TM.run = false; clearInterval(TM.iv); TM.left = TM.mode === 'down' ? TM.total : 0;
+    $$('[data-tmode]', el).forEach(x => x.classList.toggle('on', x === b)); show();
+  }));
+  TM.run = false; TM.left = TM.mode === 'down' ? TM.total : 0; show();
+}
+/* Tirage au sort de noms (liste gardée seulement dans ce navigateur) */
+const NM = { drawn: [] };
+const getNames = () => { try { return JSON.parse(localStorage.getItem('tableau-noms')) || []; } catch (_) { return []; } };
+const setNames = l => { try { localStorage.setItem('tableau-noms', JSON.stringify(l)); } catch (_) {} };
+function openNames() {
+  const el = makeWidget('wNames', '🎲 Tirage au sort', `
+    <div class="ndisp">?</div>
+    <div class="row" style="justify-content:center"><button class="btn primary ndraw" style="min-width:160px">Tirer un nom</button></div>
+    <label class="nopt"><input type="checkbox" class="nnorep" checked> Sans répétition (chaque nom une fois)</label>
+    <div class="row" style="justify-content:center"><button class="btn nteams">👥 Former des équipes</button><button class="btn lockhide nedit">✎ Modifier la liste</button></div>
+    <div class="ninfo"></div>`, 380);
+  const disp = $('.ndisp', el), info = $('.ninfo', el);
+  const upd = () => { const n = getNames(); info.textContent = n.length ? `${n.length} noms · ${NM.drawn.length} déjà tirés` : 'Liste vide : touchez « Modifier la liste ».'; };
+  upd();
+  $('.ndraw', el).addEventListener('click', () => {
+    const names = getNames(); if (!names.length) return editNames(upd);
+    const norep = $('.nnorep', el).checked;
+    let pool = norep ? names.filter(n => !NM.drawn.includes(n)) : names;
+    if (!pool.length) { NM.drawn = []; pool = names; toast('Tous les noms ont été tirés : on recommence.'); }
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    let k = 0; disp.classList.add('rolling');
+    const iv = setInterval(() => { disp.textContent = names[Math.floor(Math.random() * names.length)]; if (++k > 16) { clearInterval(iv); disp.textContent = pick; disp.classList.remove('rolling'); if (norep) NM.drawn.push(pick); upd(); } }, 70);
+  });
+  $('.nedit', el).addEventListener('click', () => editNames(upd));
+  $('.nteams', el).addEventListener('click', makeTeams);
+}
+async function editNames(cb) {
+  if (isLocked()) return;
+  const ok = await modal('Liste des noms', `<p>Un nom par ligne. La liste reste <b>uniquement dans ce navigateur</b> (elle n’est envoyée nulle part).</p>
+    <textarea id="namesIn" style="width:100%;height:240px;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:10px;-webkit-user-select:text;user-select:text">${esc(getNames().join('\n'))}</textarea>`,
+    [{ label: 'Annuler', value: false }, { label: 'Enregistrer', value: true, cls: 'primary' }]);
+  if (!ok) return;
+  setNames([...new Set(($('#namesIn')?.value || '').split('\n').map(s => s.trim()).filter(Boolean))]); NM.drawn = []; cb && cb();
+}
+async function makeTeams() {
+  const names = getNames(); if (!names.length) return editNames();
+  let size = 4;
+  const ok = await modal('Former des équipes', `<p>${names.length} élèves. Nombre d’élèves par équipe :</p>
+    <div class="row">${[2, 3, 4, 5, 6].map(n => `<button class="chip${n === 4 ? ' on' : ''}" data-ts="${n}">${n}</button>`).join('')}</div>
+    <p style="color:var(--muted);font-size:14px">Les équipes seront écrites sur le tableau.</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Former les équipes', value: true, cls: 'primary' }],
+    () => $$('[data-ts]').forEach(b => b.addEventListener('click', () => { size = +b.dataset.ts; $$('[data-ts]').forEach(x => x.classList.toggle('on', x === b)); })));
+  if (!ok) return;
+  const sh = names.slice(); for (let i = sh.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [sh[i], sh[j]] = [sh[j], sh[i]]; }
+  const n = Math.max(1, Math.round(sh.length / size)), teams = Array.from({ length: n }, () => []);
+  sh.forEach((nm, i) => teams[i % n].push(nm));
+  const text = teams.map((t, i) => `Équipe ${i + 1} : ${t.join(', ')}`).join('\n');
+  const c = toWorld(130, 140), o = { id: uid(), t: 'text', x: r1(c.x), y: r1(c.y), s: TXT_S[1], c: S.color, f: S.font, text };
+  snapshot(); page().objects.push(o); setTool('select'); S.sel = [o.id]; afterChange();
+}
+/* Dés */
+function openDice() {
+  const el = makeWidget('wDice', '🎲 Dés', `
+    <div class="row" style="justify-content:center">${[1, 2, 3].map(n => `<button class="chip${n === 2 ? ' on' : ''}" data-dn="${n}">${n} dé${n > 1 ? 's' : ''}</button>`).join('')}</div>
+    <div class="ddisp">⚀ ⚀</div><div class="dsum"></div>
+    <div class="row" style="justify-content:center"><button class="btn primary droll" style="min-width:140px">Lancer</button></div>`, 340);
+  let n = 2; const F = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'], disp = $('.ddisp', el), sum = $('.dsum', el);
+  $$('[data-dn]', el).forEach(b => b.addEventListener('click', () => { n = +b.dataset.dn; $$('[data-dn]', el).forEach(x => x.classList.toggle('on', x === b)); disp.textContent = Array(n).fill('⚀').join(' '); sum.textContent = ''; }));
+  $('.droll', el).addEventListener('click', () => {
+    let k = 0; const iv = setInterval(() => {
+      const v = Array.from({ length: n }, () => 1 + Math.floor(Math.random() * 6));
+      disp.textContent = v.map(x => F[x - 1]).join(' ');
+      if (++k > 10) { clearInterval(iv); sum.textContent = n > 1 ? `${v.join(' + ')} = ${v.reduce((a, b) => a + b, 0)}` : String(v[0]); }
+    }, 70);
+  });
+}
+
 /* ---------- Niveaux, matières et mode élève ---------- */
 const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
 const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
-const TOOL_KEYS = [['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
+const TOOL_KEYS = [['classe', 'Outils de classe (minuterie, rideau…)'], ['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
 const ALL_SHAPES = SHAPES.map(s => s[0]), ALL_ARROWS = ARROWS.map(a => a[0]);
 // Outils par niveau, en lien avec les progressions des apprentissages (voir README)
 const LEVEL_DEF = {
-  pre: { tools: ['fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
+  pre: { tools: ['classe', 'fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
     sheets: ['blank', 'dots', 'grid'], inserts: ['image', 'screen', 'paste'], scale: 1.6, txt: 1.4, size: 2 },
-  c1: { frModes: FR_MODES.map(m => m[0]), tools: ['fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
+  c1: { frModes: FR_MODES.map(m => m[0]), tools: ['classe', 'fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
     sheets: ['blank', 'primary', 'lines', 'grid', 'dots', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste'], scale: 1.3, txt: 1.2, size: 1 },
   c2: { frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'dots', 'cartesian', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
@@ -2886,6 +3114,7 @@ function applyProfile() {
   $$('#toolbar [data-fly=insert], #toolbar [data-fly=bg], #toolbar [data-fly=instr]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.fly) ? '' : 'none'; });
   S.instr = S.instr.filter(o => PROF.instruments.includes(o.type));
   $('#bClear').style.display = PROF.tools.has('clear') ? '' : 'none';
+  $('#bClasse').style.display = PROF.tools.has('classe') ? '' : 'none';
   if (!PROF.shapes.includes(S.shape)) S.shape = PROF.shapes[0] || 'rect';
   if (!PROF.arrows.includes(S.arrow)) S.arrow = PROF.arrows[0] || 'arrow';
   const sets = stampSets(); if (!sets.includes(S.stampSet)) { S.stampSet = sets[0]; S.stamp = null; }
@@ -3502,6 +3731,7 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
   <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
   <p><b>Instruments</b> (bouton règle) : règle graduée (le crayon trace droit le long de ses bords, longueur affichée), équerre, rapporteur (aiguille bleue = angle en degrés), compas (↔ règle le rayon, ✎ trace). ⟳ tourne l’instrument, ✕ le retire. <b>Transformations</b> : sélectionnez une figure, puis Réflexion (tracez l’axe), Translation (tracez la flèche) ou Rotation.</p>
   <p><b>Niveau et matière</b> : le bouton en haut à gauche choisit le niveau (préscolaire, 1er, 2e ou 3e cycle, secondaire) et la matière; seuls les outils utiles sont affichés. <b>Mode élève</b> (menu) : verrouille avec un code les fonctions sensibles.</p>
