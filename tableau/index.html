@@ -347,6 +347,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-fly="instr" title="Instruments de géométrie : règle, équerre, rapporteur, compas"><svg class="i"><use href="#i-ruler"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="text" title="Texte (T)"><svg class="i"><use href="#i-text"/></svg></button>
   <button class="ib" data-tool="fr" data-fly="frtools" title="Outils de français : syllabes, sons, crochets, manipulations syntaxiques, accords"><svg class="i"><use href="#i-fr"/></svg><span class="more"></span></button>
+  <button class="ib" data-fly="social" title="Univers social et sciences : cartes, ligne du temps, schémas, tableaux"><svg class="i"><use href="#i-globe"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="note" data-fly="music" title="Musique : notes sur la portée, lecture, métronome, clavier"><svg class="i"><use href="#i-note"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="stamp" data-fly="stamps" title="Symboles et tampons"><svg class="i"><use href="#i-stamp"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="laser" title="Pointeur laser (L)"><svg class="i"><use href="#i-laser"/></svg></button>
@@ -389,6 +390,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib xf" data-act="reflect" title="Réflexion (axe à tracer)"><svg class="i"><use href="#i-reflect"/></svg></button>
   <button class="ib xf" data-act="translate" title="Translation (flèche à tracer)"><svg class="i"><use href="#i-translate"/></svg></button>
   <button class="ib xf" data-act="rotate" title="Rotation autour d’un point"><svg class="i"><use href="#i-rotate"/></svg></button>
+  <button class="ib" data-act="edittl" title="Modifier la ligne du temps"><svg class="i"><use href="#i-pen"/></svg></button>
   <button class="ib" data-act="edit3d" title="Modifier la forme 3D"><svg class="i"><use href="#i-cube"/></svg></button>
   <button class="ib" data-act="group" title="Grouper (Ctrl+G)"><svg class="i"><use href="#i-group"/></svg></button>
   <button class="ib" data-act="ungroup" title="Dégrouper (Ctrl+Maj+G)"><svg class="i"><use href="#i-ungroup"/></svg></button>
@@ -600,6 +602,7 @@ function bbox(o) {
     }
     case 'text': { const m = textMetrics(o); b = { x: o.x, y: o.y, w: m.w, h: m.h }; break; }
     case 'image': case 'web': case 'live': case 'sheet': b = { x: o.x, y: o.y, w: o.w, h: o.h }; break;
+    case 'timeline': b = { x: o.x - 20, y: o.y - 160, w: o.w + 60, h: 205 }; break;
     case 'note': b = { x: o.x - o.sp * 2.2, y: Math.min(o.y, o.top) - o.sp * 4, w: o.sp * 4, h: Math.abs(o.y - o.top) + o.sp * 8.5 }; break;
     default: b = { x: 0, y: 0, w: 0, h: 0 };
   }
@@ -740,6 +743,7 @@ function drawObj(ctx, o, dark) {
     case 'shape': drawShape(ctx, o); break;
     case 'sheet': drawSheet(ctx, o); break;
     case 'note': drawNote(ctx, o); break;
+    case 'timeline': drawTimeline(ctx, o); break;
     case 'text': {
       const m = textMetrics(o);
       ctx.font = fontOf(o); ctx.fillStyle = o.c; ctx.textBaseline = 'top';
@@ -1083,6 +1087,7 @@ function transformObj(o, f, sx = 1, sy = 1) {
       n.w = Math.max(.5, o.w * ws); break;
     }
     case 'text': [n.x, n.y] = f(o.x, o.y).map(r1); n.s = r1(Math.max(4, o.s * sy)); break;
+    case 'timeline': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(Math.max(120, o.w * sx)); break;
     case 'note': [n.x, n.y] = f(o.x, o.y).map(r1); n.top = r1(o.top + (n.y - o.y)); break;
     case 'image': case 'web': case 'live': case 'sheet': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(o.w * sx); n.h = r1(o.h * sy); break;
   }
@@ -1096,6 +1101,7 @@ function placeSelbar() {
   const gids = new Set(sel.map(o => o.g || ('#' + o.id)));
   const canX = sel.some(canTransform);
   for (const k of ['reflect', 'translate', 'rotate']) bar.querySelector(`[data-act=${k}]`).style.display = canX && PROF?.transforms.includes(k) ? 'flex' : 'none';
+  bar.querySelector('[data-act=edittl]').style.display = sel.length === 1 && sel[0].t === 'timeline' ? 'flex' : 'none';
   bar.querySelector('[data-act=edit3d]').style.display = sel.length === 1 && sel[0].m3d ? 'flex' : 'none';
   bar.querySelector('[data-act=group]').style.display = sel.length > 1 && gids.size > 1 ? 'flex' : 'none';
   bar.querySelector('[data-act=ungroup]').style.display = sel.some(o => o.g) ? 'flex' : 'none';
@@ -1119,6 +1125,7 @@ function selAction(act) {
   if (act === 'reload') { const el = domEls.get(wo.id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = wo.url, 50); } return; }
   if (act === 'open') { window.open(wo.url, '_blank', 'noopener'); return; }
   if (act === 'edit3d') return open3D(sel[0]);
+  if (act === 'edittl') return editTimeline(sel[0]);
   if (act === 'reflect' || act === 'translate' || act === 'rotate') return startTransform(act);
   if (act === 'group') {
     if (sel.length < 2) return;
@@ -1262,6 +1269,7 @@ over.addEventListener('pointerdown', e => {
       if (h) { G = { type: 'handle', h, orig: selObjs(), B: selBox(), moved: false, direct: S.sel.slice() }; return; }
       const o = hitTest(p, dbl);
       if (o && dbl && o.m3d) { open3D(o); return; }
+      if (o && dbl && o.t === 'timeline') { editTimeline(o); return; }
       if (o && dbl && o.t === 'text' && !o.lock) { S.sel = []; openTextEditor(o, false); updateProps(); return; }
       if (o) {
         const grp = groupIds(o);
@@ -1676,6 +1684,7 @@ const FLY = {
       <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
       <button class="btn lockhide" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
+  social: () => `<h4>Univers social et sciences</h4><div class="list">${SOCIAL.filter(([k]) => PROF.social.includes(k)).map(([k, l, d]) => `<button class="li" data-so="${k}"><span style="width:28px;text-align:center;font-size:20px">${{ timeline: '⟷', 'map-world': '🌍', 'map-na': '🌎', 'map-ca': '🍁', 'map-ca-n': '🍁', 'map-qc': '⚜', rose: '🧭', cycle: '🔄', chain: '➜', venn: '◍', table: '▦' }[k]}</span><span>${l}<small>${d}</small></span></button>`).join('')}</div>`,
   music: () => `${PROF.music.includes('notes') ? `<h4>Notes (touchez la portée)</h4><div class="grid" style="font-family:${esc(FONTS.music)}">${NOTE_FIG.map(([k, l, g]) => `<button class="gb${S.noteDur === k ? ' on' : ''}" data-nd="${k}" title="${l}">${g}</button>`).join('')}</div>
     <h4 style="margin-top:10px">Silences</h4><div class="grid" style="font-family:${esc(FONTS.music)}">${REST_FIG.map(([k, l, g]) => `<button class="gb${S.noteDur === k ? ' on' : ''}" data-nd="${k}" title="${l}">${g}</button>`).join('')}</div>
     <div class="list" style="margin-top:8px">
@@ -1719,6 +1728,7 @@ const FLY = {
     </div>`,
 };
 const BIND = {
+  social: () => $$('[data-so]', fly).forEach(b => b.addEventListener('click', () => { const k = b.dataset.so; closeFly(); if (k.startsWith('map')) insertMap(k); else ({ timeline: () => editTimeline(), rose: insertRose, cycle: () => insertDiagram('cycle'), chain: () => insertDiagram('chain'), venn: insertVenn, table: insertTable })[k](); })),
   music: () => {
     $$('[data-nd]', fly).forEach(b => b.addEventListener('click', () => { S.noteDur = b.dataset.nd; setTool('note'); closeFly(); }));
     $$('[data-mu]', fly).forEach(b => b.addEventListener('click', () => {
@@ -3296,20 +3306,217 @@ function writeMidi(m) {
   placeNote({ x, y: top + 4 * sp - step * sp / 2 }, S.noteDur[0] === 'r' ? 'q' : S.noteDur, map[1], true);
 }
 
+/* ---------- Univers social et sciences : cartes, ligne du temps, schémas, tableaux ---------- */
+const GEO = {
+  topo: 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js',
+  world: 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json',
+  canada: 'https://cdn.jsdelivr.net/npm/@svg-maps/canada@2.0.0/canada.svg',
+};
+const PROV_FR = { ab: 'Alberta', bc: 'Colombie-Britannique', mb: 'Manitoba', nb: 'Nouveau-Brunswick', nl: 'Terre-Neuve-et-Labrador', nt: 'Territoires du Nord-Ouest', ns: 'Nouvelle-Écosse', nu: 'Nunavut', on: 'Ontario', pe: 'Île-du-Prince-Édouard', qc: 'Québec', sk: 'Saskatchewan', yt: 'Yukon' };
+const SOCIAL = [
+  ['timeline', 'Ligne du temps', 'Années, intervalle et événements modifiables'],
+  ['map-world', 'Carte du monde', 'Pays (Natural Earth)'],
+  ['map-na', 'Amérique du Nord', 'Pays'],
+  ['map-ca', 'Canada', 'Provinces et territoires'],
+  ['map-ca-n', 'Canada avec noms', 'Provinces et territoires nommés'],
+  ['map-qc', 'Québec', 'Avec les provinces voisines'],
+  ['rose', 'Rose des vents', 'N, S, E, O'],
+  ['cycle', 'Cycle', 'Cycle de l’eau, cycle de vie… (texte modifiable)'],
+  ['chain', 'Chaîne / étapes', 'Chaîne alimentaire, démarche… (texte modifiable)'],
+  ['venn', 'Diagramme de Venn', 'Comparer deux ensembles'],
+  ['table', 'Tableau de données', 'Lignes et colonnes, cases à remplir'],
+];
+async function svgToPng(svg, w) {
+  const img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  const h = Math.round(w * img.naturalHeight / img.naturalWidth) || w;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+  return c.toDataURL('image/png');
+}
+const SVG_STYLE = 'fill:#f8fafc;stroke:#334155;stroke-width:1;stroke-linejoin:round';
+async function insertMap(kind) {
+  closeFly(); toast('Chargement de la carte…', 0);
+  try {
+    let svg;
+    if (kind === 'map-world' || kind === 'map-na') {
+      await loadScript(GEO.topo);
+      const topo = await (await fetch(GEO.world)).json(), fc = topojson.feature(topo, topo.objects.countries);
+      const na = kind === 'map-na', lon0 = na ? -170 : -180, lon1 = na ? -50 : 180, lat0 = na ? 84 : 84, lat1 = na ? 7 : -58;
+      const kx = na ? Math.cos(50 * Math.PI / 180) : 1, S = 10, W2 = (lon1 - lon0) * kx * S, H2 = (lat0 - lat1) * S;
+      const P = ([lo, la]) => [((lo - lon0) * kx * S).toFixed(1), ((lat0 - la) * S).toFixed(1)];
+      let d = '';
+      const ring = r => { let prev = null, cut = false; r.forEach((pt, i) => { const jump = prev && Math.abs(pt[0] - prev[0]) > 180; if (jump) cut = true; d += (i === 0 || jump ? 'M' : 'L') + P(pt).join(','); prev = pt; }); if (!cut) d += 'Z'; };
+      for (const f of fc.features) { const g = f.geometry; if (!g) continue; (g.type === 'Polygon' ? [g.coordinates] : g.coordinates).forEach(poly => poly.forEach(ring)); }
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W2.toFixed(0)} ${H2.toFixed(0)}"><rect width="100%" height="100%" fill="#dbeafe"/><path d="${d}" style="${SVG_STYLE};stroke-width:${na ? 3 : 2}"/>
+        <text x="${W2 - 12}" y="${H2 - 12}" text-anchor="end" font-family="sans-serif" font-size="${na ? 24 : 26}" fill="#475569">Données : Natural Earth</text></svg>`;
+    } else {
+      const txt = await (await fetch(GEO.canada)).text();
+      const doc = new DOMParser().parseFromString(txt, 'image/svg+xml'), root = doc.documentElement;
+      const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:1000px;visibility:hidden';
+      host.appendChild(document.importNode(root, true)); document.body.appendChild(host);
+      const live = host.querySelector('svg'), paths = [...live.querySelectorAll('path')];
+      const vb = live.getAttribute('viewBox').split(/\s+/).map(Number);
+      let box = { x: vb[0], y: vb[1], w: vb[2], h: vb[3] };
+      { let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const q of paths) { const b = q.getBBox(); x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); } box = { x: x0 - 12, y: y0 - 12, w: x1 - x0 + 24, h: y1 - y0 + 24 }; }
+      // point d'étiquette : centre de la plus grande zone intérieure (échantillonnage)
+      const inner = (pth, b) => {
+        const pts = [], N = 36; const P = live.createSVGPoint ? live.createSVGPoint() : null;
+        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const x = b.x + (i + .5) * b.width / N, y = b.y + (j + .5) * b.height / N; if (P) { P.x = x; P.y = y; if (pth.isPointInFill(P)) pts.push([x, y]); } }
+        if (!pts.length) return [b.x + b.width / 2, b.y + b.height / 2];
+        let best = pts[0], bd = -1; const step = Math.max(b.width, b.height) / N;
+        for (const [x, y] of pts) { let d = 0; for (let r = 1; r < 12; r++) { if (!P) break; let ok = true; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { P.x = x + dx * r * step; P.y = y + dy * r * step; if (!pth.isPointInFill(P)) { ok = false; break; } } if (!ok) break; d = r; } if (d > bd) { bd = d; best = [x, y]; } }
+        return best;
+      };
+      const SHORT = { nb: 'N.-B.', ns: 'N.-É.', pe: 'Î.-P.-É.', nl: 'T.-N.-L.' };
+      const labels = [];
+      for (const pth of paths) {
+        const id = pth.id, b = pth.getBBox();
+        pth.setAttribute('style', kind === 'map-qc' && id !== 'qc' ? 'fill:#e2e8f0;stroke:#64748b;stroke-width:.8' : SVG_STYLE);
+        if (kind === 'map-qc' && id === 'qc') box = { x: b.x - 40, y: b.y - 40, w: b.width + 80, h: b.height + 80 };
+        if (kind === 'map-ca-n' && PROV_FR[id]) { const [lx, ly] = inner(pth, b); labels.push([SHORT[id] || PROV_FR[id], lx, ly, id]); }
+      }
+      if (kind === 'map-qc') { const q = paths.find(x => x.id === 'qc'); const [lx, ly] = inner(q, q.getBBox()); labels.push(['Québec', lx, ly, 'qc']); }
+      const fs = kind === 'map-qc' ? 24 : 13;
+      const off = { ns: [26, 12], pe: [8, -12], nb: [-16, 14] };
+      const lab = labels.map(([t, x, y, id]) => { const [dx, dy] = (kind === 'map-ca-n' && off[id]) || [0, 0]; return `<text x="${(x + dx).toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="${fs}" fill="#1e293b" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(t)}</text>`; }).join('');
+      const credit = `<text x="${(box.x + box.w - 6).toFixed(0)}" y="${(box.y + box.h - 6).toFixed(0)}" text-anchor="end" font-family="sans-serif" font-size="${(box.w / 70).toFixed(1)}" fill="#475569">Carte : svg-maps (V. Cazanave), CC BY 4.0</text>`;
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${box.x} ${box.y} ${box.w} ${box.h}"><rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" fill="#dbeafe"/>${paths.map(p => p.outerHTML).join('')}${lab}${credit}</svg>`;
+      host.remove();
+    }
+    const png = await svgToPng(svg, 2200);
+    hideToast(); await insertImageSrc(png);
+  } catch (e) { console.error(e); toast('Impossible de charger la carte (connexion Internet nécessaire).', 4500); }
+}
+/* Ligne du temps (objet modifiable) */
+const fmtYear = y => y < 0 ? `${-y} av. J.-C.` : String(y);
+function tlLayout(o) { const span = (o.end - o.start) || 1; return y => o.x + (y - o.start) / span * o.w; }
+function drawTimeline(ctx, o) {
+  const X = tlLayout(o), c = o.c || '#1f2933', fs = 16;
+  ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(o.x - 10, o.y); ctx.lineTo(o.x + o.w + 18, o.y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(o.x + o.w + 30, o.y); ctx.lineTo(o.x + o.w + 14, o.y - 9); ctx.lineTo(o.x + o.w + 14, o.y + 9); ctx.closePath(); ctx.fill();
+  ctx.font = `600 ${fs}px ${FONTS.sans}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 2;
+  const n = Math.round((o.end - o.start) / o.step);
+  for (let i = 0; i <= n && i <= 400; i++) { const yr = o.start + i * o.step, x = X(yr); ctx.beginPath(); ctx.moveTo(x, o.y - 8); ctx.lineTo(x, o.y + 8); ctx.stroke(); ctx.fillText(fmtYear(yr), x, o.y + 14); }
+  (o.events || []).forEach((ev, i) => {
+    const x = X(ev.y), h = i % 2 ? 100 : 56;
+    ctx.strokeStyle = '#2563eb'; ctx.fillStyle = '#2563eb'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, o.y); ctx.lineTo(x, o.y - h); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, o.y, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.font = `700 ${fs + 2}px ${FONTS.sans}`; ctx.textBaseline = 'bottom'; ctx.fillStyle = '#1e3a8a';
+    ctx.fillText(ev.l, x, o.y - h - 4); ctx.font = `600 ${fs - 2}px ${FONTS.sans}`; ctx.fillStyle = '#2563eb'; ctx.fillText(fmtYear(ev.y), x, o.y - h - 6 - fs - 2);
+  });
+}
+async function editTimeline(o) {
+  const cur = o || { start: 1500, end: 2000, step: 50, events: [{ y: 1534, l: 'Jacques Cartier' }, { y: 1608, l: 'Fondation de Québec' }] };
+  const ok = await modal(o ? 'Modifier la ligne du temps' : 'Nouvelle ligne du temps', `
+    <div class="row"><label>Début <input class="urlIn" id="tlS" type="number" value="${cur.start}" style="width:120px"></label>
+      <label>Fin <input class="urlIn" id="tlE" type="number" value="${cur.end}" style="width:120px"></label>
+      <label>Intervalle <input class="urlIn" id="tlP" type="number" min="1" value="${cur.step}" style="width:110px"></label></div>
+    <p>Événements, un par ligne (<i>année : texte</i>; année négative = av. J.-C.) :</p>
+    <textarea id="tlEv" style="width:100%;height:160px;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:10px;-webkit-user-select:text;user-select:text">${esc((cur.events || []).map(e => e.y + ' : ' + e.l).join('\n'))}</textarea>`,
+    [{ label: 'Annuler', value: false }, { label: o ? 'Mettre à jour' : 'Insérer', value: true, cls: 'primary' }]);
+  if (!ok) return;
+  let start = parseInt($('#tlS').value, 10), end = parseInt($('#tlE').value, 10), step = Math.abs(parseInt($('#tlP').value, 10)) || 1;
+  if (!isFinite(start) || !isFinite(end) || start === end) { toast('Début et fin invalides.'); return; }
+  if (end < start) [start, end] = [end, start];
+  if ((end - start) / step > 200) step = Math.ceil((end - start) / 200);
+  const events = ($('#tlEv').value || '').split('\n').map(l => l.match(/^\s*(-?\d+)\s*[:–—-]\s*(.+)$/)).filter(Boolean).map(m => ({ y: +m[1], l: m[2].trim() })).sort((a, b) => a.y - b.y);
+  if (o) { snapshot(); replaceObj(o, { ...o, start, end, step, events }); afterChange(); return; }
+  const v = V(), w = Math.min(1400, (W - 260) / v.z), c = viewCenter();
+  const n = { id: uid(), t: 'timeline', x: r1(c.x - w / 2), y: r1(c.y + 30), w: r1(w), start, end, step, events, c: '#1f2933' };
+  snapshot(); page().objects.push(n); setTool('select'); S.sel = [n.id]; afterChange();
+}
+/* Gabarits de schémas (formes et textes groupés, modifiables) */
+function boxWithText(label, cx, cy, g, minW = 170) {
+  const t = frText(label, cx, cy, TXT_S[0], '#1f2933'); t.f = 'sans'; delete t.b; const m = textMetrics(t);
+  const w = Math.max(minW, m.w + 36), h = m.h + 28;
+  const r = { id: uid(), t: 'shape', k: 'rect', x1: r1(cx - w / 2), y1: r1(cy - h / 2), x2: r1(cx + w / 2), y2: r1(cy + h / 2), c: '#2563eb', w: 3, fill: 'semi', g };
+  t.g = g; return [r, t, w, h];
+}
+function arrowObj(a, b, g, curve) {
+  const o = { id: uid(), t: 'shape', k: curve ? 'curve' : 'arrow', x1: r1(a.x), y1: r1(a.y), x2: r1(b.x), y2: r1(b.y), c: '#475569', w: 3, g };
+  if (curve) { o.cx = r1(curve.x); o.cy = r1(curve.y); }
+  return o;
+}
+async function insertDiagram(kind) {
+  closeFly();
+  const presets = kind === 'cycle'
+    ? { 'Cycle de l’eau': ['Évaporation', 'Condensation', 'Précipitations', 'Ruissellement'], 'Cycle de vie (papillon)': ['Œuf', 'Chenille', 'Chrysalide', 'Papillon'], 'Cycle de vie (plante)': ['Graine', 'Germination', 'Plante', 'Fleur', 'Fruit'], 'Cycle vierge (4)': ['…', '…', '…', '…'] }
+    : { 'Chaîne alimentaire': ['Soleil', 'Plante', 'Lièvre', 'Renard'], 'Démarche scientifique': ['Question', 'Hypothèse', 'Expérience', 'Résultats', 'Conclusion'], 'Étapes vierges (4)': ['1', '2', '3', '4'] };
+  let pick = Object.keys(presets)[0];
+  const ok = await modal(kind === 'cycle' ? 'Insérer un cycle' : 'Insérer une chaîne d’étapes', `<div class="row">${Object.keys(presets).map((k, i) => `<button class="chip${i ? '' : ' on'}" data-pr="${esc(k)}">${esc(k)}</button>`).join('')}</div>
+    <p style="color:var(--muted);font-size:14px">Le texte de chaque case se modifie ensuite par double-clic (outil Sélection).</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Insérer', value: true, cls: 'primary' }],
+    () => $$('[data-pr]').forEach(b => b.addEventListener('click', () => { pick = b.dataset.pr; $$('[data-pr]').forEach(x => x.classList.toggle('on', x === b)); })));
+  if (!ok) return;
+  const labels = presets[pick], c = viewCenter(), g = 'g' + uid(), out = [];
+  if (kind === 'cycle') {
+    const n = labels.length, R = 230, pos = labels.map((_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return { x: c.x + R * Math.cos(a) * 1.25, y: c.y + R * Math.sin(a) }; });
+    const sizes = labels.map((l, i) => { const [r, t, w, h] = boxWithText(l, pos[i].x, pos[i].y, g); out.push(r, t); return [w, h]; });
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n, A = pos[i], B = pos[j], d = Math.hypot(B.x - A.x, B.y - A.y), ux = (B.x - A.x) / d, uy = (B.y - A.y) / d;
+      const sa = Math.min(sizes[i][0] / 2 / Math.abs(ux || 1e-6), sizes[i][1] / 2 / Math.abs(uy || 1e-6)) + 10, sb = Math.min(sizes[j][0] / 2 / Math.abs(ux || 1e-6), sizes[j][1] / 2 / Math.abs(uy || 1e-6)) + 14;
+      const a = { x: A.x + ux * sa, y: A.y + uy * sa }, b = { x: B.x - ux * sb, y: B.y - uy * sb }, m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const ox = m.x - c.x, oy = m.y - c.y, ol = Math.hypot(ox, oy) || 1;
+      out.push(arrowObj(a, b, g, { x: m.x + ox / ol * 40, y: m.y + oy / ol * 40 }));
+    }
+  } else {
+    const gap = 70; let x = 0; const items = labels.map(l => { const [r, t, w, h] = boxWithText(l, 0, c.y, g, 150); return { r, t, w }; });
+    const total = items.reduce((s, it) => s + it.w, 0) + gap * (items.length - 1); x = c.x - total / 2;
+    items.forEach((it, i) => {
+      const cx = x + it.w / 2, dx = cx - (it.r.x1 + it.r.x2) / 2;
+      it.r = { ...it.r, x1: r1(it.r.x1 + dx), x2: r1(it.r.x2 + dx) }; it.t = { ...it.t, x: r1(it.t.x + dx) }; out.push(it.r, it.t);
+      if (i < items.length - 1) out.push(arrowObj({ x: x + it.w + 8, y: c.y }, { x: x + it.w + gap - 8, y: c.y }, g));
+      x += it.w + gap;
+    });
+  }
+  snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange();
+}
+function insertVenn() {
+  closeFly(); const c = viewCenter(), g = 'g' + uid(), R = 220, out = [];
+  out.push({ id: uid(), t: 'shape', k: 'ellipse', x1: r1(c.x - R * 1.65), y1: r1(c.y - R), x2: r1(c.x + R * .35), y2: r1(c.y + R), c: '#2563eb', w: 3, fill: 'semi', g });
+  out.push({ id: uid(), t: 'shape', k: 'ellipse', x1: r1(c.x - R * .35), y1: r1(c.y - R), x2: r1(c.x + R * 1.65), y2: r1(c.y + R), c: '#e53935', w: 3, fill: 'semi', g });
+  out.push({ ...frText('A', c.x - R * .9, c.y - R - 30, TXT_S[1], '#2563eb'), g }, { ...frText('B', c.x + R * .9, c.y - R - 30, TXT_S[1], '#e53935'), g });
+  snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange();
+}
+async function insertTable() {
+  closeFly();
+  const ok = await modal('Tableau de données', `<div class="row"><label>Colonnes <input class="urlIn" id="tbC" type="number" min="1" max="12" value="3" style="width:90px"></label>
+    <label>Lignes <input class="urlIn" id="tbR" type="number" min="1" max="30" value="5" style="width:90px"></label></div>
+    <p>Titres des colonnes (séparés par des virgules, facultatif) :</p><input class="urlIn" id="tbH" type="text" value="" placeholder="Ex. : Jour, Température (°C), Météo">`,
+    [{ label: 'Annuler', value: false }, { label: 'Insérer', value: true, cls: 'primary' }]);
+  if (!ok) return;
+  const nc = clamp(parseInt($('#tbC').value, 10) || 3, 1, 12), nr = clamp(parseInt($('#tbR').value, 10) || 5, 1, 30);
+  const heads = ($('#tbH').value || '').split(',').map(s => s.trim()).filter(Boolean);
+  const cw = 200, rh = 56, c = viewCenter(), x0 = c.x - nc * cw / 2, y0 = c.y - (nr + (heads.length ? 1 : 0)) * rh / 2, rows = nr + (heads.length ? 1 : 0), g = 'g' + uid(), out = [];
+  if (heads.length) out.push({ id: uid(), t: 'shape', k: 'rect', x1: r1(x0), y1: r1(y0), x2: r1(x0 + nc * cw), y2: r1(y0 + rh), c: '#94a3b8', w: 1, fill: 'semi', g });
+  for (let i = 0; i <= rows; i++) out.push(polyStroke([[x0, y0 + i * rh], [x0 + nc * cw, y0 + i * rh]], '#334155', i === 0 || i === rows || (heads.length && i === 1) ? 3 : 1.5, { g }));
+  for (let j = 0; j <= nc; j++) out.push(polyStroke([[x0 + j * cw, y0], [x0 + j * cw, y0 + rows * rh]], '#334155', j === 0 || j === nc ? 3 : 1.5, { g }));
+  heads.slice(0, nc).forEach((h, j) => { let s0 = Math.min(TXT_S[0], 24); const w0 = textMetrics({ t: 'text', text: h, s: s0, f: 'sans', b: 1 }).w; if (w0 > cw - 16) s0 = Math.max(12, s0 * (cw - 16) / w0); out.push({ ...frText(h, x0 + j * cw + cw / 2, y0 + rh / 2, s0, '#1f2933'), g }); });
+  snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange();
+}
+function insertRose() {
+  closeFly(); const c = viewCenter(), g = 'g' + uid(), R = 120, out = [];
+  out.push({ id: uid(), t: 'shape', k: 'poly', pts: [[c.x, c.y - R], [c.x + R * .16, c.y - R * .16], [c.x + R, c.y], [c.x + R * .16, c.y + R * .16], [c.x, c.y + R], [c.x - R * .16, c.y + R * .16], [c.x - R, c.y], [c.x - R * .16, c.y - R * .16]].map(p => p.map(r1)), x1: c.x - R, y1: c.y - R, x2: c.x + R, y2: c.y + R, c: '#1f2933', w: 3, fill: 'semi', g });
+  [['N', 0, -1], ['S', 0, 1], ['E', 1, 0], ['O', -1, 0]].forEach(([l, dx, dy]) => out.push({ ...frText(l, c.x + dx * (R + 34), c.y + dy * (R + 34), TXT_S[1], l === 'N' ? '#dc2626' : '#1f2933'), g }));
+  snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange();
+}
+
 /* ---------- Niveaux, matières et mode élève ---------- */
 const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
 const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
-const TOOL_KEYS = [['note', 'Musique (notes, clavier, métronome)'], ['classe', 'Outils de classe (minuterie, rideau…)'], ['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
+const TOOL_KEYS = [['social', 'Univers social et sciences'], ['note', 'Musique (notes, clavier, métronome)'], ['classe', 'Outils de classe (minuterie, rideau…)'], ['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
 const ALL_SHAPES = SHAPES.map(s => s[0]), ALL_ARROWS = ARROWS.map(a => a[0]);
 // Outils par niveau, en lien avec les progressions des apprentissages (voir README)
 const LEVEL_DEF = {
-  pre: { music: ['piano', 'metro'], tools: ['note', 'classe', 'fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
+  pre: { social: ['map-qc', 'rose', 'cycle', 'venn'], music: ['piano', 'metro'], tools: ['social', 'note', 'classe', 'fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
     sheets: ['blank', 'dots', 'grid'], inserts: ['image', 'screen', 'paste'], scale: 1.6, txt: 1.4, size: 2 },
-  c1: { music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: ['note', 'classe', 'fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
+  c1: { social: SOCIAL.map(x => x[0]), music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: ['social', 'note', 'classe', 'fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
     sheets: ['blank', 'primary', 'lines', 'grid', 'dots', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste'], scale: 1.3, txt: 1.2, size: 1 },
-  c2: { music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c2: { social: SOCIAL.map(x => x[0]), music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'dots', 'cartesian', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
-  c3: { music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c3: { social: SOCIAL.map(x => x[0]), music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian', 'staff', 'piano', 'tab'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
 };
 LEVEL_DEF.sec = { ...LEVEL_DEF.c3, frModes: ['crochets', 'remplacement', 'encadrement', 'effacement', 'deplacement', 'ajout', 'accord'], sheets: SHEETS.map(x => x[0]), transforms: ['reflect', 'translate', 'rotate'] };
@@ -3327,11 +3534,16 @@ function computeProfile() {
   let instruments = d.instruments, transforms = d.transforms, frModes = d.frModes || [];
   if (['math', 'mus'].includes(p.subject)) frModes = [];
   if (!frModes.length) tools.delete('fr');
+  let social = d.social || SOCIAL.map(x => x[0]);
+  if (p.subject === 'math') social = social.filter(k => ['table', 'venn'].includes(k));
+  if (p.subject === 'fr') social = social.filter(k => ['timeline', 'venn', 'table', 'chain'].includes(k));
+  if (p.subject === 'mus') social = [];
+  if (!social.length) tools.delete('social');
   let music = d.music || []; if (['fr', 'math'].includes(p.subject)) music = [];
   if (!music.length) tools.delete('note');
   if (['fr', 'mus'].includes(p.subject)) { instruments = []; transforms = []; }
   if (!instruments.length) tools.delete('instr');
-  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms, frModes, music };
+  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms, frModes, music, social };
 }
 const toolVisible = t => !PROF || PROF.tools.has(t);
 const sheetAllowed = k => !PROF || PROF.sheets.includes(k);
@@ -3345,7 +3557,7 @@ function applyProfile() {
   computeProfile();
   PEN_W = BASE_W.pen.map(w => Math.round(w * PROF.scale)); HL_W = BASE_W.hl.map(w => Math.round(w * PROF.scale)); TXT_S = BASE_W.txt.map(w => Math.round(w * PROF.txt));
   $$('#toolbar [data-tool]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.tool) || b.dataset.tool === 'select' ? '' : 'none'; });
-  $$('#toolbar [data-fly=insert], #toolbar [data-fly=bg], #toolbar [data-fly=instr]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.fly) ? '' : 'none'; });
+  $$('#toolbar [data-fly=insert], #toolbar [data-fly=bg], #toolbar [data-fly=instr], #toolbar [data-fly=social]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.fly) ? '' : 'none'; });
   S.instr = S.instr.filter(o => PROF.instruments.includes(o.type));
   $('#bClear').style.display = PROF.tools.has('clear') ? '' : 'none';
   $('#bClasse').style.display = PROF.tools.has('classe') ? '' : 'none';
@@ -3965,6 +4177,7 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Univers social et sciences</b> (bouton globe) : cartes du monde, de l’Amérique du Nord, du Canada (avec ou sans noms) et du Québec; ligne du temps modifiable (double-clic); rose des vents; cycles et chaînes d’étapes (cycle de l’eau, chaîne alimentaire, démarche scientifique); diagramme de Venn; tableau de données.</p>
   <p><b>Musique</b> (bouton portée) : choisissez une figure (ronde, blanche, noire, croche) ou un silence, puis touchez une feuille Portée : la note s’aimante sur la ligne ou l’interligne et sonne. ♯ ♭ ♮ s’appliquent à la prochaine note; « do ré mi » affiche le nom des notes; ▶ joue les notes de la page. Clavier de piano (peut écrire sur la portée) et métronome.</p>
   <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
   <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
