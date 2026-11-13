@@ -152,6 +152,14 @@ body.bigui #selbar .ib{width:58px;height:58px}
 body.bigui #pageLabel,body.bigui #zoomLabel{font-size:21px}
 body.bigui .widget{font-size:18px}
 body.bigui #toast{font-size:20px}
+.widget.kbw{width:auto!important}
+.kbd{display:flex;flex-direction:column;gap:6px;padding-top:4px}
+.krow{display:flex;gap:6px;justify-content:center}
+.kk{min-width:50px;height:54px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:20px;cursor:pointer;padding:0 8px;box-shadow:0 2px 0 var(--line);touch-action:manipulation}
+.kk.kwide{min-width:72px;background:var(--hover);font-size:18px}
+.kk.kspace{min-width:200px}
+.kk.on{background:var(--accent);color:#fff}.kk.half{background:var(--accent-soft);color:var(--accent)}
+.kk.down{background:var(--accent-soft);transform:translateY(1px)}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -309,7 +317,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-shapes" viewBox="0 0 24 24"><rect x="3" y="3" width="10" height="10" rx="1"/><circle cx="16" cy="16" r="5"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 18c3-9 9-12 15-11"/><path d="M15 3l4 4-4 4"/></symbol>
     <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 7V5h14v2"/><path d="M12 5v14"/><path d="M9 19h6"/></symbol>
-    <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></symbol>
+    <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M10 3.5h4a1.5 1.5 0 0 1 1.5 1.5v2.2c0 .9-.4 1.7-1 2.3l-.5.5V12h5a1 1 0 0 1 1 1v3H4v-3a1 1 0 0 1 1-1h5V10l-.5-.5c-.6-.6-1-1.4-1-2.3V5A1.5 1.5 0 0 1 10 3.5z"/><path d="M4 19.5h16"/></symbol>
     <symbol id="i-laser" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></symbol>
     <symbol id="i-insert" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></symbol>
     <symbol id="i-bg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></symbol>
@@ -357,6 +365,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-fr" viewBox="0 0 24 24"><path d="M3 15l3.5-9 3.5 9M4.3 12h4.4"/><path d="M13 9.5c1.6-1.2 5-1.2 5 1.5V15M18 12.2c-3.5-.3-5.2.5-5.2 1.6 0 1.4 2.5 1.8 5.2-.4"/><path d="M3 19c3 2.2 6 2.2 9 0M12 19c3 2.2 6 2.2 9 0"/></symbol>
     <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M12 2.5V6M18.5 6.5l1.5-1.5"/></symbol>
     <symbol id="i-note" viewBox="0 0 24 24"><path d="M2 6h20M2 10h20M2 14h20M2 18h20" stroke-width="1" opacity=".55"/><ellipse cx="9" cy="16" rx="3" ry="2.2" transform="rotate(-20 9 16)" fill="currentColor"/><path d="M11.8 15V4"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -465,6 +474,9 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 
 <script>
 'use strict';
+// Version publiée en page web (cadre sécurisé) : pas de téléchargement, d'impression, de capture ni de page intégrée
+const WEB = !!window.TABLEAU_WEB;
+document.body.classList.add('t-pen');
 /* =========================================================================
    Tableau interactif — application autonome (un seul fichier HTML)
    ========================================================================= */
@@ -1246,6 +1258,8 @@ function openTextEditor(o, isNew) {
   render();
   const f = () => { ted.focus(); ted.setSelectionRange(ted.value.length, ted.value.length); };
   f(); setTimeout(f, 0);
+  KB.target = ted;
+  if (KB.auto || $('#wKeyboard')) { const had = !!$('#wKeyboard'); openKeyboard(ted.getBoundingClientRect()); if (!had) KB.autoOpened = true; }
 }
 function layoutTextEditor() {
   if (!editing) return;
@@ -1268,6 +1282,7 @@ function commitText() {
   if (!editing) return;
   const { o, isNew } = editing; editing = null;
   ted.style.display = 'none';
+  if (KB.autoOpened) { $('#wKeyboard')?.remove(); KB.autoOpened = false; }
   const text = ted.value.replace(/\s+$/, '');
   let created = null;
   if (isNew) { if (text) { snapshot(); created = { ...o, text }; page().objects.push(created); recordUse(); } }
@@ -1446,12 +1461,18 @@ over.addEventListener('pointermove', e => {
     case 'move': {
       const p = toWorld(e.clientX, e.clientY), dx = p.x - G.start.x, dy = p.y - G.start.y;
       if (!G.moved) { if (Math.hypot(dx, dy) * v.z < 3) return; ensureSnap(); G.moved = true; }
+      let ddx = dx, ddy = dy;
+      if (S.magnet && !G.orig.some(o => o.t === 'sheet' || o.t === 'note')) {
+        const lead = G.orig.find(o => refPoint(o)); const r0 = lead && refPoint(lead);
+        const q = r0 && gridSnap({ x: r0.x + dx, y: r0.y + dy });
+        if (q) { ddx = q.x - r0.x; ddy = q.y - r0.y; G.snapAt = q; } else G.snapAt = null;
+      }
       const cur = page().objects;
       for (const o of G.orig) {
         const i = cur.findIndex(x => x.id === o.id);
-        if (i >= 0) cur[i] = transformObj(o, (x, y) => [x + dx, y + dy]);
+        if (i >= 0) cur[i] = transformObj(o, (x, y) => [x + ddx, y + ddy]);
       }
-      render(); return;
+      render(); renderOverlay(); return;
     }
     case 'handle': {
       const p = toWorld(e.clientX, e.clientY);
@@ -1466,6 +1487,7 @@ over.addEventListener('pointermove', e => {
         const i = cur.findIndex(x => x.id === o.id); if (i >= 0) cur[i] = n;
       } else {
         const B = G.B;
+        if (!G.orig.some(o => o.t === 'sheet')) { const q = gridSnap(p); if (q) { p.x = q.x; p.y = q.y; G.snapAt = q; } }
         const ax = h.id.includes('w') ? B.x + B.w : B.x, ay = h.id.includes('n') ? B.y + B.h : B.y;
         const cx = h.id.includes('w') ? B.x : B.x + B.w, cy = h.id.includes('n') ? B.y : B.y + B.h;
         let sx = B.w > 2 ? (p.x - ax) / (cx - ax) : 1, sy = B.h > 2 ? (p.y - ay) / (cy - ay) : 1;
@@ -1759,6 +1781,7 @@ const FLY = {
       <button class="li" data-cl="spot"><span style="width:26px;text-align:center;font-size:22px">◉</span><span>Projecteur<small>Assombrir tout sauf une zone</small></span></button>
       <button class="li" data-cl="timer"><span style="width:26px;text-align:center;font-size:22px">⏱</span><span>Minuterie et chronomètre<small>Avec alarme sonore</small></span></button>
       <button class="li" data-cl="names"><span style="width:26px;text-align:center;font-size:22px">🎲</span><span>Tirage au sort de noms<small>Sans répétition; former des équipes</small></span></button>
+      <button class="li" data-cl="kbd"><span style="width:26px;text-align:center;font-size:22px">⌨</span><span>Clavier<small>Clavier virtuel flottant (accents du français)</small></span></button>
       <button class="li" data-cl="dice"><span style="width:26px;text-align:center;font-size:22px">⚄</span><span>Dés<small>1 à 3 dés, somme affichée</small></span></button>
     </div>`,
   frtools: () => `<h4>Outils de français</h4><div class="list">${FR_MODES.filter(([k]) => PROF.frModes.includes(k)).map(([k, l, d]) => `<button class="li${S.frMode === k && S.tool === 'fr' ? ' on' : ''}" data-frm="${k}"><span style="width:44px;text-align:center;font-weight:700;font-size:${FR_ICON[k].length > 3 ? 11 : 20}px">${FR_ICON[k]}</span><span>${l}<small>${d}</small></span></button>`).join('')}</div>
@@ -1779,14 +1802,15 @@ const FLY = {
       <div class="sep"></div>
       <button class="li" data-m="new"><svg class="i"><use href="#i-file"/></svg>Nouveau tableau</button>
       <button class="li" data-m="open"><svg class="i"><use href="#i-open"/></svg><span>Ouvrir un tableau…<small>Fichier .tableau</small></span></button>
-      <button class="li" data-m="save"><svg class="i"><use href="#i-save"/></svg><span>Enregistrer le tableau…<small>Toutes les pages, pour le reprendre plus tard</small></span></button>
+      ${WEB ? '' : `<button class="li" data-m="save"><svg class="i"><use href="#i-save"/></svg><span>Enregistrer le tableau…<small>Toutes les pages, pour le reprendre plus tard</small></span></button>`}
       <div class="sep"></div>
-      <button class="li" data-m="png"><svg class="i"><use href="#i-img"/></svg>Exporter cette page en image (PNG)</button>
-      <button class="li" data-m="print"><svg class="i"><use href="#i-print"/></svg><span>Imprimer / enregistrer en PDF<small>Toutes les pages</small></span></button>
+      ${WEB ? '' : `<button class="li" data-m="png"><svg class="i"><use href="#i-img"/></svg>Exporter cette page en image (PNG)</button>`}
+      ${WEB ? '' : `<button class="li" data-m="print"><svg class="i"><use href="#i-print"/></svg><span>Imprimer / enregistrer en PDF<small>Toutes les pages</small></span></button>`}
       <div class="sep"></div>
       <button class="li" data-m="full"><svg class="i"><use href="#i-full"/></svg>Plein écran</button>
       <button class="li" data-m="bigui"><svg class="i"><use href="#i-plus"/></svg><span>${document.body.classList.contains('bigui') ? 'Interface normale' : 'Interface agrandie'}<small>Boutons plus gros pour les grands écrans</small></span></button>
       <button class="li" data-m="help"><svg class="i"><use href="#i-help"/></svg>Aide et raccourcis</button>
+      <button class="li" data-m="suggest"><svg class="i"><use href="#i-mail"/></svg><span>Suggérer une amélioration<small>Envoyer une idée par courriel</small></span></button>
     </div>`,
 };
 const BIND = {
@@ -1798,7 +1822,7 @@ const BIND = {
       if (k === 'play') playPage(); if (k === 'staff') insertSheet('staff'); if (k === 'piano') openPiano(); if (k === 'metro') openMetronome();
     }));
   },
-  classe: () => $$('[data-cl]', fly).forEach(b => b.addEventListener('click', () => ({ curtain: openCurtain, spot: openSpot, timer: openTimer, names: openNames, dice: openDice })[b.dataset.cl]())),
+  classe: () => $$('[data-cl]', fly).forEach(b => b.addEventListener('click', () => ({ kbd: () => openKeyboard(), curtain: openCurtain, spot: openSpot, timer: openTimer, names: openNames, dice: openDice })[b.dataset.cl]())),
   frtools: () => {
     $$('[data-frm]', fly).forEach(b => b.addEventListener('click', () => { if (b.dataset.frm === 'sons') { fly.querySelector('[data-snd]')?.scrollIntoView({ block: 'nearest' }); return; } S.frMode = b.dataset.frm; setTool('fr'); closeFly(); }));
     $$('[data-snd]', fly).forEach(b => b.addEventListener('click', async () => {
@@ -1843,7 +1867,7 @@ const BIND = {
   },
   menu: () => $$('[data-m]', fly).forEach(b => b.addEventListener('click', () => {
     closeFly();
-    ({ new: newBoard, open: () => $('#fOpen').click(), save: saveFile, png: exportPNG, print: printAll, full: toggleFull, help: showHelp, bigui: () => setBigUI(!document.body.classList.contains('bigui')), profile: () => chooseProfile(), lock: setLock, unlock: unlockPrompt })[b.dataset.m]();
+    ({ new: newBoard, open: () => $('#fOpen').click(), save: saveFile, png: exportPNG, print: printAll, full: toggleFull, help: showHelp, suggest: suggestMail, bigui: () => setBigUI(!document.body.classList.contains('bigui')), profile: () => chooseProfile(), lock: setLock, unlock: unlockPrompt })[b.dataset.m]();
   })),
 };
 function adaptInk() {
@@ -1928,14 +1952,20 @@ function defaultShapeBox(o, p) {
   o.x1 = r1(p.x - (wide ? s * 1.4 : s)); o.x2 = r1(o.x1 + (wide ? s * 2.8 : s * 2)); o.y1 = r1(p.y - s); o.y2 = r1(o.y1 + s * 2);
 }
 function startText(p) {
-  const s = TXT_S[S.size];
-  openTextEditor({ id: uid(), t: 'text', x: r1(p.x), y: r1(p.y - s * .6), s, c: S.color, f: S.font, text: '' }, true);
+  const s = TXT_S[S.size], q = gridSnap(p);
+  openTextEditor({ id: uid(), t: 'text', x: r1(q ? q.x : p.x), y: r1(q ? q.y - s * .125 : p.y - s * .6), s, c: S.color, f: S.font, text: '' }, true);
 }
 function placeStamp(p) {
   if (!S.stamp) return;
   const set = STAMPS[S.stampSet], s = TXT_S[S.size];
+  // figures de notes et silences posés sur une portée → vraies notes aimantées (ligne ou interligne)
+  const staff = set.font === 'music' && snapNote(p);
+  if (staff && GLYPH_NOTE[S.stamp]) { const n = placeNote(p, GLYPH_NOTE[S.stamp], ''); if (n) autoReturn(n); return; }
   const o = { id: uid(), t: 'text', x: 0, y: 0, s, c: S.color, f: set.font, text: S.stamp, ...(set.bold ? { b: 1 } : {}) };
-  const m = textMetrics(o); o.x = r1(p.x - m.w / 2); o.y = r1(p.y - m.h / 2);
+  if (staff) o.s = staff.sp * 3.2;   // altérations, clés… à l'échelle de la portée
+  const m = textMetrics(o);
+  const q = staff ? { x: p.x, y: staff.y } : (gridSnap(p) || p);
+  o.x = r1(q.x - m.w / 2); o.y = r1(q.y - m.h / 2);
   snapshot(); page().objects.push(o); recordUse(); autoReturn(o); afterChange();
 }
 const TOOL_LABEL = { note: 'Note', fr: 'Français', select: 'Sélection', hand: 'Main', pen: 'Crayon', hl: 'Surligneur', eraser: 'Gomme', text: 'Texte', laser: 'Laser' };
@@ -2047,7 +2077,7 @@ function snapPoint(p, exclude) {
     const sh = objs[i]; if (sh.t !== 'sheet' || p.x < sh.x || p.x > sh.x + sh.w || p.y < sh.y || p.y > sh.y + sh.h) continue;
     const g = sheetGrid(sh); if (!g) break;
     const gx = g.ox + Math.round((p.x - g.ox) / g.step) * g.step, gy = g.oy + Math.round((p.y - g.oy) / g.step) * g.step;
-    if (Math.hypot(gx - p.x, gy - p.y) < Math.max(tol, g.step * .35)) return { x: gx, y: gy, snapped: 'grid' };
+    return { x: gx, y: gy, snapped: 'grid' };   // sur une feuille quadrillée : toujours sur un nœud du quadrillage
     break;
   }
   return { x: p.x, y: p.y };
@@ -3402,7 +3432,7 @@ async function insertMap(kind) {
     let svg;
     if (kind === 'map-world' || kind === 'map-na') {
       await loadScript(GEO.topo);
-      const topo = await (await fetch(GEO.world)).json(), fc = topojson.feature(topo, topo.objects.countries);
+      const topo = (window.GEO_DATA?.world || await (await fetch(GEO.world)).json()), fc = topojson.feature(topo, topo.objects.countries);
       const na = kind === 'map-na', lon0 = na ? -170 : -180, lon1 = na ? -50 : 180, lat0 = na ? 84 : 84, lat1 = na ? 7 : -58;
       const kx = na ? Math.cos(50 * Math.PI / 180) : 1, S = 10, W2 = (lon1 - lon0) * kx * S, H2 = (lat0 - lat1) * S;
       const P = ([lo, la]) => [((lo - lon0) * kx * S).toFixed(1), ((lat0 - la) * S).toFixed(1)];
@@ -3412,7 +3442,7 @@ async function insertMap(kind) {
       svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W2.toFixed(0)} ${H2.toFixed(0)}"><rect width="100%" height="100%" fill="#dbeafe"/><path d="${d}" style="${SVG_STYLE};stroke-width:${na ? 3 : 2}"/>
         <text x="${W2 - 12}" y="${H2 - 12}" text-anchor="end" font-family="sans-serif" font-size="${na ? 24 : 26}" fill="#475569">Données : Natural Earth</text></svg>`;
     } else {
-      const txt = await (await fetch(GEO.canada)).text();
+      const txt = (window.GEO_DATA?.canada || await (await fetch(GEO.canada)).text());
       const doc = new DOMParser().parseFromString(txt, 'image/svg+xml'), root = doc.documentElement;
       const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:1000px;visibility:hidden';
       host.appendChild(document.importNode(root, true)); document.body.appendChild(host);
@@ -3565,6 +3595,84 @@ function insertRose() {
   snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange();
 }
 
+/* ---------- Aimantation au quadrillage ---------- */
+// Point du quadrillage le plus proche si p est sur une feuille quadrillée, millimétrée, pointillée ou plan cartésien
+function gridSnap(p) {
+  if (!S.magnet) return null;
+  const objs = page().objects;
+  for (let i = objs.length - 1; i >= 0; i--) {
+    const sh = objs[i]; if (sh.t !== 'sheet' || p.x < sh.x || p.x > sh.x + sh.w || p.y < sh.y || p.y > sh.y + sh.h) continue;
+    const g = sheetGrid(sh); if (!g) return null;
+    return { x: g.ox + Math.round((p.x - g.ox) / g.step) * g.step, y: g.oy + Math.round((p.y - g.oy) / g.step) * g.step, snapped: 'grid' };
+  }
+  return null;
+}
+// Point de référence d'un objet déplacé (coin ou premier sommet), aligné sur le quadrillage
+function refPoint(o) {
+  if (o.t === 'shape') return o.pts ? { x: o.pts[0][0], y: o.pts[0][1] } : { x: Math.min(o.x1, o.x2), y: Math.min(o.y1, o.y2) };
+  if (o.t === 'stroke') return { x: o.pts[0][0], y: o.pts[0][1] };
+  if (o.t === 'text' || o.t === 'image' || o.t === 'timeline') return { x: o.x, y: o.y };
+  return null;
+}
+/* Symboles de musique posés sur une portée : vraies notes aimantées */
+const GLYPH_NOTE = { '\u{1D15D}': 'w', '\u{1D15E}': 'h', '\u{1D15F}': 'q', '\u{1D160}': 'e', '\u{1D13B}': 'rw', '\u{1D13C}': 'rh', '\u{1D13D}': 'rq', '\u{1D13E}': 're' };
+
+/* ---------- Clavier virtuel flottant ---------- */
+const KB = { shift: false, caps: false, auto: (() => { try { const v = localStorage.getItem('tableau-clavier-auto'); return v === null ? (navigator.maxTouchPoints || 0) > 0 : v === '1'; } catch (_) { return true; } })(), target: null, autoOpened: false };
+const KB_ROWS = [
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '⌫'],
+  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'é', 'è'],
+  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'à', 'ç', '↵'],
+  ['⇧', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', 'ê', 'ù'],
+  ['àâ', '?', '!', '’', '-', '␣', ':', ';', '«', '»', '←', '→'],
+];
+const KB_ACC = ['â', 'ê', 'î', 'ô', 'û', 'ë', 'ï', 'ü', 'œ', 'æ', '«', '»', '°', '$', '%', '(', ')', '/', '+', '='];
+document.addEventListener('focusin', e => { if (e.target.matches('textarea,input[type=text],input[type=url],input:not([type]),input[type=number]') && !e.target.closest('#wKeyboard')) KB.target = e.target; });
+function openKeyboard(near) {
+  const ex = $('#wKeyboard');
+  if (ex) { if (near) placeKeyboard(ex, near); return ex; }
+  const el = makeWidget('wKeyboard', '⌨ Clavier', `<div class="kbd"></div>
+    <label class="nopt"><input type="checkbox" class="kauto"${KB.auto ? ' checked' : ''}> Ouvrir automatiquement quand j’écris du texte</label>`, 720, () => { KB.autoOpened = false; });
+  el.classList.add('kbw');
+  const draw = () => {
+    const up = KB.shift || KB.caps;
+    $('.kbd', el).innerHTML = (KB.acc ? [KB_ACC.slice(0, 10), KB_ACC.slice(10), ['àâ', '␣', '⌫', '↵']] : KB_ROWS).map(r => `<div class="krow">${r.map(k => {
+      const lab = k === '␣' ? 'espace' : k === 'àâ' ? (KB.acc ? 'abc' : 'âêî…') : (up && k.length === 1 ? k.toUpperCase() : k);
+      const cls = { '⌫': 'kwide', '↵': 'kwide', '⇧': 'kwide' + (KB.caps ? ' on' : KB.shift ? ' half' : ''), '␣': 'kspace', 'àâ': 'kwide' }[k] || '';
+      return `<button class="kk ${cls}" data-k="${esc(k)}">${esc(lab)}</button>`; }).join('')}</div>`).join('');
+  };
+  draw();
+  let lastShift = 0;
+  el.addEventListener('pointerdown', e => {
+    const b = e.target.closest('[data-k]'); if (!b) return;
+    e.preventDefault();   // garde le curseur dans la zone de texte
+    const k = b.dataset.k, t = KB.target && document.contains(KB.target) ? KB.target : (editing ? ted : null);
+    if (k === '⇧') { const now = Date.now(); if (now - lastShift < 400) { KB.caps = !KB.caps; KB.shift = false; } else { KB.shift = !KB.shift; KB.caps = false; } lastShift = now; draw(); return; }
+    if (k === 'àâ') { KB.acc = !KB.acc; draw(); return; }
+    if (!t) { toast('Touchez d’abord une zone de texte.'); return; }
+    t.focus();
+    const s0 = t.selectionStart ?? t.value.length, s1 = t.selectionEnd ?? s0;
+    const put = str => { if (typeof t.setRangeText === 'function' && t.type !== 'number') t.setRangeText(str, s0, s1, 'end'); else t.value += str; t.dispatchEvent(new Event('input', { bubbles: true })); };
+    if (k === '⌫') { if (s0 !== s1) put(''); else if (s0 > 0) { t.setSelectionRange(s0 - 1, s0); put(''); } }
+    else if (k === '←') t.setSelectionRange(Math.max(0, s0 - 1), Math.max(0, s0 - 1));
+    else if (k === '→') t.setSelectionRange(s0 + 1, s0 + 1);
+    else if (k === '↵') { if (t.tagName === 'TEXTAREA') put('\n'); else { t.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } }
+    else { put(k === '␣' ? ' ' : (KB.shift || KB.caps) && k.length === 1 ? k.toUpperCase() : k); if (KB.shift) { KB.shift = false; draw(); } }
+    b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 120);
+  });
+  $('.kauto', el).addEventListener('change', e => { KB.auto = e.target.checked; try { localStorage.setItem('tableau-clavier-auto', KB.auto ? '1' : '0'); } catch (_) {} });
+  if (near) placeKeyboard(el, near);
+  return el;
+}
+// Place le clavier juste à côté de la zone de texte (dessous, sinon dessus, sinon à côté)
+function placeKeyboard(el, r) {
+  const w = el.offsetWidth, h = el.offsetHeight, gap = 14;
+  let x = clamp(r.left, 8, W - w - 8), y = r.bottom + gap;
+  if (y + h > H - 8) y = r.top - h - gap;
+  if (y < 8) { y = clamp(r.top, 8, H - h - 8); x = r.right + gap + w < W ? r.right + gap : Math.max(8, r.left - w - gap); }
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+}
+
 /* ---------- Niveaux, matières et mode élève ---------- */
 const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
 const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
@@ -3592,6 +3700,7 @@ function computeProfile() {
   let sheets = d.sheets;
   if (SUBJECT_SHEETS[p.subject]) { const f = d.sheets.filter(k => SUBJECT_SHEETS[p.subject].includes(k)); if (f.length > 1) sheets = f; }
   let inserts = d.inserts.slice();
+  if (WEB) inserts = inserts.filter(x => !['web', 'live', 'screen'].includes(x));
   if (inserts.includes('3d') && ['fr', 'mus'].includes(p.subject)) inserts = inserts.filter(x => x !== '3d');
   let instruments = d.instruments, transforms = d.transforms, frModes = d.frModes || [];
   if (['math', 'mus'].includes(p.subject)) frModes = [];
@@ -4174,7 +4283,7 @@ function download(blob, name) {
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
 const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}h${p(d.getMinutes())}`; };
-function saveFile() { commitText(); download(new Blob([JSON.stringify(serialize())], { type: 'application/json' }), `tableau_${stamp()}.tableau`); toast('Tableau enregistré dans vos téléchargements'); }
+function saveFile() { if (WEB) { toast('Version web : le tableau est conservé automatiquement dans ce navigateur. Pour enregistrer un fichier, utilisez la version à télécharger.', 5000); return; } commitText(); download(new Blob([JSON.stringify(serialize())], { type: 'application/json' }), `tableau_${stamp()}.tableau`); toast('Tableau enregistré dans vos téléchargements'); }
 async function openFile(f) {
   if (isLocked()) { toast('Mode élève : ouverture de tableau désactivée.'); return; }
   try { loadDoc(JSON.parse(await f.text())); goPage(S.cur); scheduleSave(); toast('Tableau ouvert : ' + f.name); }
@@ -4252,6 +4361,8 @@ function showHelp() {
   </ul>
   <p><b>Univers social et sciences</b> (bouton globe) : cartes du monde, de l’Amérique du Nord, du Canada (avec ou sans noms) et du Québec; ligne du temps modifiable (double-clic); rose des vents; cycles et chaînes d’étapes (cycle de l’eau, chaîne alimentaire, démarche scientifique); diagramme de Venn; tableau de données.</p>
   <p><b>Musique</b> (bouton portée) : choisissez une figure (ronde, blanche, noire, croche) ou un silence, puis touchez une feuille Portée : la note s’aimante sur la ligne ou l’interligne et sonne. ♯ ♭ ♮ s’appliquent à la prochaine note; « do ré mi » affiche le nom des notes; ▶ joue les notes de la page. Clavier de piano (peut écrire sur la portée) et métronome.</p>
+  <p><b>Clavier virtuel</b> : dans les outils de classe; il s’ouvre aussi tout seul à côté d’une zone de texte (option à cocher dans le clavier).</p>
+  <p><b>Quadrillage</b> : avec l’aimant 🧲, formes, textes, symboles et objets déplacés s’accrochent aux nœuds des feuilles quadrillées, millimétrées, pointillées et du plan cartésien.</p>
   <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
   <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
   <p><b>Instruments</b> (bouton règle) : règle graduée (le crayon trace droit le long de ses bords, longueur affichée), équerre, rapporteur (aiguille bleue = angle en degrés), compas (↔ règle le rayon, ✎ trace). ⟳ tourne l’instrument, ✕ le retire. <b>Transformations</b> : sélectionnez une figure, puis Réflexion (tracez l’axe), Translation (tracez la flèche) ou Rotation.</p>
@@ -4268,8 +4379,27 @@ function showHelp() {
   <kbd>Ctrl+Z</kbd> annuler, <kbd>Ctrl+Y</kbd> rétablir, <kbd>Suppr</kbd> supprimer, <kbd>Ctrl+D</kbd> dupliquer, <kbd>Ctrl+V</kbd> coller une image ou du texte,
   <kbd>Page préc./suiv.</kbd> changer de page, <kbd>0</kbd> tout afficher, <kbd>Ctrl+S</kbd> enregistrer.</p>
   <p><b>Pages web</b> : <i>Insérer → Page web</i> affiche un site en direct; écrivez par-dessus. Pour cliquer ou défiler dans la page, sélectionnez-la puis touchez le bouton « main ». Si la page reste vide ou affiche 🚫, le site interdit l’affichage intégré : sélectionnez le cadre puis le bouton écran pour l’afficher en direct depuis un onglet. Le bouton « Figer » (appareil photo) transforme la page en image pour que les annotations restent alignées.</p>
+  ${WEB ? '<p><b>Version web</b> : le tableau est conservé automatiquement dans ce navigateur (sur cet appareil seulement). L’enregistrement de fichiers, l’impression, la capture d’écran et l’affichage de pages web ne sont offerts que dans la version à télécharger (fichier HTML).</p>' : ''}
   <p><b>Sauvegarde</b> : le tableau est conservé automatiquement dans ce navigateur. Pour le garder ou le partager, utilisez <i>Menu → Enregistrer le tableau</i> (fichier .tableau).</p>`,
     [{ label: 'Fermer', value: true, cls: 'primary' }]);
+}
+const SUGGEST_TO = 'mathieuo@csskamloup.gouv.qc.ca', SUGGEST_SUBJECT = 'Suggestion d\u0027amélioration du tableau CSS';
+async function suggestMail() {
+  const ok = await modal('Suggérer une amélioration', `<p>Votre suggestion sera envoyée à <b>${SUGGEST_TO}</b> avec le sujet « ${SUGGEST_SUBJECT} ».</p>
+    <textarea id="sugIn" style="width:100%;height:170px;font-size:16px;border:2px solid var(--line);border-radius:12px;padding:10px;-webkit-user-select:text;user-select:text" placeholder="Décrivez votre idée ou le problème rencontré…"></textarea>
+    <p style="color:var(--muted);font-size:14px">Le bouton ouvre votre logiciel de courriel avec le message prêt à envoyer. S’il ne s’ouvre pas, copiez le message et envoyez-le à l’adresse ci-dessus.</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Copier le message', value: 'copy' }, { label: 'Ouvrir mon courriel', value: 'mail', cls: 'primary' }],
+    () => setTimeout(() => $('#sugIn')?.focus(), 50));
+  if (!ok) return;
+  const txt = ($('#sugIn')?.value || '').trim();
+  const lv = LEVELS.find(l => l[0] === (S.profile?.level || 'all'))?.[1] || '';
+  const body = `${txt || '(Décrivez votre suggestion ici)'}\n\n—\nNiveau utilisé : ${lv}`;
+  if (ok === 'copy') {
+    try { await navigator.clipboard.writeText(`À : ${SUGGEST_TO}\nSujet : ${SUGGEST_SUBJECT}\n\n${body}`); toast('Message copié : collez-le dans un courriel à ' + SUGGEST_TO, 5000); }
+    catch (_) { toast('Copie impossible : écrivez à ' + SUGGEST_TO, 6000); }
+    return;
+  }
+  location.href = `mailto:${SUGGEST_TO}?subject=${encodeURIComponent(SUGGEST_SUBJECT)}&body=${encodeURIComponent(body)}`;
 }
 function toggleFull() {
   if (document.fullscreenElement) document.exitFullscreen?.();
