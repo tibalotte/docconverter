@@ -91,19 +91,79 @@ le reste du tableau, oui.
 `Ctrl+D` dupliquer · `Ctrl+V` coller · `Page préc. / suiv.` pages · `0` tout afficher ·
 `Ctrl+S` enregistrer.
 
-## Références (programmes en vigueur, vérifiés en novembre 2026)
+## Sources officielles par niveau et matière (PFEQ, consultées en novembre 2026)
 
-Les choix par niveau s'appuient sur les publications du ministère de l'Éducation (quebec.ca) :
+Toutes les sources viennent du site du gouvernement du Québec : [Programme de formation de l’école québécoise](https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise).
+**Lu en détail** = document lu pour choisir les outils, étiquettes et feuilles; *référence* = document officiel repéré sur la page du programme, non analysé ligne par ligne.
 
-- Français, langue d'enseignement : **programme d'études actualisé** (août 2026), offert à titre
-  informatif en 2026-2027 et **obligatoire dès la rentrée 2027-2028** — terminologie grammaticale,
-  feuilles lignées avec trottoir, écriture script et cursive.
-- Instruments par niveau : règle dès le 1er cycle; équerre et réflexion au 2e cycle; rapporteur, compas et translation au 3e cycle; rotation au secondaire (masqués en français et en musique).
-- Mathématique : Progression des apprentissages au primaire (mise à jour février 2026) et au
-  secondaire (2023) — plan cartésien (1er quadrant au 2e cycle, 4 quadrants au 3e cycle),
-  développements de solides, réflexion/translation, rapporteur (3e cycle), diagrammes.
-- Musique : Progression des apprentissages au primaire — code non traditionnel, figures de notes
-  et de silences, nuances.
-- Éducation préscolaire : Programme-cycle (4 et 5 ans).
+### Éducation préscolaire — 4 et 5 ans, tous les domaines
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/education-prescolaire>
+- **Lu en détail** : [Programme-cycle de l’éducation préscolaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/prescolaire/Programme-cycle-prescolaire.pdf)
+- **Lu en détail** : [Synthèse du Programme-cycle](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/prescolaire/Programme-cycle-prescolaire-synthese.pdf)
+- *Référence* : [Guide d’animation — émergence de l’écrit](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/ressources-pedagogiques/prescolaire/Guide-animation-emergence-ecrit-prescolaire.pdf)
+- *Référence* : [Guide d’animation — mathématique](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/ressources-pedagogiques/prescolaire/Guide-animation-mathematique-prescolaire.pdf)
+- Outils du tableau qui en découlent : Lettres, nombres et gommettes; arcs de syllabes et sons; feuilles interlignées; traits et texte plus gros; dés, minuterie, tirage
 
-À revalider à chaque mise à jour des programmes.
+### Français, langue d’enseignement — Primaire (1er, 2e, 3e cycle)
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/primaire/francais-langue-enseignement>
+- **Lu en détail** : [Programme d’études actualisé, primaire (août 2026)](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/programmes/PFEQ-Programme-francais-langue-enseignement-primaire.pdf)
+- **Lu en détail** : [Feuillet d’information sur le programme actualisé](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/Feuillet-programme-francais-langue-enseignement.pdf)
+- Outils du tableau qui en découlent : Étiquettes de grammaire (sujet, prédicat, complément de phrase, GN, GV, attribut du sujet, complément du nom, classes de mots); syllabes; sons; feuilles lignées avec trottoir; police scolaire Andika
+
+### Français, langue d’enseignement — Secondaire
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/secondaire/francais-langue-enseignement>
+- **Lu en détail** : [Programme d’études actualisé, secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-Programme-francais-langue-enseignement-secondaire.pdf)
+- Outils du tableau qui en découlent : Étiquettes GN, GV, GPrép, CD, CI, modificateur…; crochets [ ] et fonctions; manipulations syntaxiques; flèches d’accord
+
+### Mathématique — Primaire (1er, 2e, 3e cycle)
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/primaire/mathematique>
+- **Lu en détail** : [Progression des apprentissages — mathématique, primaire (mise à jour février 2026)](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/progressions-apprentissages/PFEQ-progression-apprentissages-mathematique-primaire.pdf)
+- *Référence* : [Programme de mathématique, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/programmes/PFEQ-mathematique-primaire.pdf)
+- Outils du tableau qui en découlent : Règle (1er cycle); équerre et réflexion (2e cycle); rapporteur, compas et translation (3e cycle); plan cartésien (1er quadrant au 2e cycle, 4 quadrants au 3e cycle); quadrillés; solides et développements; diagrammes
+
+### Mathématique — Secondaire
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/secondaire/mathematique>
+- **Lu en détail** : [Progression des apprentissages — mathématique, secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/progressions-apprentissages/PFEQ-progression-apprentissages-mathematique-secondaire.pdf)
+- *Référence* : [Notations et symboles en mathématique, secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/ressources-pedagogiques/Notations-symboles-representation-mathematique-secondaire.pdf)
+- Outils du tableau qui en découlent : Tous les instruments; rotation; plan cartésien gradué; millimétré; atelier 3D (volumes, aires, cotes en mm); symboles mathématiques
+
+### Musique — Primaire (1er, 2e, 3e cycle)
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/primaire/musique>
+- **Lu en détail** : [Progression des apprentissages — musique, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/progressions-apprentissages/PFEQ-progression-apprentissages-musique-primaire.pdf)
+- *Référence* : [Programme de musique, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/programmes/PFEQ-musique-primaire.pdf)
+- Outils du tableau qui en découlent : Code rythmique non traditionnel; figures de notes et de silences; nuances; portées; notes aimantées; lecture; métronome
+
+### Musique — Secondaire
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/secondaire/musique>
+- *Référence* : [Progression des apprentissages — musique, secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/progressions-apprentissages/PFEQ-progression-apprentissages-musique-secondaire.pdf)
+- *Référence* : [Programme de musique, 1er cycle du secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-musique-premier-cycle-secondaire.pdf)
+- *Référence* : [Programme de musique, 2e cycle du secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-musique-deuxieme-cycle-secondaire.pdf)
+- Outils du tableau qui en découlent : Clés de sol, fa et ut; portée de piano; tablature; clavier de piano; altérations
+
+### Géographie, histoire et éducation à la citoyenneté — Primaire (2e et 3e cycle)
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/primaire/geographie-histoire-education-citoyennete>
+- *Référence* : [Progression des apprentissages — univers social, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/progressions-apprentissages/PFEQ-progression-apprentissages-univers-social-primaire.pdf)
+- *Référence* : [Programme d’univers social, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/programmes/PFEQ-univers-social-primaire.pdf)
+- Outils du tableau qui en découlent : Cartes du Québec, du Canada, de l’Amérique du Nord et du monde; ligne du temps; rose des vents
+
+### Géographie; Histoire du Québec et du Canada — Secondaire
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/secondaire/geographie>
+- *Référence* : [Programme de géographie, secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-geographie-secondaire.pdf)
+- *Référence* : [Programme d’histoire du Québec et du Canada](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-histoire-quebec-canada-secondaire.pdf)
+- *Référence* : [Page du programme d’histoire du Québec et du Canada](https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/secondaire/histoire-quebec-canada)
+- Outils du tableau qui en découlent : Cartes; ligne du temps (années av. J.-C.); tableau de données
+
+### Science et technologie — Primaire (1er, 2e, 3e cycle)
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/primaire/science-technologie>
+- *Référence* : [Progression des apprentissages — science et technologie, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/progressions-apprentissages/PFEQ-progression-apprentissages-science-technologie-primaire.pdf)
+- *Référence* : [Programme de science et technologie, primaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/primaire/programmes/PFEQ-science-technologie-primaire.pdf)
+- Outils du tableau qui en découlent : Cycles (cycle de l’eau, cycles de vie); chaînes d’étapes (chaîne alimentaire, démarche scientifique); diagramme de Venn; tableau de données
+
+### Science et technologie — Secondaire
+- Page officielle : <https://www.quebec.ca/education/prescolaire-primaire-et-secondaire/programmes-formations-evaluation/programme-formation-ecole-quebecoise/secondaire/science-technologie>
+- *Référence* : [Programme de science et technologie, 1er cycle du secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-science-technologie-premier-cycle-secondaire.pdf)
+- *Référence* : [Programme de science et technologie, 2e cycle du secondaire](https://cdn-contenu.quebec.ca/cdn-contenu/education/pfeq/secondaire/programmes/PFEQ-science-technologie-deuxieme-cycle-secondaire.pdf)
+- Outils du tableau qui en découlent : Schémas (cycles, étapes); tableau de données; plan cartésien; atelier 3D
+
+Le programme de français actualisé est offert à titre informatif en 2026-2027 et devient **obligatoire à la rentrée 2027-2028**.
+À revalider à chaque mise à jour des programmes (dates de mise à jour indiquées sur chaque page officielle).
