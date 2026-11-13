@@ -1231,8 +1231,25 @@ function selAction(act) {
     snapshot(); for (const o of sel) if (o.g) { const n = { ...o }; delete n.g; replaceObj(o, n); }
     toast('Groupe défait'); return afterChange();
   }
-  if (act === 'del') { sel.forEach(o => { if (o.t === 'live') stopLive(o.id); });
-    snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)); S.sel = []; }
+  if (act === 'del') {
+    // feuille supprimée avec des objets attachés : demander s'il faut les effacer aussi
+    assignAtt(page());
+    const sheets = new Set(sel.filter(o => o.t === 'sheet').map(o => o.id));
+    const attached = sheets.size ? page().objects.filter(o => !S.sel.includes(o.id) && sheets.has(o.att)) : [];
+    if (attached.length && !selAction.confirmed) {
+      const ids = S.sel.slice();
+      modal('Supprimer la feuille', `<p>Effacer également les objets ajoutés à cette page?</p><p style="color:var(--muted);font-size:14px">${attached.length} objet${attached.length > 1 ? 's' : ''} (écriture, formes, symboles…) ${attached.length > 1 ? 'sont attachés' : 'est attaché'} à cette feuille.</p>`,
+        [{ label: 'Annuler', value: null }, { label: 'Non, garder les objets', value: 'keep' }, { label: 'Oui, tout effacer', value: 'all', cls: 'danger' }])
+        .then(ch => {
+          if (!ch) return;
+          S.sel = ch === 'all' ? ids.concat(attached.map(o => o.id)) : ids;
+          selAction.confirmed = true; try { selAction('del'); } finally { selAction.confirmed = false; }
+        });
+      return;
+    }
+    sel.forEach(o => { if (o.t === 'live') stopLive(o.id); });
+    const kill = new Set(S.sel);
+    snapshot(); page().objects = page().objects.filter(o => !kill.has(o.id)).map(o => kill.has(o.att) ? { ...o, att: null } : o); S.sel = []; }
   else if (act === 'dup') {
     snapshot(); const off = 24 / V().z;
     const gmap = {};
