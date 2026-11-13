@@ -52,6 +52,8 @@ les déverrouiller.
 
 ## Utilisation sur téléviseur interactif
 
+- Barre d'outils **déplaçable** par sa poignée : à gauche, en bas ou à droite (zones ombragées pendant le glisser, accrochage automatique, position mémorisée).
+
 - Toutes les cibles tactiles font au moins 44 px (boutons, pastilles, onglets, puces); la barre d'outils passe
   sur deux colonnes si l'écran est trop bas.
 - *Menu → Interface agrandie* : boutons de 64 px et textes plus gros pour les grands écrans vus de loin.

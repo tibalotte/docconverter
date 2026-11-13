@@ -190,6 +190,26 @@ button{font:inherit;color:inherit}
 /* Barre d'outils gauche */
 #toolbar{position:fixed;left:12px;top:84px;display:flex;flex-direction:column;gap:1px;padding:5px;max-height:calc(100% - 96px);overflow-y:auto;z-index:20;scrollbar-width:none}
 #toolbar::-webkit-scrollbar{display:none}
+#toolbar .tgrip{flex:none;height:22px;display:flex;align-items:center;justify-content:center;gap:4px;cursor:grab;touch-action:none;border-radius:8px;margin-bottom:2px}
+#toolbar .tgrip:hover{background:var(--hover)}
+#toolbar .tgrip i{width:5px;height:5px;border-radius:50%;background:#9aa5b1}
+#toolbar.two .tgrip{grid-column:1/-1;height:22px}
+#toolbar.dragging{opacity:.85;cursor:grabbing;z-index:61;box-shadow:0 14px 40px rgba(15,23,42,.35)}
+body.tb-right #toolbar{left:auto;right:12px}
+body.tb-right #pagesPanel{right:calc(var(--btn) + 36px)}
+body.tb-bottom #toolbar{top:auto;bottom:14px;left:50%;transform:translateX(-50%);flex-direction:row;align-items:center;max-height:none;max-width:calc(100% - 24px);overflow-x:auto;overflow-y:hidden}
+body.tb-bottom #toolbar .tgrip{height:auto;align-self:stretch;width:22px;flex-direction:column;margin:0 2px 0 0}
+body.tb-bottom #toolbar .sep{width:1px;height:auto;align-self:stretch;margin:6px 4px}
+body.tb-bottom #props{bottom:calc(var(--btn) + 34px)}
+body.tb-bottom #pagesPanel{bottom:calc(var(--btn) + 34px)}
+#dock{position:fixed;inset:0;z-index:60;pointer-events:none;display:none}
+#dock.show{display:block}
+#dock .dz{position:absolute;background:rgba(37,99,235,.10);border:3px dashed rgba(37,99,235,.45);border-radius:18px;display:flex;align-items:center;justify-content:center;color:rgba(37,99,235,.8);font-weight:700;font-size:18px;transition:background .12s}
+#dock .dz.hot{background:rgba(37,99,235,.28);border-style:solid;border-color:var(--accent);color:var(--accent)}
+#dock [data-dz=left]{left:8px;top:80px;bottom:90px;width:calc(var(--btn) + 22px)}
+#dock [data-dz=right]{right:8px;top:80px;bottom:90px;width:calc(var(--btn) + 22px)}
+#dock [data-dz=bottom]{left:calc(var(--btn) + 50px);right:calc(var(--btn) + 50px);bottom:8px;height:calc(var(--btn) + 22px)}
+#dock [data-dz=left] span,#dock [data-dz=right] span{writing-mode:vertical-rl}
 
 /* Barres du haut */
 #topLeft,#topRight{position:fixed;top:12px;display:flex;align-items:center;gap:2px;padding:6px;z-index:20}
@@ -377,7 +397,9 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 <canvas id="over"></canvas>
 <textarea id="textEd" spellcheck="false"></textarea>
 
+<div id="dock"><div class="dz" data-dz="left"><span>Gauche</span></div><div class="dz" data-dz="bottom"><span>Bas</span></div><div class="dz" data-dz="right"><span>Droite</span></div></div>
 <div id="toolbar" class="panel">
+  <div class="tgrip" title="Glisser pour déplacer la barre d’outils (gauche, bas ou droite)"><i></i><i></i><i></i></div>
   <button class="ib" data-tool="select" title="Sélectionner / déplacer des objets (V)"><svg class="i"><use href="#i-select"/></svg></button>
   <button class="ib" data-tool="lasso" title="Sélection multiple : entourez des objets pour les sélectionner et les grouper (Q)"><svg class="i"><use href="#i-lasso"/></svg></button>
   <button class="ib" data-tool="hand" title="Se déplacer dans le tableau (H) — ou Ctrl + glisser"><svg class="i"><use href="#i-hand"/></svg></button>
@@ -1720,7 +1742,11 @@ function openFly(kind, anchor) {
   if (flyKind === kind) { closeFly(); return; }
   flyKind = kind; fly.innerHTML = FLY[kind](); fly.classList.add('open');
   const r = anchor.getBoundingClientRect(), fw = fly.offsetWidth, fh = fly.offsetHeight;
-  if (anchor.closest('#toolbar')) { fly.style.left = (r.right + 10) + 'px'; fly.style.top = clamp(r.top - 10, 12, H - fh - 12) + 'px'; }
+  if (anchor.closest('#toolbar')) {
+    const side = TB.side;
+    if (side === 'bottom') { fly.style.left = clamp(r.left + r.width / 2 - fw / 2, 12, W - fw - 12) + 'px'; fly.style.top = Math.max(12, r.top - fh - 10) + 'px'; }
+    else { fly.style.left = (side === 'right' ? r.left - fw - 10 : r.right + 10) + 'px'; fly.style.top = clamp(r.top - 10, 12, H - fh - 12) + 'px'; }
+  }
   else { fly.style.left = clamp(r.left, 12, W - fw - 12) + 'px'; fly.style.top = (r.bottom + 10) + 'px'; }
   BIND[kind] && BIND[kind]();
 }
@@ -4361,6 +4387,7 @@ function showHelp() {
   </ul>
   <p><b>Univers social et sciences</b> (bouton globe) : cartes du monde, de l’Amérique du Nord, du Canada (avec ou sans noms) et du Québec; ligne du temps modifiable (double-clic); rose des vents; cycles et chaînes d’étapes (cycle de l’eau, chaîne alimentaire, démarche scientifique); diagramme de Venn; tableau de données.</p>
   <p><b>Musique</b> (bouton portée) : choisissez une figure (ronde, blanche, noire, croche) ou un silence, puis touchez une feuille Portée : la note s’aimante sur la ligne ou l’interligne et sonne. ♯ ♭ ♮ s’appliquent à la prochaine note; « do ré mi » affiche le nom des notes; ▶ joue les notes de la page. Clavier de piano (peut écrire sur la portée) et métronome.</p>
+  <p><b>Barre d’outils</b> : saisissez-la par sa poignée (les points en haut) et glissez-la; des zones ombragées montrent les trois places possibles (gauche, bas, droite). Elle s’accroche à la plus proche et garde sa place.</p>
   <p><b>Clavier virtuel</b> : dans les outils de classe; il s’ouvre aussi tout seul à côté d’une zone de texte (option à cocher dans le clavier).</p>
   <p><b>Quadrillage</b> : avec l’aimant 🧲, formes, textes, symboles et objets déplacés s’accrochent aux nœuds des feuilles quadrillées, millimétrées, pointillées et du plan cartésien.</p>
   <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
@@ -4428,8 +4455,40 @@ $('#bFull').addEventListener('click', toggleFull);
 $('#bHelp').addEventListener('click', showHelp);
 function fitToolbar() {
   const tb = $('#toolbar'); tb.classList.remove('two');
-  if (tb.scrollHeight > tb.clientHeight + 2) tb.classList.add('two');
+  if (TB.side !== 'bottom' && tb.scrollHeight > tb.clientHeight + 2) tb.classList.add('two');
 }
+/* Barre d'outils déplaçable : gauche, bas ou droite (s'accroche à la zone la plus proche) */
+const TB = { side: (() => { try { return localStorage.getItem('tableau-barre') || 'left'; } catch (_) { return 'left'; } })() };
+function setDock(side) {
+  TB.side = side; document.body.classList.remove('tb-left', 'tb-right', 'tb-bottom'); document.body.classList.add('tb-' + side);
+  try { localStorage.setItem('tableau-barre', side); } catch (_) {}
+  fitToolbar(); closeFly();
+}
+function dockAt(x, y) {
+  if (y > H * .72 && x > W * .2 && x < W * .8) return 'bottom';
+  return x < W / 2 ? 'left' : 'right';
+}
+(() => {
+  const tb = $('#toolbar'), grip = $('.tgrip', tb), dock = $('#dock');
+  grip.addEventListener('pointerdown', e => {
+    e.preventDefault(); e.stopPropagation(); closeFly(); grip.setPointerCapture(e.pointerId);
+    const r = tb.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
+    dock.classList.add('show'); tb.classList.add('dragging');
+    const hot = side => $$('.dz', dock).forEach(z => z.classList.toggle('hot', z.dataset.dz === side));
+    hot(TB.side);
+    const mv = ev => {
+      Object.assign(tb.style, { left: (ev.clientX - ox) + 'px', top: (ev.clientY - oy) + 'px', right: 'auto', bottom: 'auto', transform: 'none' });
+      hot(dockAt(ev.clientX, ev.clientY));
+    };
+    const up = ev => {
+      grip.removeEventListener('pointermove', mv); grip.removeEventListener('pointerup', up); grip.removeEventListener('pointercancel', up);
+      dock.classList.remove('show'); tb.classList.remove('dragging'); tb.setAttribute('style', '');
+      setDock(dockAt(ev.clientX, ev.clientY)); $$('.dz', dock).forEach(z => z.classList.remove('hot'));
+    };
+    grip.addEventListener('pointermove', mv); grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+  });
+  setDock(TB.side);
+})();
 function setBigUI(on) { document.body.classList.toggle('bigui', on); try { localStorage.setItem('tableau-bigui', on ? '1' : '0'); } catch (_) {} fitToolbar(); render(); }
 try { if (localStorage.getItem('tableau-bigui') === '1') document.body.classList.add('bigui'); } catch (_) {}
 window.addEventListener('resize', () => { resize(); layoutTextEditor(); fitToolbar(); });
