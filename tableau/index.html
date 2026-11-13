@@ -91,6 +91,7 @@ body.t-eraser #over,body.t-laser #over{cursor:none}
 body.t-text #over{cursor:text}
 body.t-lasso #over{cursor:crosshair}
 body.tmode #over{cursor:crosshair!important}
+body.t-fr #over{cursor:crosshair}
 body.t-stamp #over{cursor:copy}
 svg.i{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;flex:none}
 button{font:inherit;color:inherit}
@@ -277,6 +278,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-reflect" viewBox="0 0 24 24"><path d="M12 2v20" stroke-dasharray="2.5 2"/><path d="M9 7L3 17h6zM15 7l6 10h-6z"/></symbol>
     <symbol id="i-translate" viewBox="0 0 24 24"><path d="M3 20h6v-6H3z"/><path d="M15 10h6V4h-6z" stroke-dasharray="2 1.6"/><path d="M8 13l6-4M11 8.5l3 .5-1 3"/></symbol>
     <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20 3v5h-5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></symbol>
+    <symbol id="i-fr" viewBox="0 0 24 24"><path d="M3 15l3.5-9 3.5 9M4.3 12h4.4"/><path d="M13 9.5c1.6-1.2 5-1.2 5 1.5V15M18 12.2c-3.5-.3-5.2.5-5.2 1.6 0 1.4 2.5 1.8 5.2-.4"/><path d="M3 19c3 2.2 6 2.2 9 0M12 19c3 2.2 6 2.2 9 0"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -300,6 +302,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-tool="arrow" data-fly="arrows" title="Flèches (F)"><svg class="i"><use href="#i-arrow"/></svg><span class="more"></span></button>
   <button class="ib" data-fly="instr" title="Instruments de géométrie : règle, équerre, rapporteur, compas"><svg class="i"><use href="#i-ruler"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="text" title="Texte (T)"><svg class="i"><use href="#i-text"/></svg></button>
+  <button class="ib" data-tool="fr" data-fly="frtools" title="Outils de français : syllabes, sons, crochets, manipulations syntaxiques, accords"><svg class="i"><use href="#i-fr"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="stamp" data-fly="stamps" title="Symboles et tampons"><svg class="i"><use href="#i-stamp"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="laser" title="Pointeur laser (L)"><svg class="i"><use href="#i-laser"/></svg></button>
   <div class="sep"></div>
@@ -945,6 +948,16 @@ function drawOverlay() {
   }
   // instruments et aperçus
   if (S.instr.length) { ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y); drawInstruments(ctx); ctx.restore(); }
+  if (G && G.type === 'fr') {
+    ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y);
+    ctx.strokeStyle = S.color === '#ffffff' ? '#2563eb' : S.color; ctx.lineWidth = PEN_W[S.size]; ctx.lineCap = 'round'; ctx.setLineDash([8 / v.z, 6 / v.z]);
+    const a = G.a, b = G.b, md = S.frMode;
+    ctx.beginPath();
+    if (md === 'syll') { const q = frArc(a, { x: b.x, y: a.y }, false); ctx.moveTo(q.x1, q.y1); ctx.quadraticCurveTo(q.cx, q.cy, q.x2, q.y2); }
+    else if (md === 'accord' || md === 'deplacement') { const q = frArc(a, b, true); ctx.moveTo(q.x1, q.y1); ctx.quadraticCurveTo(q.cx, q.cy, q.x2, q.y2); }
+    else { const B = frBox(a, b); ctx.rect(B.x1, B.y1, B.x2 - B.x1, B.y2 - B.y1); }
+    ctx.stroke(); ctx.restore();
+  }
   if (G && G.type === 'tmode') {
     ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const A = toScreen(G.a.x, G.a.y), B = toScreen(G.b.x, G.b.y);
     ctx.strokeStyle = '#d946ef'; ctx.lineWidth = 3; if (S.tmode?.kind === 'reflect') ctx.setLineDash([10, 7]);
@@ -1239,6 +1252,11 @@ over.addEventListener('pointerdown', e => {
       if (!S.stamp) { clearLP(); openFly('stamps', $('[data-fly=stamps]')); return; }
       G = { type: 'tap', p }; return;
     }
+    case 'fr': {
+      if (!PROF?.frModes.includes(S.frMode)) S.frMode = PROF?.frModes[0] || 'syll';
+      if (S.frMode === 'ajout') { G = { type: 'tap', p }; return; }
+      G = { type: 'fr', a: p, b: p }; return;
+    }
     case 'laser': G = { type: 'laser' }; laser.push({ x: p.x, y: p.y, t: performance.now() }); renderOverlay(); return;
   }
 });
@@ -1252,6 +1270,7 @@ over.addEventListener('pointermove', e => {
   switch (G.type) {
     case 'lp': lpHot(e.clientX, e.clientY); return;
     case 'instr': moveInstr(toWorld(e.clientX, e.clientY), e); return;
+    case 'fr': G.b = toWorld(e.clientX, e.clientY); renderOverlay(); return;
     case 'tmode': { const q = snapPoint(toWorld(e.clientX, e.clientY)); G.b = q; G.snapAt = q.snapped ? q : null; renderOverlay(); return; }
     case 'lasso': { const l = G.pts[G.pts.length - 1]; if (Math.hypot(e.clientX - l[0], e.clientY - l[1]) > 3) G.pts.push([e.clientX, e.clientY]); renderOverlay(); return; }
     case 'tap': return;
@@ -1374,10 +1393,12 @@ function endPointer(e) {
         const o = hitTest(g.p, false);
         if (o && o.t === 'text') openTextEditor(o, false); else startText(g.p);
       } else if (S.tool === 'stamp') placeStamp(g.p);
+      else if (S.tool === 'fr') frCreate(g.p, g.p);
       break;
     }
     case 'lasso': finishLasso(g); break;
     case 'instr': G = g; endInstr(); break;
+    case 'fr': frCreate(g.a, g.b); renderOverlay(); break;
     case 'tmode': if (Math.hypot(g.b.x - g.a.x, g.b.y - g.a.y) * V().z > 8) applyTransform(g.a, g.b); else toast('Glissez pour tracer.'); renderOverlay(); break;
     case 'lp': {
       const hot = lpHot(e.clientX, e.clientY);
@@ -1497,6 +1518,13 @@ function updateProps() {
       <option value="school"${S.font === 'school' ? ' selected' : ''}>Scolaire (Andika)</option>
       <option value="serif"${S.font === 'serif' ? ' selected' : ''}>Serif</option></select>`;
   }
+  if (t === 'fr') {
+    const md = FR_MODES.find(m => m[0] === S.frMode);
+    html = PEN_COLORS.map(c => `<button class="sw${c === S.color ? ' on' : ''}" data-color="${c}" style="background:${c}"></button>`).join('') + '<div class="vsep"></div>'
+      + `<button class="pill on" id="pFrMode">${esc(md ? md[1] : '')} ▾</button>`;
+    if (S.frMode === 'crochets') html += FR_LABELS().map(l => `<button class="pill${S.frLabel === l ? ' on' : ''}" data-frl="${esc(l)}">${l ? esc(l) : 'Sans étiquette'}</button>`).join('');
+    if (S.frMode === 'encadrement') html += `<button class="pill${S.frEnc === 'c' ? ' on' : ''}" data-enc="c">C’est … qui</button><button class="pill${S.frEnc === 's' ? ' on' : ''}" data-enc="s">Ce sont … qui</button>`;
+  }
   if (t === 'eraser') html += `<span class="hint">Touchez un trait pour l’effacer</span>`;
   if (t === 'laser') html = `<span class="hint">Pointeur laser : le tracé disparaît tout seul</span>`;
   if (t === 'hand') html = `<span class="hint">Glissez pour vous déplacer · 2 doigts ou molette pour zoomer</span>`;
@@ -1511,6 +1539,9 @@ function updateProps() {
     updateProps(); renderOverlay();
   }));
   const pf = $('#pFill'); if (pf) pf.addEventListener('click', () => { S.fill = { none: 'semi', semi: 'solid', solid: 'none' }[S.fill]; updateProps(); });
+  $$('[data-frl]', P).forEach(b => b.addEventListener('click', () => { S.frLabel = b.dataset.frl; updateProps(); }));
+  $$('[data-enc]', P).forEach(b => b.addEventListener('click', () => { S.frEnc = b.dataset.enc; updateProps(); }));
+  $('#pFrMode', P)?.addEventListener('click', () => openFly('frtools', $('[data-fly=frtools]')));
   const pm = $('#pMag'); if (pm) pm.addEventListener('click', () => { S.magnet = !S.magnet; try { localStorage.setItem('tableau-magnet', S.magnet ? '1' : '0'); } catch (_) {} updateProps(); toast(S.magnet ? 'Aimant activé : lignes droites et accroche aux points' : 'Aimant désactivé'); });
   const pd = $('#pDash'); if (pd) pd.addEventListener('click', () => { S.dash = !S.dash; updateProps(); });
   const pfo = $('#pFont'); if (pfo) pfo.addEventListener('change', () => { S.font = pfo.value; });
@@ -1577,6 +1608,9 @@ const FLY = {
       <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
       <button class="btn lockhide" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
+  frtools: () => `<h4>Outils de français</h4><div class="list">${FR_MODES.filter(([k]) => PROF.frModes.includes(k)).map(([k, l, d]) => `<button class="li${S.frMode === k && S.tool === 'fr' ? ' on' : ''}" data-frm="${k}"><span style="width:44px;text-align:center;font-weight:700;font-size:${FR_ICON[k].length > 3 ? 11 : 20}px">${FR_ICON[k]}</span><span>${l}<small>${d}</small></span></button>`).join('')}</div>
+    ${PROF.frModes.includes('sons') ? `<h4 style="margin-top:12px">Sons (surligneur)</h4><div class="row">${SOUNDS.map(([n, c]) => `<button class="chip" data-snd="${n}" data-c="${c}" style="background:${c};border-color:${c};color:#1a1a1a;font-weight:700">${n}</button>`).join('')}
+      <button class="chip" data-snd="+">+ autre</button></div><button class="btn" id="sndLegend" style="width:100%">Insérer la légende des sons</button>` : ''}`,
   instr: () => `<h4>Instruments de géométrie</h4><div class="list">
       ${[['ruler', 'Règle', 'Graduée en cm et mm; le crayon trace droit le long des bords'], ['square', 'Équerre', 'Angle droit, côtés gradués'], ['protractor', 'Rapporteur', 'Mesurer et construire des angles en degrés'], ['compass', 'Compas', 'Tracer cercles et arcs; rayon affiché']]
         .filter(([k]) => PROF.instruments.includes(k)).map(([k, l, d]) => `<button class="li" data-instr="${k}"><svg class="i"><use href="#i-ruler"/></svg><span>${l}<small>${d}</small></span></button>`).join('')}
@@ -1602,6 +1636,15 @@ const FLY = {
     </div>`,
 };
 const BIND = {
+  frtools: () => {
+    $$('[data-frm]', fly).forEach(b => b.addEventListener('click', () => { if (b.dataset.frm === 'sons') { fly.querySelector('[data-snd]')?.scrollIntoView({ block: 'nearest' }); return; } S.frMode = b.dataset.frm; setTool('fr'); closeFly(); }));
+    $$('[data-snd]', fly).forEach(b => b.addEventListener('click', async () => {
+      if (b.dataset.snd !== '+') return chooseSound(b.dataset.snd, b.dataset.c);
+      closeFly(); const w = await askWord('Nouveau son', ['oin', 'ian', 'ail', 'eil', 'ph', 'qu'], ''); if (!w) return;
+      const palette = ['#ffcc80', '#80cbc4', '#e6ee9c', '#f8bbd0', '#b0bec5', '#bcaaa4']; chooseSound(w, palette[S.soundsUsed.length % palette.length]);
+    }));
+    $('#sndLegend', fly)?.addEventListener('click', insertSoundLegend);
+  },
   instr: () => $$('[data-instr]', fly).forEach(b => b.addEventListener('click', () => { if (b.dataset.instr === 'none') { S.instr = []; closeFly(); renderOverlay(); } else addInstrument(b.dataset.instr); })),
   shapes: () => { $$('[data-shape]', fly).forEach(b => { if (!PROF.shapes.includes(b.dataset.shape)) b.style.display = 'none'; }); if (!PROF.inserts.includes('3d')) $('[data-open3d]', fly).style.display = 'none';
     $$('[data-shape]', fly).forEach(b => b.addEventListener('click', () => { S.shape = b.dataset.shape; setTool('shape'); closeFly(); })); $('[data-open3d]', fly).addEventListener('click', () => open3D()); },
@@ -1650,7 +1693,7 @@ $$('#toolbar [data-tool], #toolbar [data-fly], #topLeft [data-fly]').forEach(b =
   const t = b.dataset.tool, f = b.dataset.fly;
   if (t) {
     const was = S.tool === t; S.sticky = false; setTool(t);
-    if (f && (was || (t === 'stamp' && !S.stamp))) openFly(f, b); else closeFly();
+    if (f && (was || (t === 'stamp' && !S.stamp) || t === 'fr')) openFly(f, b); else closeFly();
   } else if (f) openFly(f, b);
 }));
 document.addEventListener('pointerdown', e => {
@@ -1702,9 +1745,10 @@ function recordUse() {
   if (t === 'shape') e.k = S.shape;
   if (t === 'arrow') e.k = S.arrow;
   if (t === 'stamp') { e.stamp = S.stamp; e.set = S.stampSet; }
+  if (t === 'fr') { e.fr = S.frMode; e.lab = S.frLabel; }
   if (t === 'text') e.font = S.font;
   if (t === 'shape' || t === 'arrow') { e.fill = S.fill; e.dash = S.dash; }
-  e.key = t + ':' + (e.k || e.stamp || '');
+  e.key = t + ':' + (e.k || e.stamp || e.fr || '');
   S.recent = [e, ...S.recent.filter(x => x.key !== e.key)].slice(0, 3);
   try { localStorage.setItem('tableau-recent', JSON.stringify(S.recent)); } catch (_) {}
 }
@@ -1730,7 +1774,7 @@ function placeStamp(p) {
   const m = textMetrics(o); o.x = r1(p.x - m.w / 2); o.y = r1(p.y - m.h / 2);
   snapshot(); page().objects.push(o); recordUse(); autoReturn(o); afterChange();
 }
-const TOOL_LABEL = { select: 'Sélection', hand: 'Main', pen: 'Crayon', hl: 'Surligneur', eraser: 'Gomme', text: 'Texte', laser: 'Laser' };
+const TOOL_LABEL = { fr: 'Français', select: 'Sélection', hand: 'Main', pen: 'Crayon', hl: 'Surligneur', eraser: 'Gomme', text: 'Texte', laser: 'Laser' };
 function presetHTML(e) {
   const dot = `<i style="background:${e.color}"></i>`;
   if (e.tool === 'stamp') {
@@ -1742,6 +1786,7 @@ function presetHTML(e) {
     const name = (e.tool === 'shape' ? SHAPES : ARROWS).find(x => x[0] === e.k)?.[1] || '';
     return `<span class="g" style="color:${e.color === '#ffffff' ? 'var(--ink)' : e.color}">${shapeIcon(e.k)}</span>${esc(name)}`;
   }
+  if (e.tool === 'fr') return `<span class="g" style="font-size:20px;font-weight:700;color:${e.color === '#ffffff' ? 'var(--ink)' : e.color}">${FR_ICON[e.fr] || 'Aa'}</span>${esc(FR_MODES.find(m => m[0] === e.fr)?.[1] || 'Français')}`;
   const ic = { select: 'i-select', hand: 'i-hand', pen: 'i-pen', hl: 'i-hl', eraser: 'i-eraser', text: 'i-text', laser: 'i-laser' }[e.tool];
   return `<span class="g"><svg class="i"><use href="#${ic}"/></svg>${e.tool === 'eraser' || e.tool === 'laser' ? '' : dot}</span>${TOOL_LABEL[e.tool] || ''}`;
 }
@@ -1784,6 +1829,7 @@ function applyPreset(e, at) {
   if (e.tool === 'arrow') S.arrow = e.k;
   if (e.fill !== undefined) { S.fill = e.fill; S.dash = !!e.dash; }
   if (e.tool === 'stamp') { S.stamp = e.stamp; S.stampSet = e.set; }
+  if (e.tool === 'fr') { S.frMode = e.fr; S.frLabel = e.lab || ''; }
   if (e.font) S.font = e.font;
   S.sticky = false;
   setTool(e.tool);
@@ -2670,24 +2716,144 @@ function applyTransform(a, b) {
   toast(tm.kind === 'reflect' ? 'Image par réflexion créée.' : tm.kind === 'translate' ? 'Image par translation créée.' : `Image par rotation de ${tm.ang}° créée.`);
 }
 
+/* ---------- Outils de français (programme actualisé) ---------- */
+// Modes : arcs de syllabes, coloriage des sons, crochets de constituants, manipulations syntaxiques, flèche d'accord
+const FR_MODES = [
+  ['syll', 'Syllabes', 'Arc sous chaque syllabe (glisser sous la syllabe)'],
+  ['sons', 'Sons', 'Surligner les sons avec un code de couleurs'],
+  ['crochets', 'Crochets', 'Encadrer un groupe de mots : [ … ] avec étiquette'],
+  ['remplacement', 'Remplacement', 'Remplacer un groupe (ex. : par un pronom)'],
+  ['encadrement', 'Encadrement', 'C’est … qui / Ce sont … qui'],
+  ['effacement', 'Effacement', 'Barrer un groupe que l’on peut effacer'],
+  ['deplacement', 'Déplacement', 'Flèche du groupe vers sa nouvelle place'],
+  ['ajout', 'Ajout', 'Insérer un mot (ex. : un adjectif)'],
+  ['accord', 'Accord', 'Flèche du donneur vers le receveur'],
+];
+const FR_ICON = { syll: '‿', sons: '🖍', crochets: '[ ]', remplacement: '⇄', encadrement: 'C’est…qui', effacement: '—̶', deplacement: '↷', ajout: '⁁', accord: '↝' };
+const SOUNDS = [['ou', '#ffd54f'], ['on', '#81d4fa'], ['an', '#a5d6a7'], ['in', '#f48fb1'], ['oi', '#ffab91'], ['eu', '#ce93d8'],
+  ['é', '#80deea'], ['è', '#c5e1a5'], ['ch', '#ffe082'], ['gn', '#b39ddb'], ['au', '#90caf9'], ['ill', '#ef9a9a']];
+S.frMode = 'syll'; S.frLabel = ''; S.frEnc = 'c'; S.sound = null; S.soundsUsed = [];
+const FR_LABELS = () => PROF?.level === 'sec' ? ['', 'Sujet', 'Prédicat', 'Compl. de P', 'GN', 'GV', 'CD', 'CI'] : ['', 'Sujet', 'Prédicat', 'Complément de phrase', 'Groupe du nom', 'Groupe du verbe'];
+function frText(text, cx, cy, s, c, bold = true) {
+  const o = { id: uid(), t: 'text', x: 0, y: 0, s, c, f: 'sans', text, ...(bold ? { b: 1 } : {}) };
+  const m = textMetrics(o); o.x = r1(cx - m.w / 2); o.y = r1(cy - m.h / 2); return o;
+}
+const polyStroke = (pts, c, w, extra = {}) => ({ id: uid(), t: 'stroke', pts: pts.map(([x, y]) => [r1(x), r1(y)]), c, w, ...extra });
+function frBox(a, b) {   // boîte du groupe : glisser horizontalement (hauteur standard) ou en diagonale
+  const x1 = Math.min(a.x, b.x), x2 = Math.max(a.x, b.x);
+  let y1 = Math.min(a.y, b.y), y2 = Math.max(a.y, b.y);
+  const hmin = Math.max(TXT_S[1] * 1.6, 44);
+  if (y2 - y1 < hmin * .6) { const cy = (a.y + b.y) / 2; y1 = cy - hmin / 2; y2 = cy + hmin / 2; }
+  return { x1, x2, y1, y2 };
+}
+function frArc(a, b, up) {   // courbe (arc sous syllabe ou flèche au-dessus)
+  const len = Math.hypot(b.x - a.x, b.y - a.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const depth = Math.max(10, len * (up ? .35 : .28)) * (up ? -1 : 1);
+  return { x1: a.x, y1: a.y, x2: b.x, y2: b.y, cx: mx, cy: my + depth };
+}
+function lastSyllArc() {
+  const objs = page().objects;
+  for (let i = objs.length - 1; i >= 0; i--) if (objs[i].syll) return objs[i];
+  return null;
+}
+async function frCreate(a, b) {
+  const c = S.color, w = PEN_W[S.size], small = Math.max(18, TXT_S[0] * .8), g = 'g' + uid(), out = [];
+  const mode = S.frMode, len = Math.hypot(b.x - a.x, b.y - a.y) * V().z;
+  if (mode !== 'ajout' && len < 10) { toast('Glissez pour indiquer le mot ou le groupe de mots.'); return; }
+  if (mode === 'syll') {
+    // arcs alignés : continue l'arc précédent s'il est sur la même ligne
+    const prev = lastSyllArc();
+    let A = { ...a }, B = { ...b }; if (B.x < A.x) [A, B] = [B, A];
+    if (prev) { const pe = prev.pts[prev.pts.length - 1]; if (Math.abs(pe[1] - A.y) < 30 / V().z && Math.abs(pe[0] - A.x) < 40 / V().z) { A = { x: pe[0], y: pe[1] }; } }
+    B.y = A.y;
+    const q = frArc(A, B, false), pts = [];
+    for (let i = 0; i <= 16; i++) { const t = i / 16, u = 1 - t; pts.push([u * u * q.x1 + 2 * u * t * q.cx + t * t * q.x2, u * u * q.y1 + 2 * u * t * q.cy + t * t * q.y2]); }
+    snapshot(); page().objects.push(polyStroke(pts, c, w, { syll: 1 })); recordUse(); afterChange(); return;
+  }
+  if (mode === 'accord' || mode === 'deplacement') {
+    const q = frArc(a, b, true);
+    out.push({ id: uid(), t: 'shape', k: 'curve', ...q, c, w, ...(mode === 'deplacement' ? { dash: 1 } : {}) });
+    if (mode === 'deplacement') { const t = frText('déplacement', q.cx, (q.cy + Math.min(a.y, b.y)) / 2 - small * .9, small * .8, c, false); out.push(t); }
+  }
+  if (['crochets', 'remplacement', 'encadrement', 'effacement'].includes(mode)) {
+    const B = frBox(a, b), e = Math.max(8, (B.y2 - B.y1) * .22), cx = (B.x1 + B.x2) / 2;
+    const brackets = () => {
+      out.push(polyStroke([[B.x1 + e, B.y1], [B.x1, B.y1], [B.x1, B.y2], [B.x1 + e, B.y2]], c, w));
+      out.push(polyStroke([[B.x2 - e, B.y1], [B.x2, B.y1], [B.x2, B.y2], [B.x2 - e, B.y2]], c, w));
+    };
+    if (mode === 'crochets') { brackets(); if (S.frLabel) out.push(frText(S.frLabel, cx, B.y2 + small * .9, small, c)); }
+    if (mode === 'effacement') {
+      out.push(polyStroke([[B.x1, (B.y1 + B.y2) / 2], [B.x2, (B.y1 + B.y2) / 2]], c, w));
+      out.push(frText('Ø', B.x2 + small * .8, (B.y1 + B.y2) / 2, small * 1.2, c));
+    }
+    if (mode === 'remplacement') {
+      const word = await askWord('Remplacer par…', ['il', 'elle', 'ils', 'elles', 'cela', 'ça'], 'il');
+      if (word === null) return;
+      brackets(); out.push(polyStroke([[cx, B.y1 - 4], [cx, B.y1 - small * .9]], c, Math.max(2, w * .7)));
+      out.push(frText(word, cx, B.y1 - small * 1.6, small * 1.15, c));
+    }
+    if (mode === 'encadrement') {
+      const [L, Rt] = S.frEnc === 'c' ? ['C’est', 'qui'] : ['Ce sont', 'qui'];
+      const tl = frText(L, 0, (B.y1 + B.y2) / 2, small * 1.15, c), tr = frText(Rt, 0, (B.y1 + B.y2) / 2, small * 1.15, c);
+      const wl = textMetrics(tl).w, wr = textMetrics(tr).w;
+      tl.x = r1(B.x1 - wl - 10); tr.x = r1(B.x2 + 10); out.push(tl, tr);
+    }
+  }
+  if (mode === 'ajout') {
+    const word = await askWord('Mot à ajouter', ['petit', 'grand', 'beau', 'très'], '');
+    if (word === null) return;
+    const h = Math.max(14, TXT_S[1] * .45);
+    out.push(polyStroke([[a.x - h * .7, a.y + h], [a.x, a.y], [a.x + h * .7, a.y + h]], c, w));
+    if (word) out.push(frText(word, a.x, a.y - small * 1.1, small * 1.1, c));
+  }
+  if (!out.length) return;
+  if (out.length > 1) out.forEach(o => o.g = g);
+  snapshot(); page().objects.push(...out); recordUse(); afterChange();
+}
+async function askWord(title, chips, def) {
+  const ok = await modal(title, `<div class="row">${chips.map(w => `<button class="chip" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div>
+    <input class="urlIn" id="wordIn" type="text" autocomplete="off" value="${esc(def)}" placeholder="Écrire un mot…">`,
+    [{ label: 'Annuler', value: false }, { label: 'Placer', value: true, cls: 'primary' }],
+    () => { $$('[data-w]').forEach(b => b.addEventListener('click', () => { $('#wordIn').value = b.dataset.w; $('#modal .btn.primary').click(); })); setTimeout(() => $('#wordIn')?.select(), 50); });
+  return ok ? ($('#wordIn')?.value || '').trim() : null;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'wordIn') { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
+function chooseSound(name, color) {
+  S.sound = name; S.hlColor = color;
+  if (!S.soundsUsed.find(s => s[0] === name)) S.soundsUsed.push([name, color]);
+  S.frMode = 'sons'; setTool('hl'); closeFly();
+  toast(`Surlignez le son « ${name} ».`, 2500);
+}
+function insertSoundLegend() {
+  const list = S.soundsUsed.length ? S.soundsUsed : SOUNDS.slice(0, 6);
+  const c = toWorld(120, 130), s = TXT_S[1], g = 'g' + uid(), out = [];
+  c.y += s / 2; let x = c.x;
+  for (const [n, col] of list) {
+    const t = frText(n, 0, c.y, s, '#1a1a1a'); const m = textMetrics(t); t.x = r1(x); t.g = g;
+    out.push({ ...polyStroke([[x - 4, c.y], [x + m.w + 4, c.y]], col, s * 1.1, { hl: 1 }), g }, t);
+    x += m.w + s * 1.2;
+  }
+  snapshot(); page().objects.push(...out); setTool('select'); S.sel = out.map(o => o.id); afterChange(); closeFly();
+}
+
 /* ---------- Niveaux, matières et mode élève ---------- */
 const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
 const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
-const TOOL_KEYS = [['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
+const TOOL_KEYS = [['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
 const ALL_SHAPES = SHAPES.map(s => s[0]), ALL_ARROWS = ARROWS.map(a => a[0]);
 // Outils par niveau, en lien avec les progressions des apprentissages (voir README)
 const LEVEL_DEF = {
-  pre: { tools: ['hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
+  pre: { tools: ['fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
     sheets: ['blank', 'dots', 'grid'], inserts: ['image', 'screen', 'paste'], scale: 1.6, txt: 1.4, size: 2 },
-  c1: { tools: ['instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
+  c1: { frModes: FR_MODES.map(m => m[0]), tools: ['fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
     sheets: ['blank', 'primary', 'lines', 'grid', 'dots', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste'], scale: 1.3, txt: 1.2, size: 1 },
-  c2: { tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c2: { frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'dots', 'cartesian', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
-  c3: { tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c3: { frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian', 'staff', 'piano', 'tab'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
 };
-LEVEL_DEF.sec = { ...LEVEL_DEF.c3, sheets: SHEETS.map(x => x[0]), transforms: ['reflect', 'translate', 'rotate'] };
-LEVEL_DEF.all = { ...LEVEL_DEF.sec };
+LEVEL_DEF.sec = { ...LEVEL_DEF.c3, frModes: ['crochets', 'remplacement', 'encadrement', 'effacement', 'deplacement', 'ajout', 'accord'], sheets: SHEETS.map(x => x[0]), transforms: ['reflect', 'translate', 'rotate'] };
+LEVEL_DEF.all = { ...LEVEL_DEF.sec, frModes: FR_MODES.map(m => m[0]) };
 const SUBJECT_SHEETS = { fr: ['blank', 'primary', 'lines'], math: ['blank', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian'], mus: ['blank', 'staff', 'piano', 'tab'] };
 let PROF = null;   // profil calculé
 S.profile = (() => { try { return JSON.parse(localStorage.getItem('tableau-profil')); } catch (_) { return null; } })();
@@ -2698,10 +2864,12 @@ function computeProfile() {
   if (SUBJECT_SHEETS[p.subject]) { const f = d.sheets.filter(k => SUBJECT_SHEETS[p.subject].includes(k)); if (f.length > 1) sheets = f; }
   let inserts = d.inserts.slice();
   if (inserts.includes('3d') && ['fr', 'mus'].includes(p.subject)) inserts = inserts.filter(x => x !== '3d');
-  let instruments = d.instruments, transforms = d.transforms;
+  let instruments = d.instruments, transforms = d.transforms, frModes = d.frModes || [];
+  if (['math', 'mus'].includes(p.subject)) frModes = [];
+  if (!frModes.length) tools.delete('fr');
   if (['fr', 'mus'].includes(p.subject)) { instruments = []; transforms = []; }
   if (!instruments.length) tools.delete('instr');
-  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms };
+  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms, frModes };
 }
 const toolVisible = t => !PROF || PROF.tools.has(t);
 const sheetAllowed = k => !PROF || PROF.sheets.includes(k);
@@ -3334,6 +3502,7 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
   <p><b>Instruments</b> (bouton règle) : règle graduée (le crayon trace droit le long de ses bords, longueur affichée), équerre, rapporteur (aiguille bleue = angle en degrés), compas (↔ règle le rayon, ✎ trace). ⟳ tourne l’instrument, ✕ le retire. <b>Transformations</b> : sélectionnez une figure, puis Réflexion (tracez l’axe), Translation (tracez la flèche) ou Rotation.</p>
   <p><b>Niveau et matière</b> : le bouton en haut à gauche choisit le niveau (préscolaire, 1er, 2e ou 3e cycle, secondaire) et la matière; seuls les outils utiles sont affichés. <b>Mode élève</b> (menu) : verrouille avec un code les fonctions sensibles.</p>
   <p><b>Sélection multiple et groupes</b> : l’outil lasso (sous la flèche) permet d’entourer plusieurs objets; touchez ensuite « Grouper » (ou <kbd>Ctrl+G</kbd>). Un groupe se sélectionne et se déplace d’un seul geste; « Dégrouper » le défait. Avec la flèche, <kbd>Maj</kbd> + clic ajoute un objet à la sélection.</p>
