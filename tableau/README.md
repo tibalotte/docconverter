@@ -37,6 +37,12 @@ page : le cadre reste vide. Dans ce cas, ouvrez le site dans un autre onglet et 
 *Insérer → Onglet ou fenêtre en direct*. Les annotations restent fixes sur le tableau : si on
 fait défiler la page web, elles ne suivent pas. Utilisez **Figer** avant d'annoter longuement.
 
+**YouTube et l'erreur 153** : YouTube refuse de lire ses vidéos intégrées quand le tableau est ouvert
+**depuis un fichier** de l'ordinateur (`file://`), car le navigateur n'envoie alors aucune adresse de site.
+Le cadre affiche l'aperçu de la vidéo : touchez-le deux fois pour l'ouvrir dans une fenêtre et l'afficher
+en direct sur le tableau. Pour la lecture directe dans le cadre, ouvrez le tableau depuis un site web
+(SharePoint, Moodle, serveur de l'école).
+
 Si la page reste vide ou affiche 🚫 : touchez le cadre (outil Sélection) puis le bouton **écran** —
 le tableau ouvre le site dans un onglet et l'affiche en direct. Pour les sites connus pour refuser
 (Google, YouTube hors vidéo, Microsoft 365, réseaux sociaux…), ce mode est proposé automatiquement.

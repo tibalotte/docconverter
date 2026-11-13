@@ -32,6 +32,14 @@ canvas{position:fixed;left:0;top:0;display:block}
 #webExit.show{display:block}
 body.capturing #main,body.capturing #over,body.capturing .panel,body.capturing #toast,body.capturing #webExit{visibility:hidden!important}
 .web .cap em{font-style:normal;color:#7b8794}
+.web .ytcard{display:none;flex:1;position:relative;background:#000 center/cover no-repeat;color:#fff;font:17px/1.4 "Segoe UI",system-ui,sans-serif}
+.web.yt .ytcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px}
+.web.yt iframe{display:none}
+.web.yt .cap em{display:none}
+.web .ytcard::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.web .ytcard>*{position:relative;max-width:560px}
+.web .ytcard .play{width:96px;height:68px;border-radius:18px;background:#ff0000;display:flex;align-items:center;justify-content:center;font-size:38px}
+.web .ytcard .ytgo{font-weight:600;font-size:19px;background:#fff;color:#111;border-radius:12px;padding:12px 18px}
 #lp{position:fixed;z-index:45;display:none;gap:8px;padding:10px;align-items:stretch}
 #lp.open{display:flex}
 #lp .lpi{width:84px;min-height:84px;border:0;border-radius:14px;background:var(--hover);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:12px;color:var(--muted);padding:6px 4px;text-align:center;line-height:1.15}
@@ -1233,7 +1241,7 @@ function selAction(act) {
   if (act === 'freeze') return freezeDom(wo);
   if (act === 'totab') return webToLive(wo.url, wo);
   if (act === 'reload') { const el = domEls.get(wo.id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = wo.url, 50); } return; }
-  if (act === 'open') { window.open(wo.url, '_blank', 'noopener'); return; }
+  if (act === 'open') { const y = ytId(wo.url); window.open(y ? `https://www.youtube.com/watch?v=${y}` : wo.url, '_blank', 'noopener'); return; }
   if (act === 'edit3d') return open3D(sel[0]);
   if (act === 'edittl') return editTimeline(sel[0]);
   if (act === 'reflect' || act === 'translate' || act === 'rotate') return startTransform(act);
@@ -1411,6 +1419,7 @@ over.addEventListener('pointerdown', e => {
       const o = hitTest(p, dbl);
       if (o && dbl && o.m3d) { open3D(o); return; }
       if (o && dbl && o.t === 'timeline') { editTimeline(o); return; }
+      if (o && dbl && o.t === 'web' && NO_REFERRER && ytId(o.url)) { webToLive(o.url, o); return; }
       if (o && dbl && o.t === 'text' && !o.lock) { S.sel = []; openTextEditor(o, false); updateProps(); return; }
       if (o) {
         const grp = groupIds(o);
@@ -4229,7 +4238,10 @@ const weblayer = $('#weblayer');
 function makeDom(o) {
   const el = document.createElement('div'); el.className = 'web' + (o.t === 'live' ? ' live' : '');
   if (o.t === 'web') {
-    el.innerHTML = `<div class="cap">🌐 <span></span><em> — page vide ou 🚫 ? Touchez ce cadre, puis le bouton écran</em></div><iframe allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    el.innerHTML = `<div class="cap">🌐 <span></span><em> — page vide ou 🚫 ? Touchez ce cadre, puis le bouton écran</em></div><iframe allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      <div class="ytcard"><div class="play">▶</div><div>YouTube refuse de lire ses vidéos dans un tableau ouvert <b>depuis un fichier</b> de l’ordinateur (erreur 153).</div>
+      <div class="ytgo">Touchez deux fois pour lire la vidéo et l’afficher en direct</div>
+      <div style="font-size:14px;opacity:.85">Ou sélectionnez ce cadre puis le bouton écran. Pour la lecture directe, ouvrez le tableau depuis un site web (SharePoint, Moodle, serveur de l’école).</div></div>`;
   } else {
     el.innerHTML = `<div class="cap"><b>●</b> En direct — ${esc(o.label || 'partage d’écran')}</div><video autoplay muted playsinline></video>
       <div class="ended">Le partage est terminé.<br>Supprimez ce cadre ou relancez « Insérer → Onglet ou fenêtre en direct ».</div>`;
@@ -4243,7 +4255,13 @@ function syncDom() {
     seen.add(o.id);
     let el = domEls.get(o.id);
     if (!el) { el = makeDom(o); domEls.set(o.id, el); weblayer.appendChild(el); }
-    if (o.t === 'web' && el.dataset.url !== o.url) { el.dataset.url = o.url; el.querySelector('.cap span').textContent = o.url; el.querySelector('iframe').src = o.url; }
+    if (o.t === 'web' && el.dataset.url !== o.url) {
+      el.dataset.url = o.url; el.querySelector('.cap span').textContent = o.url;
+      const yid = NO_REFERRER && ytId(o.url);
+      el.classList.toggle('yt', !!yid);
+      if (yid) { el.querySelector('.ytcard').style.backgroundImage = `url("https://i.ytimg.com/vi/${yid}/hqdefault.jpg")`; el.querySelector('iframe').removeAttribute('src'); }
+      else el.querySelector('iframe').src = o.url;
+    }
     if (o.t === 'live') {
       const vid = el.querySelector('video'), st = liveStreams.get(o.id);
       if (st && vid.srcObject !== st) vid.srcObject = st;
@@ -4269,6 +4287,13 @@ function drawDomPlaceholder(ctx, o) {
   ctx.fillStyle = '#45505c'; ctx.font = `20px ${FONTS.sans}`; ctx.textBaseline = 'top';
   ctx.fillText(o.t === 'web' ? '🌐 ' + o.url : '● Partage d’écran', o.x + 12, o.y + 6, o.w - 24);
   ctx.restore();
+}
+// Ouvert depuis un fichier (file://) ou une page isolée : le navigateur n'envoie pas d'adresse d'origine,
+// et YouTube refuse alors de lire la vidéo intégrée (erreur 153).
+const NO_REFERRER = location.protocol === 'file:' || location.origin === 'null';
+function ytId(url) {
+  const m = String(url || '').match(/(?:youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?(?:.*&)?v=|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
 }
 function normalizeUrl(u) {
   u = u.trim(); if (!u) return '';
@@ -4319,6 +4344,7 @@ function insertWebFrom(raw) {
   if (!emb && refusesEmbed(url)) { webToLive(url, null, true); return; }
   const ratio = emb?.ratio ? emb.ratio * 1.05 : (/youtube|vimeo/.test(url) ? 16 / 9 + .1 : 16 / 10);   // + barre de titre
   addDomObj({ id: uid(), t: 'web', url, ...fitBoxInView(ratio) });
+  if (NO_REFERRER && ytId(url)) { toast('Tableau ouvert depuis un fichier : YouTube bloque la lecture intégrée. Touchez deux fois le cadre pour lire la vidéo en direct.', 8000); return; }
   toast('Écrivez par-dessus avec vos outils. Si la page reste vide ou affiche 🚫, touchez-la puis le bouton écran (affichage depuis un onglet).', 7000);
 }
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'urlIn') { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
@@ -4332,15 +4358,20 @@ function refusesEmbed(url) {
 }
 // Repli : le site s'ouvre dans un onglet, puis on partage cet onglet en direct sur le tableau
 async function webToLive(url, replaceObj, known) {
+  const yid = ytId(url);
+  if (yid) url = `https://www.youtube.com/watch?v=${yid}`;
   const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (_) { return url; } })();
-  const go = await modal(known ? 'Ce site refuse d’être affiché dans le tableau' : 'Afficher la page depuis un onglet', `
+  const go = await modal(yid ? 'Lire la vidéo YouTube en direct' : known ? 'Ce site refuse d’être affiché dans le tableau' : 'Afficher la page depuis un onglet', yid ? `
+    <ol><li><button class="btn" id="openSite" type="button">↗ Ouvrir la vidéo dans une fenêtre</button></li>
+    <li style="margin-top:10px">Revenez sur le tableau, cliquez <b>Partager la fenêtre</b>, puis choisissez la fenêtre de la vidéo.</li></ol>
+    <p style="font-size:14px;color:var(--muted)">La vidéo joue dans sa fenêtre (son, pause, plein écran) et s’affiche en direct ici : vous annotez par-dessus. « Figer » garde l’image actuelle.</p>` : `
     <p>${known ? `<b>${esc(host)}</b> interdit l’affichage de ses pages à l’intérieur d’un autre site (règle de sécurité du site).` : 'Si la page reste vide ou affiche 🚫, c’est que le site interdit l’affichage dans une autre page (règle de sécurité du site).'}
     Solution : l’afficher <b>en direct</b> depuis un onglet.</p>
     <ol><li><button class="btn" id="openSite" type="button">↗ Ouvrir ${esc(host)} dans un nouvel onglet</button></li>
     <li style="margin-top:10px">Revenez sur cet onglet du tableau, cliquez <b>Partager l’onglet</b>, puis choisissez l’onglet du site dans la liste.</li></ol>
     <p style="font-size:14px;color:var(--muted)">Vous annotez par-dessus l’image en direct. Pour naviguer dans le site, utilisez son propre onglet; le bouton « Figer » garde l’image actuelle.</p>`,
-    [{ label: 'Annuler', value: false }, { label: 'Partager l’onglet', value: true, cls: 'primary' }],
-    () => $('#openSite').addEventListener('click', () => window.open(url, '_blank')));
+    [{ label: 'Annuler', value: false }, { label: yid ? 'Partager la fenêtre' : 'Partager l’onglet', value: true, cls: 'primary' }],
+    () => $('#openSite').addEventListener('click', () => yid ? window.open(url, 'ytvideo', 'popup,width=960,height=600') : window.open(url, '_blank')));
   if (!go) return;
   insertLive(replaceObj);
 }
