@@ -90,6 +90,7 @@ body.grabbing #over{cursor:grabbing!important}
 body.t-eraser #over,body.t-laser #over{cursor:none}
 body.t-text #over{cursor:text}
 body.t-lasso #over{cursor:crosshair}
+body.tmode #over{cursor:crosshair!important}
 body.t-stamp #over{cursor:copy}
 svg.i{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;flex:none}
 button{font:inherit;color:inherit}
@@ -272,6 +273,10 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-group" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 2.5"/><rect x="6.5" y="6.5" width="6.5" height="6.5" rx="1"/><rect x="11" y="11" width="6.5" height="6.5" rx="1" fill="currentColor"/></symbol>
     <symbol id="i-ungroup" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor"/><path d="M15 5h4v4M9 19H5v-4" stroke-dasharray="2 2"/></symbol>
     <symbol id="i-cube" viewBox="0 0 24 24"><path d="M4 7.5l8-4 8 4v9l-8 4-8-4z"/><path d="M4 7.5l8 4 8-4M12 11.5v9"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M2.5 16.5l14-14 5 5-14 14z"/><path d="M6.5 12.5l2 2M9.5 9.5l1.4 1.4M12.5 6.5l2 2M8 11l1 1M11 8l1 1"/></symbol>
+    <symbol id="i-reflect" viewBox="0 0 24 24"><path d="M12 2v20" stroke-dasharray="2.5 2"/><path d="M9 7L3 17h6zM15 7l6 10h-6z"/></symbol>
+    <symbol id="i-translate" viewBox="0 0 24 24"><path d="M3 20h6v-6H3z"/><path d="M15 10h6V4h-6z" stroke-dasharray="2 1.6"/><path d="M8 13l6-4M11 8.5l3 .5-1 3"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20 3v5h-5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -293,6 +298,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-tool="eraser" title="Gomme (E)"><svg class="i"><use href="#i-eraser"/></svg></button>
   <button class="ib" data-tool="shape" data-fly="shapes" title="Formes (R)"><svg class="i"><use href="#i-shapes"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="arrow" data-fly="arrows" title="Flèches (F)"><svg class="i"><use href="#i-arrow"/></svg><span class="more"></span></button>
+  <button class="ib" data-fly="instr" title="Instruments de géométrie : règle, équerre, rapporteur, compas"><svg class="i"><use href="#i-ruler"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="text" title="Texte (T)"><svg class="i"><use href="#i-text"/></svg></button>
   <button class="ib" data-tool="stamp" data-fly="stamps" title="Symboles et tampons"><svg class="i"><use href="#i-stamp"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="laser" title="Pointeur laser (L)"><svg class="i"><use href="#i-laser"/></svg></button>
@@ -330,6 +336,9 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 <div id="props" class="panel"></div>
 
 <div id="selbar" class="panel">
+  <button class="ib xf" data-act="reflect" title="Réflexion (axe à tracer)"><svg class="i"><use href="#i-reflect"/></svg></button>
+  <button class="ib xf" data-act="translate" title="Translation (flèche à tracer)"><svg class="i"><use href="#i-translate"/></svg></button>
+  <button class="ib xf" data-act="rotate" title="Rotation autour d’un point"><svg class="i"><use href="#i-rotate"/></svg></button>
   <button class="ib" data-act="edit3d" title="Modifier la forme 3D"><svg class="i"><use href="#i-cube"/></svg></button>
   <button class="ib" data-act="group" title="Grouper (Ctrl+G)"><svg class="i"><use href="#i-group"/></svg></button>
   <button class="ib" data-act="ungroup" title="Dégrouper (Ctrl+Maj+G)"><svg class="i"><use href="#i-ungroup"/></svg></button>
@@ -507,6 +516,7 @@ function circParams(o) {
 }
 function shapePolys(o) {
   const k = o.k;
+  if (k === 'poly') { const pts = o.pts.slice(); pts.push(pts[0]); return [{ pts, closed: true }]; }
   if (POLY[k]) {
     const pts = POLY[k].map(([u, v]) => [o.x1 + u * (o.x2 - o.x1), o.y1 + v * (o.y2 - o.y1)]);
     pts.push(pts[0]); return [{ pts, closed: true }];
@@ -624,7 +634,7 @@ function drawShape(ctx, o) {
   ctx.lineWidth = o.w; ctx.strokeStyle = o.c; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   if (o.dash) ctx.setLineDash([o.w * 2.6 + 4, o.w * 2.2 + 6]);
   const k = o.k, sz = arrowSize(o);
-  if (POLY[k] || k === 'ellipse') {
+  if (POLY[k] || k === 'ellipse' || k === 'poly') {
     ctx.beginPath();
     if (k === 'ellipse') ctx.ellipse((o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2, Math.abs(o.x2 - o.x1) / 2, Math.abs(o.y2 - o.y1) / 2, 0, 0, Math.PI * 2);
     else { const pts = shapePolys(o)[0].pts; ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length - 1; i++) ctx.lineTo(pts[i][0], pts[i][1]); ctx.closePath(); }
@@ -725,29 +735,30 @@ function drawBackground(ctx, pg, v, W, H, opts = {}) {
   ctx.fillStyle = PAPERS[bg.paper] || '#fff'; ctx.fillRect(0, 0, W, H);
   const x0 = -v.x / z, y0 = -v.y / z, x1 = (W - v.x) / z, y1 = (H - v.y) / z;
   const C = a => dark ? `rgba(255,255,255,${a})` : `rgba(37,99,180,${a})`;
-  const vlines = (step, col, lw = 1) => {
-    if (step * z < 4) return false;
+  const CMU = 96 / 2.54;
+  const vlines = (step, col, lw = 1, min = 4) => {
+    if (step * z < min) return false;
     ctx.beginPath();
     for (let i = Math.floor(x0 / step); i * step <= x1; i++) { const sx = Math.round(i * step * z + v.x) + .5; ctx.moveTo(sx, 0); ctx.lineTo(sx, H); }
     ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke(); return true;
   };
-  const hlines = (step, col, lw = 1, off = 0, dash) => {
-    if (step * z < 4) return false;
+  const hlines = (step, col, lw = 1, off = 0, dash, min = 4) => {
+    if (step * z < min) return false;
     ctx.beginPath();
     for (let i = Math.floor((y0 - off) / step); i * step + off <= y1; i++) { const sy = Math.round((i * step + off) * z + v.y) + .5; ctx.moveTo(0, sy); ctx.lineTo(W, sy); }
     ctx.strokeStyle = col; ctx.lineWidth = lw; if (dash) ctx.setLineDash(dash); ctx.stroke(); ctx.setLineDash([]); return true;
   };
   switch (bg.type) {
-    case 'grid': vlines(40, C(.22)); hlines(40, C(.22)); break;
-    case 'smallgrid': vlines(20, C(.16)); hlines(20, C(.16)); vlines(100, C(.32)); hlines(100, C(.32)); break;
+    case 'grid': vlines(CMU, C(.22)); hlines(CMU, C(.22)); break;   // carreaux de 1 cm
+    case 'smallgrid': vlines(CMU / 2, C(.16)); hlines(CMU / 2, C(.16)); vlines(CMU * 2.5, C(.32)); hlines(CMU * 2.5, C(.32)); break;   // 5 mm
     case 'mm': {
-      vlines(8, C(.10)); hlines(8, C(.10));
-      vlines(40, C(.22)); hlines(40, C(.22));
-      vlines(80, C(.42)); hlines(80, C(.42));
+      vlines(CMU / 10, C(.12), 1, 3); hlines(CMU / 10, C(.12), 1, 0, null, 3);   // 1 mm
+      vlines(CMU / 2, C(.24)); hlines(CMU / 2, C(.24));                  // 5 mm
+      vlines(CMU, C(.45)); hlines(CMU, C(.45));                          // 1 cm
       break;
     }
     case 'dots': {
-      const step = 32; if (step * z < 7) break;
+      const step = CMU; if (step * z < 7) break;
       ctx.fillStyle = dark ? 'rgba(255,255,255,.45)' : 'rgba(40,60,90,.38)';
       const r = Math.max(1.2, 1.6 * Math.min(z, 1.5));
       for (let i = Math.floor(x0 / step); i * step <= x1; i++) for (let j = Math.floor(y0 / step); j * step <= y1; j++) {
@@ -768,7 +779,7 @@ function drawBackground(ctx, pg, v, W, H, opts = {}) {
       break;
     }
     case 'cartesian': {
-      const unit = 40;
+      const unit = CMU;   // 1 unité = 1 cm
       vlines(unit, C(.18)); hlines(unit, C(.18));
       let step = 1; for (const s of [1, 2, 5, 10, 20, 50, 100, 200, 500]) { step = s; if (s * unit * z >= 30) break; }
       if (unit * z < 4) { vlines(unit * step, C(.18)); hlines(unit * step, C(.18)); }
@@ -932,6 +943,16 @@ function drawOverlay() {
     ctx.restore();
     renderOverlay();
   }
+  // instruments et aperçus
+  if (S.instr.length) { ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y); drawInstruments(ctx); ctx.restore(); }
+  if (G && G.type === 'tmode') {
+    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const A = toScreen(G.a.x, G.a.y), B = toScreen(G.b.x, G.b.y);
+    ctx.strokeStyle = '#d946ef'; ctx.lineWidth = 3; if (S.tmode?.kind === 'reflect') ctx.setLineDash([10, 7]);
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.stroke(); ctx.setLineDash([]);
+    if (S.tmode?.kind === 'translate') { const an = Math.atan2(B.y - A.y, B.x - A.x); ctx.fillStyle = '#d946ef'; ctx.beginPath(); ctx.moveTo(B.x, B.y); ctx.lineTo(B.x - 16 * Math.cos(an - .45), B.y - 16 * Math.sin(an - .45)); ctx.lineTo(B.x - 16 * Math.cos(an + .45), B.y - 16 * Math.sin(an + .45)); ctx.fill(); }
+    ctx.restore();
+  }
+  if (G && G.type === 'draw' && G.lenLabel) { const L = G.lenLabel; ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const q = toScreen(L.x, L.y); pill(ctx, q.x + 40, q.y - 30, L.t); ctx.restore(); }
   // curseurs gomme / laser
   if (hover && (S.tool === 'eraser' || S.tool === 'laser') && !(G && (G.type === 'pan' || G.type === 'pinch'))) {
     ctx.save();
@@ -991,6 +1012,7 @@ function transformObj(o, f, sx = 1, sy = 1) {
       const g = (x, y) => f(x, y).map(r1);
       [n.x1, n.y1] = g(o.x1, o.y1); [n.x2, n.y2] = g(o.x2, o.y2);
       if (o.cx !== undefined) [n.cx, n.cy] = g(o.cx, o.cy);
+      if (o.pts) n.pts = o.pts.map(([x, y]) => g(x, y));
       n.w = Math.max(.5, o.w * ws); break;
     }
     case 'text': [n.x, n.y] = f(o.x, o.y).map(r1); n.s = r1(Math.max(4, o.s * sy)); break;
@@ -1004,6 +1026,8 @@ function placeSelbar() {
   const b = selBox(), a = toScreen(b.x, b.y), w = b.w * V().z, h = b.h * V().z;
   bar.style.display = 'flex';
   const gids = new Set(sel.map(o => o.g || ('#' + o.id)));
+  const canX = sel.some(canTransform);
+  for (const k of ['reflect', 'translate', 'rotate']) bar.querySelector(`[data-act=${k}]`).style.display = canX && PROF?.transforms.includes(k) ? 'flex' : 'none';
   bar.querySelector('[data-act=edit3d]').style.display = sel.length === 1 && sel[0].m3d ? 'flex' : 'none';
   bar.querySelector('[data-act=group]').style.display = sel.length > 1 && gids.size > 1 ? 'flex' : 'none';
   bar.querySelector('[data-act=ungroup]').style.display = sel.some(o => o.g) ? 'flex' : 'none';
@@ -1027,6 +1051,7 @@ function selAction(act) {
   if (act === 'reload') { const el = domEls.get(wo.id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = wo.url, 50); } return; }
   if (act === 'open') { window.open(wo.url, '_blank', 'noopener'); return; }
   if (act === 'edit3d') return open3D(sel[0]);
+  if (act === 'reflect' || act === 'translate' || act === 'rotate') return startTransform(act);
   if (act === 'group') {
     if (sel.length < 2) return;
     snapshot(); const g = 'g' + uid(); for (const o of sel) replaceObj(o, { ...o, g });
@@ -1151,6 +1176,13 @@ over.addEventListener('pointerdown', e => {
   hover = { x: sx, y: sy };
   if (e.button === 0 || e.pointerType !== 'mouse') armLP(sx, sy);
   if (e.button === 1 || e.button === 2 || e.ctrlKey || e.metaKey || spaceDown || S.tool === 'hand') { startPan(sx, sy); return; }
+  if (S.tmode) {
+    clearLP(); const q = snapPoint(p);
+    if (S.tmode.kind === 'rotate') { applyTransform(q, q); return; }
+    G = { type: 'tmode', a: q, b: q }; return;
+  }
+  const ih = S.instr.length ? hitInstr(sx, sy, p) : null;
+  if (ih && ih.part !== 'edge') { clearLP(); startInstr(ih, p); return; }
   const now = performance.now();
   const dbl = now - lastTap.t < 380 && Math.hypot(sx - lastTap.x, sy - lastTap.y) < 30;
   lastTap = { t: now, x: sx, y: sy };
@@ -1183,6 +1215,12 @@ over.addEventListener('pointerdown', e => {
     }
     case 'pen': case 'hl': {
       const hl = S.tool === 'hl';
+      if (ih && ih.part === 'edge') {
+        clearLP(); const [a, b] = ih.edge, L = Math.hypot(b.x - a.x, b.y - a.y), d = [(b.x - a.x) / L, (b.y - a.y) / L];
+        const t = (p.x - a.x) * d[0] + (p.y - a.y) * d[1], q = { x: a.x + d[0] * t, y: a.y + d[1] * t };
+        G = { type: 'draw', edge: { a, d, t0: t }, obj: { id: uid(), t: 'stroke', pts: [[r1(q.x), r1(q.y)]], c: hl ? S.hlColor : S.color, w: (hl ? HL_W : PEN_W)[S.size], ...(hl ? { hl: 1 } : {}) } };
+        renderOverlay(); return;
+      }
       G = { type: 'draw', obj: { id: uid(), t: 'stroke', pts: [[r1(p.x), r1(p.y)]], c: hl ? S.hlColor : S.color, w: (hl ? HL_W : PEN_W)[S.size] / (hl ? 1 : 1), ...(hl ? { hl: 1 } : {}) } };
       renderOverlay(); return;
     }
@@ -1213,6 +1251,8 @@ over.addEventListener('pointermove', e => {
   const v = V();
   switch (G.type) {
     case 'lp': lpHot(e.clientX, e.clientY); return;
+    case 'instr': moveInstr(toWorld(e.clientX, e.clientY), e); return;
+    case 'tmode': { const q = snapPoint(toWorld(e.clientX, e.clientY)); G.b = q; G.snapAt = q.snapped ? q : null; renderOverlay(); return; }
     case 'lasso': { const l = G.pts[G.pts.length - 1]; if (Math.hypot(e.clientX - l[0], e.clientY - l[1]) > 3) G.pts.push([e.clientX, e.clientY]); renderOverlay(); return; }
     case 'tap': return;
     case 'pinch': {
@@ -1226,6 +1266,12 @@ over.addEventListener('pointermove', e => {
     }
     case 'pan': v.x = G.vx + e.clientX - G.sx; v.y = G.vy + e.clientY - G.sy; render(); if (editing) layoutTextEditor(); return;
     case 'draw': {
+      if (G.edge) {
+        const p = toWorld(e.clientX, e.clientY), E = G.edge, t = (p.x - E.a.x) * E.d[0] + (p.y - E.a.y) * E.d[1];
+        G.obj.pts = [G.obj.pts[0], [r1(E.a.x + E.d[0] * t), r1(E.a.y + E.d[1] * t)]];
+        G.lenLabel = { x: E.a.x + E.d[0] * t, y: E.a.y + E.d[1] * t, t: fmtcm(Math.abs(t - E.t0)) + ' cm' };
+        renderOverlay(); return;
+      }
       const pts = G.obj.pts, evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       for (const ev of (evs.length ? evs : [e])) {
         const p = toWorld(ev.clientX, ev.clientY), l = pts[pts.length - 1];
@@ -1314,7 +1360,7 @@ function endPointer(e) {
   document.body.classList.remove('grabbing');
   switch (g.type) {
     case 'pan': scheduleSave(); break;
-    case 'draw': if (S.magnet) straighten(g.obj); snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
+    case 'draw': if (S.magnet && !g.edge) straighten(g.obj); snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
     case 'shape': {
       const o = g.obj, len = Math.hypot(o.x2 - o.x1, o.y2 - o.y1) * V().z;
       if (len < 6) {
@@ -1331,6 +1377,8 @@ function endPointer(e) {
       break;
     }
     case 'lasso': finishLasso(g); break;
+    case 'instr': G = g; endInstr(); break;
+    case 'tmode': if (Math.hypot(g.b.x - g.a.x, g.b.y - g.a.y) * V().z > 8) applyTransform(g.a, g.b); else toast('Glissez pour tracer.'); renderOverlay(); break;
     case 'lp': {
       const hot = lpHot(e.clientX, e.clientY);
       if (hot) hot.click();
@@ -1392,7 +1440,7 @@ window.addEventListener('keydown', e => {
     return;
   }
   if (e.key === 'Delete' || e.key === 'Backspace') { if (S.sel.length) { e.preventDefault(); selAction('del'); } return; }
-  if (e.key === 'Escape') { closeFly(); closePages(); selectNone(); return; }
+  if (e.key === 'Escape') { cancelTransform(); closeFly(); closePages(); selectNone(); return; }
   if (e.key === 'PageDown') { e.preventDefault(); goPage(S.cur + 1); return; }
   if (e.key === 'PageUp') { e.preventDefault(); goPage(S.cur - 1); return; }
   if (e.key === '+' || e.key === '=') return zoomAt(W / 2, H / 2, 1.25);
@@ -1529,6 +1577,11 @@ const FLY = {
       <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
       <button class="btn lockhide" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
+  instr: () => `<h4>Instruments de géométrie</h4><div class="list">
+      ${[['ruler', 'Règle', 'Graduée en cm et mm; le crayon trace droit le long des bords'], ['square', 'Équerre', 'Angle droit, côtés gradués'], ['protractor', 'Rapporteur', 'Mesurer et construire des angles en degrés'], ['compass', 'Compas', 'Tracer cercles et arcs; rayon affiché']]
+        .filter(([k]) => PROF.instruments.includes(k)).map(([k, l, d]) => `<button class="li" data-instr="${k}"><svg class="i"><use href="#i-ruler"/></svg><span>${l}<small>${d}</small></span></button>`).join('')}
+      ${S.instr.length ? '<div class="sep"></div><button class="li" data-instr="none"><svg class="i"><use href="#i-trash"/></svg>Retirer les instruments</button>' : ''}
+    </div>`,
   menu: () => isLocked() ? `<div class="list">
       <button class="li" data-m="unlock"><svg class="i"><use href="#i-unlock"/></svg><span>Déverrouiller<small>Code de l’enseignant requis</small></span></button>
       <button class="li" data-m="full"><svg class="i"><use href="#i-full"/></svg>Plein écran</button>
@@ -1549,6 +1602,7 @@ const FLY = {
     </div>`,
 };
 const BIND = {
+  instr: () => $$('[data-instr]', fly).forEach(b => b.addEventListener('click', () => { if (b.dataset.instr === 'none') { S.instr = []; closeFly(); renderOverlay(); } else addInstrument(b.dataset.instr); })),
   shapes: () => { $$('[data-shape]', fly).forEach(b => { if (!PROF.shapes.includes(b.dataset.shape)) b.style.display = 'none'; }); if (!PROF.inserts.includes('3d')) $('[data-open3d]', fly).style.display = 'none';
     $$('[data-shape]', fly).forEach(b => b.addEventListener('click', () => { S.shape = b.dataset.shape; setTool('shape'); closeFly(); })); $('[data-open3d]', fly).addEventListener('click', () => open3D()); },
   arrows: () => $$('[data-arrow]', fly).forEach(b => (PROF.arrows.includes(b.dataset.arrow) || (b.style.display = 'none'), b).addEventListener('click', () => { S.arrow = b.dataset.arrow; setTool('arrow'); closeFly(); })),
@@ -1756,12 +1810,13 @@ S.magnet = (() => { try { return localStorage.getItem('tableau-magnet') !== '0';
 function keyPts(o) {
   if (o.t === 'stroke') { const a = o.pts[0], z = o.pts[o.pts.length - 1]; return [a, z]; }
   if (o.t !== 'shape') return [];
+  if (o.k === 'poly') return o.pts.slice();
   if (POLY[o.k]) { const pts = shapePolys(o)[0].pts.slice(0, -1); pts.push([(o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2]); return pts; }
   if (o.k === 'ellipse') { const cx = (o.x1 + o.x2) / 2, cy = (o.y1 + o.y2) / 2; return [[cx, cy], [o.x1, cy], [o.x2, cy], [cx, o.y1], [cx, o.y2]]; }
   return [[o.x1, o.y1], [o.x2, o.y2], [(o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2]];
 }
 function sheetGrid(sh) {
-  const step = { grid: 40, smallgrid: 20, mm: 8, dots: 32, cartesian: 40 }[sh.kind]; if (!step) return null;
+  const step = { grid: CM, smallgrid: CM / 2, mm: CM / 10, dots: CM, cartesian: CM }[sh.kind]; if (!step) return null;
   if (sh.kind === 'cartesian') { const z = V().z; return { step, ox: sh.x + Math.round(sh.w * z / 2) / z, oy: sh.y + Math.round(sh.h * z / 2) / z }; }
   return { step, ox: sh.x, oy: sh.y };
 }
@@ -2346,23 +2401,292 @@ function crop3(c) {
   return o;
 }
 
+/* ---------- Instruments de géométrie (règle, équerre, rapporteur, compas) ---------- */
+const CM = 96 / 2.54;                       // 1 cm = 37,8 unités (même échelle que les feuilles lettre)
+const fmtcm = v => (Math.round(v / CM * 10) / 10).toFixed(1).replace('.', ',');
+S.instr = [];
+const INSTR_NAMES = { ruler: 'Règle', square: 'Équerre', protractor: 'Rapporteur', compass: 'Compas' };
+function addInstrument(type) {
+  const c = viewCenter(), v = V();
+  let o;
+  if (type === 'ruler') { const len = 30 * CM, w = 3.2 * CM; o = { type, len, w, ang: 0, x: c.x - len / 2, y: c.y - w / 2 }; }
+  if (type === 'square') { const s = 12 * CM; o = { type, s, ang: 0, x: c.x - s / 3, y: c.y - s / 3 }; }
+  if (type === 'protractor') { o = { type, R: 7 * CM, ang: 0, arm: 45, x: c.x, y: c.y + 3.5 * CM }; }
+  if (type === 'compass') { o = { type, r: 4 * CM, th: 0, x: c.x - 2 * CM, y: c.y + 1.5 * CM }; }
+  o.id = uid(); S.instr.push(o);
+  const big = { ruler: 31 * CM, square: 13 * CM, protractor: 15 * CM, compass: 8 * CM }[type];
+  if (big * v.z > W - 160) zoomAt(W / 2, H / 2, (W - 200) / (big * v.z));
+  closeFly(); renderOverlay();
+  toast({ ruler: 'Glissez la règle pour la déplacer, ⟳ pour la tourner. Le crayon trace droit le long de ses bords.',
+    square: 'Équerre : le crayon trace le long de ses côtés; ⟳ pour la tourner.',
+    protractor: 'Rapporteur : placez le centre sur le sommet de l’angle, puis tirez l’aiguille bleue.',
+    compass: 'Compas : déplacez la pointe, réglez l’écartement (↔), puis tournez le crayon pour tracer.' }[type], 5000);
+}
+const rot = (x, y, a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
+const toW = (o, lx, ly) => { const [a, b] = rot(lx, ly, o.ang || 0); return { x: o.x + a, y: o.y + b }; };
+const toL = (o, p) => rot(p.x - o.x, p.y - o.y, -(o.ang || 0));
+function compassGeo(o) {
+  const d = [Math.cos(o.th), Math.sin(o.th)], tip = { x: o.x + d[0] * o.r, y: o.y + d[1] * o.r };
+  const h = Math.max(o.r * .6, 2 * CM), mid = { x: o.x + d[0] * o.r / 2, y: o.y + d[1] * o.r / 2 };
+  const hinge = { x: mid.x + d[1] * h, y: mid.y - d[0] * h };
+  return { tip, hinge, top: { x: hinge.x + d[1] * 1.1 * CM, y: hinge.y - d[0] * 1.1 * CM } };
+}
+function instrHandles(o) {
+  const hs = [];
+  if (o.type === 'ruler') { hs.push(['rot', toW(o, o.len - .9 * CM, o.w * .62)], ['close', toW(o, .9 * CM, o.w * .62)]); }
+  if (o.type === 'square') { hs.push(['rot', toW(o, o.s * .42, o.s * .17)], ['close', toW(o, o.s * .17, o.s * .42)]); }
+  if (o.type === 'protractor') {
+    const a = o.arm * Math.PI / 180;
+    hs.push(['arm', toW(o, Math.cos(a) * o.R * .97, -Math.sin(a) * o.R * .97)], ['rot', toW(o, o.R * .5, -o.R * .14)], ['close', toW(o, -o.R * .5, -o.R * .14)]);
+  }
+  if (o.type === 'compass') { const g = compassGeo(o); hs.push(['pencil', g.tip], ['radius', g.hinge], ['pivot', { x: o.x, y: o.y }], ['close', g.top]); }
+  return hs;
+}
+function instrEdges(o) {
+  const E = (a, b, c, d) => [toW(o, a, b), toW(o, c, d)];
+  if (o.type === 'ruler') return [E(0, 0, o.len, 0), E(0, o.w, o.len, o.w)];
+  if (o.type === 'square') return [E(0, 0, o.s, 0), E(0, 0, 0, o.s), E(o.s, 0, 0, o.s)];
+  if (o.type === 'protractor') return [E(-o.R, 0, o.R, 0)];
+  return [];
+}
+function inInstr(o, p) {
+  if (o.type === 'compass') {
+    const g = compassGeo(o);
+    return distSeg(p.x, p.y, o.x, o.y, g.hinge.x, g.hinge.y) < .35 * CM || distSeg(p.x, p.y, g.hinge.x, g.hinge.y, g.tip.x, g.tip.y) < .35 * CM;
+  }
+  const [lx, ly] = toL(o, p);
+  if (o.type === 'ruler') return lx >= 0 && lx <= o.len && ly >= 0 && ly <= o.w;
+  if (o.type === 'square') return lx >= 0 && ly >= 0 && lx + ly <= o.s;
+  if (o.type === 'protractor') return ly <= .5 * CM && lx * lx + ly * ly <= o.R * o.R && ly >= -o.R;
+}
+function hitInstr(sx, sy, p) {
+  for (let i = S.instr.length - 1; i >= 0; i--) {
+    const o = S.instr[i];
+    for (const [part, w] of instrHandles(o)) { const s = toScreen(w.x, w.y); if (Math.hypot(s.x - sx, s.y - sy) < 22) return { o, part }; }
+    if (S.tool === 'pen' || S.tool === 'hl') {
+      for (const [a, b] of instrEdges(o)) if (distSeg(p.x, p.y, a.x, a.y, b.x, b.y) * V().z < 22) return { o, part: 'edge', edge: [a, b] };
+    }
+    if (inInstr(o, p)) return { o, part: 'body' };
+  }
+  return null;
+}
+function instrCenter(o) {
+  if (o.type === 'ruler') return toW(o, o.len / 2, o.w / 2);
+  if (o.type === 'square') return toW(o, o.s / 3, o.s / 3);
+  return { x: o.x, y: o.y };
+}
+function startInstr(h, p) {
+  const o = h.o;
+  if (h.part === 'close') { S.instr = S.instr.filter(x => x !== o); renderOverlay(); return true; }
+  S.instr = S.instr.filter(x => x !== o).concat(o);   // au premier plan
+  if (h.part === 'body' || h.part === 'pivot') G = { type: 'instr', mode: 'move', o, start: p, ox: o.x, oy: o.y };
+  else if (h.part === 'rot') { const c = instrCenter(o); G = { type: 'instr', mode: 'rot', o, c, a0: Math.atan2(p.y - c.y, p.x - c.x), ang0: o.ang, ox: o.x, oy: o.y }; }
+  else if (h.part === 'arm') G = { type: 'instr', mode: 'arm', o };
+  else if (h.part === 'radius') G = { type: 'instr', mode: 'radius', o };
+  else if (h.part === 'pencil') { const a = Math.atan2(p.y - o.y, p.x - o.x); G = { type: 'instr', mode: 'arc', o, start: o.th, prev: a, total: 0 }; }
+  renderOverlay(); return true;
+}
+function moveInstr(p, e) {
+  const g = G, o = g.o;
+  if (g.mode === 'move') { o.x = g.ox + p.x - g.start.x; o.y = g.oy + p.y - g.start.y; }
+  if (g.mode === 'rot') {
+    let d = Math.atan2(p.y - g.c.y, p.x - g.c.x) - g.a0, ang = g.ang0 + d, deg = ang * 180 / Math.PI;
+    const sn = Math.round(deg / 15) * 15; if (S.magnet && Math.abs(sn - deg) < 3) deg = sn; else deg = Math.round(deg);
+    ang = deg * Math.PI / 180; d = ang - g.ang0;
+    const [rx, ry] = rot(g.ox - g.c.x, g.oy - g.c.y, d); o.x = g.c.x + rx; o.y = g.c.y + ry; o.ang = ang;
+    g.label = (((Math.round(-deg) % 360) + 360) % 360) + '°';
+  }
+  if (g.mode === 'arm') { const [lx, ly] = toL(o, p); o.arm = clamp(Math.round(Math.atan2(-ly, lx) * 180 / Math.PI), 0, 180); }
+  if (g.mode === 'radius') {
+    let r = Math.hypot(p.x - o.x, p.y - o.y); r = S.magnet ? Math.round(r / (CM / 2)) * (CM / 2) : Math.round(r / (CM / 10)) * (CM / 10);
+    o.r = Math.max(CM / 2, r); o.th = Math.atan2(p.y - o.y, p.x - o.x) - Math.atan2(Math.max(o.r * .6, 2 * CM), o.r / 2) * 0;
+  }
+  if (g.mode === 'arc') {
+    const a = Math.atan2(p.y - o.y, p.x - o.x); let d = a - g.prev;
+    if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI;
+    g.total = clamp(g.total + d, -2 * Math.PI, 2 * Math.PI); g.prev = a; o.th = g.start + g.total;
+  }
+  renderOverlay();
+}
+function endInstr() {
+  const g = G; G = null;
+  if (g.mode === 'arc' && Math.abs(g.total) > .03) {
+    const o = g.o, n = Math.max(8, Math.ceil(Math.abs(g.total) / (Math.PI / 90))), pts = [];
+    for (let i = 0; i <= n; i++) { const a = g.start + g.total * i / n; pts.push([r1(o.x + Math.cos(a) * o.r), r1(o.y + Math.sin(a) * o.r)]); }
+    snapshot(); page().objects.push({ id: uid(), t: 'stroke', pts, c: S.color, w: PEN_W[S.size] }); afterChange();
+  }
+  renderOverlay();
+}
+function drawInstruments(ctx) {
+  const v = V(), z = v.z, px = 1 / z;
+  const fill = 'rgba(236,244,255,.62)', edge = 'rgba(30,64,120,.85)', ink = '#1e3a64';
+  for (const o of S.instr) {
+    ctx.save();
+    if (o.type === 'compass') {
+      const g = compassGeo(o);
+      ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(70,80,95,.9)'; ctx.lineWidth = .32 * CM;
+      ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(g.hinge.x, g.hinge.y); ctx.lineTo(g.tip.x, g.tip.y); ctx.stroke();
+      ctx.strokeStyle = 'rgba(160,170,185,.9)'; ctx.lineWidth = .14 * CM;
+      ctx.beginPath(); ctx.moveTo(o.x, o.y); ctx.lineTo(g.hinge.x, g.hinge.y); ctx.lineTo(g.tip.x, g.tip.y); ctx.stroke();
+      ctx.strokeStyle = 'rgba(70,80,95,.9)'; ctx.lineWidth = .25 * CM; ctx.beginPath(); ctx.moveTo(g.hinge.x, g.hinge.y); ctx.lineTo(g.top.x, g.top.y); ctx.stroke();
+      ctx.fillStyle = S.color; ctx.beginPath(); ctx.arc(g.tip.x, g.tip.y, .18 * CM, 0, Math.PI * 2); ctx.fill();
+      ctx.setLineDash([4 * px, 4 * px]); ctx.strokeStyle = 'rgba(37,99,235,.35)'; ctx.lineWidth = px; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+      { const q = toScreen(g.hinge.x, g.hinge.y); const w = toWorld(q.x + 78, q.y); label(ctx, w.x, w.y, 'r = ' + fmtcm(o.r) + ' cm'); }
+      ctx.restore(); continue;
+    }
+    ctx.translate(o.x, o.y); ctx.rotate(o.ang);
+    ctx.fillStyle = fill; ctx.strokeStyle = edge; ctx.lineWidth = 1.5 * px;
+    ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 8;
+    ctx.beginPath();
+    if (o.type === 'ruler') ctx.rect(0, 0, o.len, o.w);
+    if (o.type === 'square') { ctx.moveTo(0, 0); ctx.lineTo(o.s, 0); ctx.lineTo(0, o.s); ctx.closePath(); }
+    if (o.type === 'protractor') { ctx.moveTo(-o.R, .5 * CM); ctx.lineTo(-o.R, 0); ctx.arc(0, 0, o.R, Math.PI, 2 * Math.PI); ctx.lineTo(o.R, .5 * CM); ctx.closePath(); }
+    ctx.fill(); ctx.shadowColor = 'transparent'; ctx.stroke();
+    ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const fs = Math.max(.3 * CM, 11 * px); ctx.font = `600 ${fs}px ${FONTS.sans}`;
+    const ticks = (len, ox, oy, dirx, diry, nx, ny, maxCm) => {   // graduations le long d'un côté
+      const mmOk = CM / 10 * z >= 3.2;
+      ctx.beginPath();
+      for (let i = 0; i <= maxCm * 10; i++) {
+        if (!mmOk && i % 5) continue;
+        const t = i * CM / 10, L = i % 10 === 0 ? .45 * CM : i % 5 === 0 ? .3 * CM : .18 * CM;
+        const x = ox + dirx * t, y = oy + diry * t; ctx.moveTo(x, y); ctx.lineTo(x + nx * L, y + ny * L);
+      }
+      ctx.lineWidth = px; ctx.stroke();
+      for (let c = 0; c <= maxCm; c++) { if (CM * z < 14 && c % 5) continue; const t = c * CM; ctx.fillText(String(c), ox + dirx * t + nx * .75 * CM, oy + diry * t + ny * .75 * CM); }
+    };
+    if (o.type === 'ruler') { ticks(o.len, 0, 0, 1, 0, 0, 1, Math.floor(o.len / CM)); ctx.font = `${fs * .8}px ${FONTS.sans}`; ctx.fillText('cm', o.len / 2, o.w - .45 * CM); }
+    if (o.type === 'square') {
+      ticks(o.s, 0, 0, 1, 0, 0, 1, Math.floor(o.s / CM) - 2); ticks(o.s, 0, 0, 0, 1, 1, 0, Math.floor(o.s / CM) - 2);
+      ctx.lineWidth = px; ctx.strokeRect(.12 * CM, .12 * CM, .5 * CM, .5 * CM);
+    }
+    if (o.type === 'protractor') {
+      ctx.beginPath();
+      for (let d = 0; d <= 180; d++) {
+        if (o.R * z * Math.PI / 180 < 2.5 && d % 5) continue;
+        const a = -d * Math.PI / 180, L = d % 10 === 0 ? .55 * CM : d % 5 === 0 ? .35 * CM : .2 * CM;
+        ctx.moveTo(Math.cos(a) * o.R, Math.sin(a) * o.R); ctx.lineTo(Math.cos(a) * (o.R - L), Math.sin(a) * (o.R - L));
+      }
+      ctx.moveTo(-.4 * CM, 0); ctx.lineTo(.4 * CM, 0); ctx.moveTo(0, -.4 * CM); ctx.lineTo(0, .3 * CM);
+      ctx.lineWidth = px; ctx.stroke();
+      ctx.font = `600 ${fs * .85}px ${FONTS.sans}`;
+      for (let d = 0; d <= 180; d += 10) {
+        const a = -d * Math.PI / 180;
+        ctx.fillText(String(d), Math.cos(a) * (o.R - .95 * CM), Math.sin(a) * (o.R - .95 * CM));
+        ctx.fillStyle = 'rgba(30,58,100,.55)'; ctx.fillText(String(180 - d), Math.cos(a) * (o.R - 1.65 * CM), Math.sin(a) * (o.R - 1.65 * CM)); ctx.fillStyle = ink;
+      }
+      const a = -o.arm * Math.PI / 180;
+      ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2.5 * px; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * o.R * 1.05, Math.sin(a) * o.R * 1.05); ctx.stroke();
+      ctx.strokeStyle = 'rgba(37,99,235,.5)'; ctx.beginPath(); ctx.arc(0, 0, 1.6 * CM, 0, a, true); ctx.stroke();
+      ctx.restore(); ctx.save();
+      const q = toW(o, Math.cos(a / 2) * 2.6 * CM, Math.sin(a / 2) * 2.6 * CM);
+      label(ctx, q.x, q.y, o.arm + '°', true);
+    }
+    ctx.restore();
+  }
+  // poignées (taille écran)
+  ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  for (const o of S.instr) for (const [part, w] of instrHandles(o)) {
+    if (part === 'pivot') continue;
+    const s = toScreen(w.x, w.y);
+    ctx.beginPath(); ctx.arc(s.x, s.y, 15, 0, Math.PI * 2);
+    ctx.fillStyle = part === 'close' ? 'rgba(255,255,255,.95)' : part === 'arm' || part === 'pencil' ? '#2563eb' : 'rgba(255,255,255,.95)'; ctx.fill();
+    ctx.strokeStyle = part === 'close' ? '#dc2626' : '#2563eb'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = part === 'close' ? '#dc2626' : part === 'arm' || part === 'pencil' ? '#fff' : '#2563eb';
+    ctx.font = '700 16px "Segoe UI",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText({ rot: '⟳', close: '✕', arm: '↻', radius: '↔', pencil: '✎' }[part] || '', s.x, s.y + 1);
+  }
+  if (G && G.type === 'instr' && G.label) { const c = toScreen(G.c.x, G.c.y); pill(ctx, c.x, c.y - 40, G.label); }
+  ctx.restore();
+}
+function pill(ctx, x, y, t) {
+  ctx.font = '700 16px "Segoe UI",sans-serif'; const w = ctx.measureText(t).width + 18;
+  ctx.fillStyle = '#1e3a64'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2, y - 14, w, 28, 14) : ctx.rect(x - w / 2, y - 14, w, 28); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t, x, y + 1);
+}
+function label(ctx, wx, wy, t) { ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const s = toScreen(wx, wy); pill(ctx, s.x, s.y, t); ctx.restore(); }
+
+/* ---------- Transformations géométriques (réflexion, translation, rotation) ---------- */
+S.tmode = null;
+function toPolyShape(o) {
+  if (o.t === 'shape' && (POLY[o.k] || o.k === 'ellipse')) return { ...o, k: 'poly', pts: shapePolys(o)[0].pts.slice(0, -1).map(([x, y]) => [r1(x), r1(y)]) };
+  return o;
+}
+function mapGeneric(o, f) {
+  if (o.t === 'text' || o.t === 'image') { const b = bbox(o), c = f(b.x + b.w / 2, b.y + b.h / 2); return { ...o, x: r1(c[0] - b.w / 2), y: r1(c[1] - b.h / 2) }; }
+  return transformObj(toPolyShape(o), f, 1, 1);
+}
+const canTransform = o => INKT.has(o.t) || o.t === 'image';
+function startTransform(kind) {
+  const ids = selObjs().filter(canTransform).map(o => o.id); if (!ids.length) return;
+  if (kind === 'rotate') return askRotation(ids);
+  S.tmode = { kind, ids };
+  document.body.classList.add('tmode');
+  toast(kind === 'reflect' ? 'Tracez l’axe de réflexion (glissez sur le tableau).' : 'Tracez la flèche de translation (glissez sur le tableau).', 5000);
+  renderOverlay();
+}
+async function askRotation(ids) {
+  let ang = 90, dir = 'anti';
+  const ok = await modal('Rotation', `<p>Angle de rotation :</p>
+    <div class="row">${[90, 180, 270].map(a => `<button class="chip${a === 90 ? ' on' : ''}" data-ra="${a}">${a}°</button>`).join('')}
+      <input class="urlIn" id="raIn" type="number" min="1" max="359" placeholder="Autre (°)" style="width:140px;font-size:16px;padding:8px 10px"></div>
+    <p>Sens :</p><div class="row"><button class="chip on" data-rd="anti">↺ Antihoraire</button><button class="chip" data-rd="hor">↻ Horaire</button></div>
+    <p class="s3hint" style="color:var(--muted)">Ensuite, touchez le centre de rotation sur le tableau.</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Choisir le centre', value: true, cls: 'primary' }],
+    () => {
+      $$('[data-ra]').forEach(b => b.addEventListener('click', () => { ang = +b.dataset.ra; $('#raIn').value = ''; $$('[data-ra]').forEach(x => x.classList.toggle('on', x === b)); }));
+      $('#raIn').addEventListener('input', e => { const v = +e.target.value; if (v) { ang = v; $$('[data-ra]').forEach(x => x.classList.remove('on')); } });
+      $$('[data-rd]').forEach(b => b.addEventListener('click', () => { dir = b.dataset.rd; $$('[data-rd]').forEach(x => x.classList.toggle('on', x === b)); }));
+    });
+  if (!ok) return;
+  S.tmode = { kind: 'rotate', ids, ang: ((ang % 360) + 360) % 360, dir };
+  document.body.classList.add('tmode'); toast('Touchez le centre de rotation.', 4000);
+}
+function cancelTransform() { if (S.tmode) { S.tmode = null; document.body.classList.remove('tmode'); renderOverlay(); } }
+function applyTransform(a, b) {
+  const tm = S.tmode; cancelTransform();
+  const src = page().objects.filter(o => tm.ids.includes(o.id)); if (!src.length) return;
+  let f, extra = [];
+  const gray = '#64748b';
+  if (tm.kind === 'reflect') {
+    const L = Math.hypot(b.x - a.x, b.y - a.y); if (L < 1) return;
+    const dx = (b.x - a.x) / L, dy = (b.y - a.y) / L;
+    f = (x, y) => { const px = x - a.x, py = y - a.y, t = px * dx + py * dy; return [a.x + 2 * t * dx - px, a.y + 2 * t * dy - py]; };
+    const e = 3 * CM; extra.push({ id: uid(), t: 'shape', k: 'line', x1: r1(a.x - dx * e), y1: r1(a.y - dy * e), x2: r1(b.x + dx * e), y2: r1(b.y + dy * e), c: gray, w: 2, dash: 1 });
+  } else if (tm.kind === 'translate') {
+    const dx = b.x - a.x, dy = b.y - a.y; if (Math.hypot(dx, dy) < 1) return;
+    f = (x, y) => [x + dx, y + dy];
+    extra.push({ id: uid(), t: 'shape', k: 'arrow', x1: r1(a.x), y1: r1(a.y), x2: r1(b.x), y2: r1(b.y), c: gray, w: 3 });
+  } else {
+    const th = (tm.dir === 'anti' ? -1 : 1) * tm.ang * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th);
+    f = (x, y) => { const px = x - a.x, py = y - a.y; return [a.x + px * cs - py * sn, a.y + px * sn + py * cs]; };
+    extra.push({ id: uid(), t: 'stroke', pts: [[r1(a.x), r1(a.y)]], c: gray, w: 10 });
+  }
+  snapshot();
+  const gmap = {};
+  const copies = src.map(o => { const n = mapGeneric(o, f); n.id = uid(); delete n.lock; delete n.att; if (o.g) n.g = gmap[o.g] ||= 'g' + uid(); return n; });
+  page().objects.push(...extra, ...copies);
+  setTool('select'); S.sel = copies.map(c => c.id); afterChange();
+  toast(tm.kind === 'reflect' ? 'Image par réflexion créée.' : tm.kind === 'translate' ? 'Image par translation créée.' : `Image par rotation de ${tm.ang}° créée.`);
+}
+
 /* ---------- Niveaux, matières et mode élève ---------- */
 const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
 const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
-const TOOL_KEYS = [['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
+const TOOL_KEYS = [['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
 const ALL_SHAPES = SHAPES.map(s => s[0]), ALL_ARROWS = ARROWS.map(a => a[0]);
 // Outils par niveau, en lien avec les progressions des apprentissages (voir README)
 const LEVEL_DEF = {
-  pre: { tools: ['hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
+  pre: { tools: ['hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
     sheets: ['blank', 'dots', 'grid'], inserts: ['image', 'screen', 'paste'], scale: 1.6, txt: 1.4, size: 2 },
-  c1: { tools: ['hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
+  c1: { tools: ['instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
     sheets: ['blank', 'primary', 'lines', 'grid', 'dots', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste'], scale: 1.3, txt: 1.2, size: 1 },
-  c2: { tools: TOOL_KEYS.map(t => t[0]), shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c2: { tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'dots', 'cartesian', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
-  c3: { tools: TOOL_KEYS.map(t => t[0]), shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c3: { tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian', 'staff', 'piano', 'tab'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
 };
-LEVEL_DEF.sec = { ...LEVEL_DEF.c3, sheets: SHEETS.map(x => x[0]) };
+LEVEL_DEF.sec = { ...LEVEL_DEF.c3, sheets: SHEETS.map(x => x[0]), transforms: ['reflect', 'translate', 'rotate'] };
 LEVEL_DEF.all = { ...LEVEL_DEF.sec };
 const SUBJECT_SHEETS = { fr: ['blank', 'primary', 'lines'], math: ['blank', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian'], mus: ['blank', 'staff', 'piano', 'tab'] };
 let PROF = null;   // profil calculé
@@ -2374,7 +2698,10 @@ function computeProfile() {
   if (SUBJECT_SHEETS[p.subject]) { const f = d.sheets.filter(k => SUBJECT_SHEETS[p.subject].includes(k)); if (f.length > 1) sheets = f; }
   let inserts = d.inserts.slice();
   if (inserts.includes('3d') && ['fr', 'mus'].includes(p.subject)) inserts = inserts.filter(x => x !== '3d');
-  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts };
+  let instruments = d.instruments, transforms = d.transforms;
+  if (['fr', 'mus'].includes(p.subject)) { instruments = []; transforms = []; }
+  if (!instruments.length) tools.delete('instr');
+  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms };
 }
 const toolVisible = t => !PROF || PROF.tools.has(t);
 const sheetAllowed = k => !PROF || PROF.sheets.includes(k);
@@ -2388,7 +2715,8 @@ function applyProfile() {
   computeProfile();
   PEN_W = BASE_W.pen.map(w => Math.round(w * PROF.scale)); HL_W = BASE_W.hl.map(w => Math.round(w * PROF.scale)); TXT_S = BASE_W.txt.map(w => Math.round(w * PROF.txt));
   $$('#toolbar [data-tool]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.tool) || b.dataset.tool === 'select' ? '' : 'none'; });
-  $$('#toolbar [data-fly=insert], #toolbar [data-fly=bg]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.fly) ? '' : 'none'; });
+  $$('#toolbar [data-fly=insert], #toolbar [data-fly=bg], #toolbar [data-fly=instr]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.fly) ? '' : 'none'; });
+  S.instr = S.instr.filter(o => PROF.instruments.includes(o.type));
   $('#bClear').style.display = PROF.tools.has('clear') ? '' : 'none';
   if (!PROF.shapes.includes(S.shape)) S.shape = PROF.shapes[0] || 'rect';
   if (!PROF.arrows.includes(S.arrow)) S.arrow = PROF.arrows[0] || 'arrow';
@@ -3006,6 +3334,7 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Instruments</b> (bouton règle) : règle graduée (le crayon trace droit le long de ses bords, longueur affichée), équerre, rapporteur (aiguille bleue = angle en degrés), compas (↔ règle le rayon, ✎ trace). ⟳ tourne l’instrument, ✕ le retire. <b>Transformations</b> : sélectionnez une figure, puis Réflexion (tracez l’axe), Translation (tracez la flèche) ou Rotation.</p>
   <p><b>Niveau et matière</b> : le bouton en haut à gauche choisit le niveau (préscolaire, 1er, 2e ou 3e cycle, secondaire) et la matière; seuls les outils utiles sont affichés. <b>Mode élève</b> (menu) : verrouille avec un code les fonctions sensibles.</p>
   <p><b>Sélection multiple et groupes</b> : l’outil lasso (sous la flèche) permet d’entourer plusieurs objets; touchez ensuite « Grouper » (ou <kbd>Ctrl+G</kbd>). Un groupe se sélectionne et se déplace d’un seul geste; « Dégrouper » le défait. Avec la flèche, <kbd>Maj</kbd> + clic ajoute un objet à la sélection.</p>
   <p><b>Formes 3D</b> : <i>Insérer → Formes 3D</i> ouvre l’atelier : ajoutez cubes, cylindres, cônes…, réglez leurs dimensions en mm, transformez une forme en « trou » puis groupez-la avec une autre pour la soustraire. L’image insérée se modifie par double-clic.</p>

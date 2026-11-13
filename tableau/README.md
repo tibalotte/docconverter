@@ -15,6 +15,9 @@ ouvrir le fichier dans Chrome ou Edge, ou le déposer sur un serveur web / Share
 | Pages | Ajouter, dupliquer, réordonner, supprimer; miniatures; chaque page garde son fond et sa position |
 | Feuilles | Objets **redimensionnables**, au format **lettre 8,5 × 11** par défaut : feuille blanche, quadrillé, petits carreaux, millimétré, pointillé, ligné, interligné (primaire), plan cartésien gradué, **portée** (clé de sol, fa, ut 3e, ut 4e, percussion, aucune), portée de piano, tablature — papier blanc, crème, vert ou noir. En redimensionnant, la feuille « colle » magnétiquement au format lettre (portrait ou paysage; Alt pour ignorer). Ce qui est écrit ou déposé **sur** une feuille s'y attache et la suit; une autre feuille qui passe dessus ou dessous ne le récupère pas |
 | Aimant 🧲 | Trait presque droit → ligne droite (0°, 45°, 90°…); formes et flèches qui s'accrochent aux sommets des autres formes et au quadrillage des feuilles |
+| Instruments de géométrie | **Règle** graduée cm/mm (le crayon trace droit le long des bords, longueur affichée), **équerre**, **rapporteur** (aiguille et angle en degrés), **compas** (réglage du rayon, tracé d'arcs et de cercles). Se déplacent et tournent au doigt (⟳, angle affiché, aimant à 15°). Échelle réelle : 1 cm = 1 cm des feuilles quadrillées, millimétrées et du plan cartésien |
+| Transformations | Sur une figure sélectionnée : **réflexion** (tracer l'axe), **translation** (tracer la flèche), **rotation** (angle et sens, puis centre). L'image est créée avec l'axe, la flèche ou le centre |
+
 | Formes 3D | **Atelier 3D** : cube/pavé, cylindre, sphère, cône, pyramide, prisme triangulaire, demi-sphère, tore, tube; plan cartésien 3D gradué en mm; dimensions, position et rotation en mm/degrés; formes **« trou »** soustraites au groupement, formes pleines additionnées (style Tinkercad); cotes, volume et aire; insertion sur le tableau et modification par double-clic |
 | Sélection multiple | Outil **lasso** : entourer des objets pour les sélectionner; **Grouper / Dégrouper** (Ctrl+G / Ctrl+Maj+G); un groupe se sélectionne et se déplace d'un seul geste; Maj + clic ajoute à la sélection |
 | Rapidité | Après une forme, une flèche, un texte ou un symbole, l'outil **Sélection** revient seul (double-clic sur un outil pour le garder actif). **Appui long** immobile sur le tableau : menu des **3 derniers outils utilisés** — un symbole (GN, Prédicat…) ou une forme y est posé directement |
@@ -66,6 +69,7 @@ Les choix par niveau s'appuient sur les publications du ministère de l'Éducati
 - Français, langue d'enseignement : **programme d'études actualisé** (août 2026), offert à titre
   informatif en 2026-2027 et **obligatoire dès la rentrée 2027-2028** — terminologie grammaticale,
   feuilles lignées avec trottoir, écriture script et cursive.
+- Instruments par niveau : règle dès le 1er cycle; équerre et réflexion au 2e cycle; rapporteur, compas et translation au 3e cycle; rotation au secondaire (masqués en français et en musique).
 - Mathématique : Progression des apprentissages au primaire (mise à jour février 2026) et au
   secondaire (2023) — plan cartésien (1er quadrant au 2e cycle, 4 quadrants au 3e cycle),
   développements de solides, réflexion/translation, rapporteur (3e cycle), diagrammes.
