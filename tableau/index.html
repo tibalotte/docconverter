@@ -180,6 +180,7 @@ body.bigui #toast{font-size:20px}
 .urlIn:focus{border-color:var(--accent)}
 #over{touch-action:none;cursor:crosshair}
 body.t-select #over{cursor:default}
+body.t-pen #over,body.t-hl #over{cursor:var(--pencur,crosshair)}
 body.t-hand #over,body.panning #over{cursor:grab}
 body.grabbing #over{cursor:grabbing!important}
 body.t-eraser #over,body.t-laser #over{cursor:none}
@@ -1733,7 +1734,14 @@ function applyToSel(fn) {
   const sel = selObjs().filter(o => INKT.has(o.t)); if (!sel.length) return false;
   snapshot(); for (const o of sel) replaceObj(o, fn({ ...o })); afterChange(); return true;
 }
+// Curseur du crayon / surligneur : un point de la couleur choisie (bordure blanche pour rester visible)
+function updatePenCursor() {
+  const hl = S.tool === 'hl', c = (hl ? S.hlColor : S.color) || '#1a1a1a', r = hl ? 6 : 4, n = 2 * r + 4;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${n}" height="${n}"><circle cx="${n / 2}" cy="${n / 2}" r="${r}" fill="${c}" fill-opacity="${hl ? .6 : 1}" stroke="#fff" stroke-width="1.5"/><circle cx="${n / 2}" cy="${n / 2}" r="${r + 1.2}" fill="none" stroke="rgba(0,0,0,.35)" stroke-width=".8"/></svg>`;
+  document.body.style.setProperty('--pencur', `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${n / 2} ${n / 2}, crosshair`);
+}
 function updateProps() {
+  updatePenCursor();
   const P = $('#props'), t = S.tool, hasSel = t === 'select' && selObjs().some(o => INKT.has(o.t));
   const sel1 = t === 'select' && selObjs().length === 1 ? selObjs()[0] : null;
   if (sel1 && sel1.t === 'sheet') return sheetProps(P, sel1);
