@@ -15,7 +15,7 @@
   --r:16px; --btn:52px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#fff;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none;margin:0;height:100%;overflow:hidden;background:#fff;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{position:fixed;left:0;top:0;display:block}
 #bg{z-index:0}#weblayer{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}#main{z-index:2}#over{z-index:3}
 #weblayer.front{z-index:12}
@@ -119,6 +119,39 @@ details.custom summary{cursor:pointer;font-weight:600;color:var(--accent);margin
 .piano .kw{position:absolute;top:0;height:190px;border:1px solid #9aa5b1;border-radius:0 0 8px 8px;background:#fff;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:14px;color:#64707d}
 .piano .kb{position:absolute;top:0;height:115px;border:0;border-radius:0 0 6px 6px;background:#1f2933;cursor:pointer;z-index:2}
 .piano .kw.down{background:var(--accent-soft)}.piano .kb.down{background:#2563eb}
+/* --- Vérification téléviseur : cibles tactiles d'au moins 44 px --- */
+button,.sw,select{touch-action:manipulation}
+body .sw{width:44px;height:44px}
+body .paper{width:44px;height:44px}
+body .tab{min-height:44px;padding:10px 16px;font-size:15px}
+body .chip{min-height:44px;min-width:44px;padding:10px 16px;font-size:15px}
+body .pill{min-width:44px;justify-content:center}
+body .pchip{height:44px}
+body .widget .wx{width:44px;height:44px}
+body .th .ib{width:40px;height:40px}
+input[type=checkbox]{width:26px!important;height:26px!important;flex:none}
+body .nopt{min-height:44px}
+input[type=range]{height:44px;accent-color:var(--accent)}
+body .li{min-height:52px}
+#toolbar.two{display:grid;grid-template-columns:repeat(2,var(--btn));grid-auto-rows:var(--btn);gap:2px}
+#toolbar.two .sep{display:none}
+/* Interface agrandie (grands écrans) */
+body.bigui{--btn:64px}
+body.bigui svg.i{width:32px;height:32px}
+body.bigui .sw{width:54px;height:54px}
+body.bigui .sz{width:56px;height:56px}
+body.bigui .pill,body.bigui .pchip{height:54px;font-size:18px}
+body.bigui .hint{font-size:18px}
+body.bigui .li{font-size:19px;min-height:62px}
+body.bigui .li small{font-size:15px}
+body.bigui .chip,body.bigui .tab{font-size:18px;min-height:52px}
+body.bigui .gb{width:68px;height:68px;font-size:34px}
+body.bigui .grid{grid-template-columns:repeat(4,68px)}
+body.bigui .grid.g6{grid-template-columns:repeat(6,68px)}
+body.bigui #selbar .ib{width:58px;height:58px}
+body.bigui #pageLabel,body.bigui #zoomLabel{font-size:21px}
+body.bigui .widget{font-size:18px}
+body.bigui #toast{font-size:20px}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -258,8 +291,9 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   #print .pp:last-child{page-break-after:auto;break-after:auto}
   #print img{max-width:100%;max-height:190mm}
 }
-@media (max-height:1000px){ :root{--btn:44px} }
-@media (max-height:860px){ :root{--btn:40px} svg.i{width:23px;height:23px} }
+@media (max-height:1100px){ :root{--btn:48px} }
+@media (max-height:1000px){ :root{--btn:46px} }
+@media (max-height:860px){ :root{--btn:44px} svg.i{width:24px;height:24px} }
 @media (max-width:700px){ :root{--btn:44px} .grid{grid-template-columns:repeat(4,50px)} .gb{width:50px;height:50px} }
 </style>
 </head>
@@ -919,11 +953,37 @@ function drawObjects(ctx, pg, v, W, H, ratio, skipId, live) {
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
+function simplify(pts, eps) {
+  if (pts.length < 3) return pts;
+  const keep = new Uint8Array(pts.length); keep[0] = keep[pts.length - 1] = 1;
+  const st = [[0, pts.length - 1]];
+  while (st.length) {
+    const [a, b] = st.pop(); let md = 0, mi = -1;
+    for (let i = a + 1; i < b; i++) { const d = distSeg(pts[i][0], pts[i][1], pts[a][0], pts[a][1], pts[b][0], pts[b][1]); if (d > md) { md = d; mi = i; } }
+    if (md > eps) { keep[mi] = 1; st.push([a, mi], [mi, b]); }
+  }
+  return pts.filter((_, i) => keep[i]);
+}
+let lastMainMs = 0, PANC = null;   // PANC : image de la couche des objets pendant un déplacement
+function startPanCache() {
+  if (lastMainMs < 9 || PANC) return;   // seulement si la page est lourde à dessiner
+  const c = document.createElement('canvas'); c.width = main.width; c.height = main.height;
+  c.getContext('2d').drawImage(main, 0, 0); PANC = { c, v: { ...V() } };
+}
+function endPanCache() { if (PANC) { PANC = null; render(); } }
 function drawMain() {
   const v = V();
   bgctx.setTransform(DPR, 0, 0, DPR, 0, 0); drawBackground(bgctx, page(), v, W, H);
   mctx.setTransform(1, 0, 0, 1, 0, 0); mctx.clearRect(0, 0, main.width, main.height);
-  drawObjects(mctx, page(), v, W, H, DPR, editing && editing.o.id, true);
+  if (PANC) {
+    const s = v.z / PANC.v.z;
+    mctx.setTransform(s, 0, 0, s, (v.x - PANC.v.x * s) * DPR, (v.y - PANC.v.y * s) * DPR); mctx.drawImage(PANC.c, 0, 0);
+    mctx.setTransform(1, 0, 0, 1, 0, 0);
+  } else {
+    const t0 = performance.now();
+    drawObjects(mctx, page(), v, W, H, DPR, editing && editing.o.id, true);
+    lastMainMs = performance.now() - t0;
+  }
   syncDom();
 }
 
@@ -1223,8 +1283,9 @@ function commitText() {
 const ptrs = new Map();
 let spaceDown = false, lastTap = { t: 0, x: 0, y: 0 };
 
-function startPan(sx, sy) { const v = V(); G = { type: 'pan', sx, sy, vx: v.x, vy: v.y }; document.body.classList.add('grabbing'); }
+function startPan(sx, sy) { const v = V(); G = { type: 'pan', sx, sy, vx: v.x, vy: v.y }; document.body.classList.add('grabbing'); startPanCache(); }
 function startPinch() {
+  startPanCache();
   const [a, b] = [...ptrs.values()], v = V();
   G = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, v0: { ...v } };
 }
@@ -1232,7 +1293,7 @@ function cancelGesture() {
   if (!G) return;
   if (G.type === 'move' || G.type === 'handle') { if (G.moved) { const h = H_(); if (h.u.length) page().objects = h.u.pop(); } }
   if (G.type === 'erase' && G.snapped) { const h = H_(); if (h.u.length) page().objects = h.u.pop(); }
-  G = null; document.body.classList.remove('grabbing'); render(); updateUndo();
+  G = null; PANC = null; document.body.classList.remove('grabbing'); render(); updateUndo();
 }
 function ensureSnap() { if (!G.snapped) { snapshot(); G.snapped = true; } }
 
@@ -1437,13 +1498,13 @@ function endPointer(e) {
   if (!G) return;
   if (G.type === 'pinch' || G.type === 'none') {
     if (G.type === 'pinch') scheduleSave();
-    G = ptrs.size ? { type: 'none' } : null; afterView(); return;
+    G = ptrs.size ? { type: 'none' } : null; if (!G) endPanCache(); afterView(); return;
   }
   const g = G; G = null;
   document.body.classList.remove('grabbing');
   switch (g.type) {
-    case 'pan': scheduleSave(); break;
-    case 'draw': if (S.magnet && !g.edge) straighten(g.obj); snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
+    case 'pan': endPanCache(); scheduleSave(); break;
+    case 'draw': if (!g.edge && g.obj.pts.length > 6) g.obj.pts = simplify(g.obj.pts, .35 / V().z); if (S.magnet && !g.edge) straighten(g.obj); snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
     case 'shape': {
       const o = g.obj, len = Math.hypot(o.x2 - o.x1, o.y2 - o.y1) * V().z;
       if (len < 6) {
@@ -1724,6 +1785,7 @@ const FLY = {
       <button class="li" data-m="print"><svg class="i"><use href="#i-print"/></svg><span>Imprimer / enregistrer en PDF<small>Toutes les pages</small></span></button>
       <div class="sep"></div>
       <button class="li" data-m="full"><svg class="i"><use href="#i-full"/></svg>Plein écran</button>
+      <button class="li" data-m="bigui"><svg class="i"><use href="#i-plus"/></svg><span>${document.body.classList.contains('bigui') ? 'Interface normale' : 'Interface agrandie'}<small>Boutons plus gros pour les grands écrans</small></span></button>
       <button class="li" data-m="help"><svg class="i"><use href="#i-help"/></svg>Aide et raccourcis</button>
     </div>`,
 };
@@ -1781,7 +1843,7 @@ const BIND = {
   },
   menu: () => $$('[data-m]', fly).forEach(b => b.addEventListener('click', () => {
     closeFly();
-    ({ new: newBoard, open: () => $('#fOpen').click(), save: saveFile, png: exportPNG, print: printAll, full: toggleFull, help: showHelp, profile: () => chooseProfile(), lock: setLock, unlock: unlockPrompt })[b.dataset.m]();
+    ({ new: newBoard, open: () => $('#fOpen').click(), save: saveFile, png: exportPNG, print: printAll, full: toggleFull, help: showHelp, bigui: () => setBigUI(!document.body.classList.contains('bigui')), profile: () => chooseProfile(), lock: setLock, unlock: unlockPrompt })[b.dataset.m]();
   })),
 };
 function adaptInk() {
@@ -3565,7 +3627,7 @@ function applyProfile() {
   if (!PROF.arrows.includes(S.arrow)) S.arrow = PROF.arrows[0] || 'arrow';
   const sets = stampSets(); if (!sets.includes(S.stampSet)) { S.stampSet = sets[0]; S.stamp = null; }
   if (!toolVisible(S.tool)) setTool(toolVisible('pen') ? 'pen' : 'select');
-  updateProfileChip(); updateProps(); render();
+  updateProfileChip(); updateProps(); render(); fitToolbar();
 }
 function updateProfileChip() {
   const p = S.profile || { level: 'all', subject: 'all' };
@@ -4092,10 +4154,21 @@ const DB = {
     });
   },
   async get(k) { const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  async del(k) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').delete(k); t.oncomplete = res; t.onerror = () => rej(t.error); }); },
   async set(k, v) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); },
 };
 let saveTimer = 0;
-function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { DB.set('doc', serialize()).catch(() => {}); }, 700); }
+const SAVED_ASSETS = new Set();
+async function persist() {
+  const ser = serialize(), ids = Object.keys(ser.assets);
+  for (const id of ids) if (!SAVED_ASSETS.has(id)) { await DB.set('asset:' + id, ser.assets[id]); SAVED_ASSETS.add(id); }
+  for (const id of [...SAVED_ASSETS]) if (!ser.assets[id]) { await DB.del('asset:' + id).catch(() => {}); SAVED_ASSETS.delete(id); }
+  await DB.set('doc', { ...ser, assets: undefined, assetIds: ids });
+}
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { const run = () => persist().catch(() => {}); window.requestIdleCallback ? requestIdleCallback(run, { timeout: 2000 }) : run(); }, 900);
+}
 function download(blob, name) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
@@ -4223,7 +4296,15 @@ $('#bPages').addEventListener('click', () => $('#pagesPanel').classList.contains
 $('#bClosePages').addEventListener('click', closePages);
 $('#bFull').addEventListener('click', toggleFull);
 $('#bHelp').addEventListener('click', showHelp);
-window.addEventListener('resize', () => { resize(); layoutTextEditor(); });
+function fitToolbar() {
+  const tb = $('#toolbar'); tb.classList.remove('two');
+  if (tb.scrollHeight > tb.clientHeight + 2) tb.classList.add('two');
+}
+function setBigUI(on) { document.body.classList.toggle('bigui', on); try { localStorage.setItem('tableau-bigui', on ? '1' : '0'); } catch (_) {} fitToolbar(); render(); }
+try { if (localStorage.getItem('tableau-bigui') === '1') document.body.classList.add('bigui'); } catch (_) {}
+window.addEventListener('resize', () => { resize(); layoutTextEditor(); fitToolbar(); });
+// Écran tactile : pas de menu contextuel ni de « tirer pour actualiser » sur l'interface
+document.addEventListener('contextmenu', e => { if (!e.target.closest('input,textarea')) e.preventDefault(); });
 
 // Rafraîchit les mesures quand les polices (musique, Andika) sont chargées
 function fontsChanged() { clefCache = {}; tmCache = new WeakMap(); bbCache = new WeakMap(); render(); }
@@ -4235,7 +4316,13 @@ if (document.fonts) {
 /* ---------- Démarrage ---------- */
 (async function init() {
   S.doc = { pages: [newPage()], assets: {} };
-  try { const d = await DB.get('doc'); if (d) loadDoc(d); } catch (_) {}
+  try {
+    const d = await DB.get('doc');
+    if (d) {
+      if (d.assetIds) { d.assets = {}; for (const id of d.assetIds) { const a = await DB.get('asset:' + id); if (a) { d.assets[id] = a; SAVED_ASSETS.add(id); } } }
+      loadDoc(d);
+    }
+  } catch (_) {}
   resize(); applyLock(); applyProfile(); setTool(toolVisible('pen') ? 'pen' : 'select'); adaptInk(); goPage(S.cur);
   if (!S.profile) setTimeout(() => chooseProfile(true), 400);
 })();

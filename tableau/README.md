@@ -45,6 +45,19 @@ Les documents PDF et Word insérés sont **verrouillés** : on écrit dessus san
 déplacer par accident. Double-cliquer dessus avec l'outil Sélection pour les déplacer ou
 les déverrouiller.
 
+## Utilisation sur téléviseur interactif
+
+- Toutes les cibles tactiles font au moins 44 px (boutons, pastilles, onglets, puces); la barre d'outils passe
+  sur deux colonnes si l'écran est trop bas.
+- *Menu → Interface agrandie* : boutons de 64 px et textes plus gros pour les grands écrans vus de loin.
+- Pages chargées : pendant un déplacement ou un pincement, la couche des objets est figée en image puis
+  redessinée au relâchement (déplacement fluide même avec des milliers de traits).
+- Les traits sont simplifiés à la fin du tracé (environ 5 fois moins de points, sans différence visible).
+- Sauvegarde automatique : les images et documents sont enregistrés une seule fois, puis seul le contenu
+  modifié est réécrit, en arrière-plan.
+- Le navigateur ne déclenche ni « tirer pour actualiser » ni menu contextuel sur l'interface.
+- Conseil : ouvrir en plein écran (bouton en haut à droite ou F11).
+
 ## Dépendances
 
 Tout fonctionne hors ligne, sauf ce qui est chargé à la demande depuis Internet :
