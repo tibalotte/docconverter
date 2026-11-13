@@ -13,7 +13,8 @@ ouvrir le fichier dans Chrome ou Edge, ou le déposer sur un serveur web / Share
 | Formes | Rectangle, ellipse/cercle, triangle, triangle rectangle, losange, parallélogramme, trapèze, pentagone, hexagone, octogone, étoile, ligne — contour, rempli léger ou plein, pointillé |
 | Tableau infini | Glisser le fond (outil Sélection ou Main), **Ctrl + glisser** ou Espace + glisser avec n'importe quel outil, 2 doigts pour déplacer/zoomer, molette pour zoomer |
 | Pages | Ajouter, dupliquer, réordonner, supprimer; miniatures; chaque page garde son fond et sa position |
-| Feuilles | Objets **redimensionnables** à insérer, déplacer et superposer : feuille blanche, quadrillé, petits carreaux, millimétré, pointillé, ligné, interligné (primaire), plan cartésien gradué, **portée** (clé de sol, fa, ut 3e, ut 4e, percussion, aucune), portée de piano (sol + fa), tablature — papier blanc, crème, vert ou noir. Le tableau lui-même peut être blanc, crème, vert ou noir |
+| Feuilles | Objets **redimensionnables** à insérer, déplacer et superposer : feuille blanche, quadrillé, petits carreaux, millimétré, pointillé, ligné, interligné (primaire), plan cartésien gradué, **portée** (clé de sol, fa, ut 3e, ut 4e, percussion, aucune), portée de piano (sol + fa), tablature — papier blanc, crème, vert ou noir. Le tableau lui-même peut être blanc, crème, vert ou noir. Tout ce qui est écrit ou posé **sur** une feuille (devant elle et qui la touche) **la suit** quand on la déplace |
+| Sélection multiple | Outil **lasso** : entourer des objets pour les sélectionner; **Grouper / Dégrouper** (Ctrl+G / Ctrl+Maj+G); un groupe se sélectionne et se déplace d'un seul geste; Maj + clic ajoute à la sélection |
 | Rapidité | Après une forme, une flèche, un texte ou un symbole, l'outil **Sélection** revient seul (double-clic sur un outil pour le garder actif). **Appui long** immobile sur le tableau : menu des **3 derniers outils utilisés** — un symbole (GN, Prédicat…) ou une forme y est posé directement |
 | Symboles | Notes, silences, altérations, nuances, chiffrages de mesure; symboles mathématiques; étiquettes de grammaire (GN, GV, CD, CI, Attr. S…); tampons de correction |
 | Documents | Image, **PDF** (chaque page devient une image annotable), **Word .docx** (converti en pages), capture d'écran, coller (Ctrl+V), glisser-déposer |
@@ -46,7 +47,7 @@ le reste du tableau, oui.
 
 ## Raccourcis
 
-`V` sélection · `H` main · `P` crayon · `S` surligneur · `E` gomme · `R` formes · `F` flèches ·
+`V` sélection · `Q` lasso · `H` main · `P` crayon · `S` surligneur · `E` gomme · `R` formes · `F` flèches ·
 `T` texte · `L` laser · `Ctrl+Z / Ctrl+Y` annuler / rétablir · `Suppr` supprimer ·
 `Ctrl+D` dupliquer · `Ctrl+V` coller · `Page préc. / suiv.` pages · `0` tout afficher ·
 `Ctrl+S` enregistrer.

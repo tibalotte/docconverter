@@ -51,6 +51,7 @@ body.t-hand #over,body.panning #over{cursor:grab}
 body.grabbing #over{cursor:grabbing!important}
 body.t-eraser #over,body.t-laser #over{cursor:none}
 body.t-text #over{cursor:text}
+body.t-lasso #over{cursor:crosshair}
 body.t-stamp #over{cursor:copy}
 svg.i{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;flex:none}
 button{font:inherit;color:inherit}
@@ -229,6 +230,9 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></symbol>
     <symbol id="i-reload" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
     <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-lasso" viewBox="0 0 24 24"><path d="M7.5 17.2C4.8 16 3 14 3 11.5 3 7.4 7 4 12 4s9 3.4 9 7.5-4 7.5-9 7.5c-1.4 0-2.8-.2-4-.7" stroke-dasharray="3 2.5"/><circle cx="7" cy="18" r="1.6"/><path d="M7 19.5c0 1.5-1 2.5-2.5 2.5"/></symbol>
+    <symbol id="i-group" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 2.5"/><rect x="6.5" y="6.5" width="6.5" height="6.5" rx="1"/><rect x="11" y="11" width="6.5" height="6.5" rx="1" fill="currentColor"/></symbol>
+    <symbol id="i-ungroup" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor"/><path d="M15 5h4v4M9 19H5v-4" stroke-dasharray="2 2"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -242,6 +246,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 
 <div id="toolbar" class="panel">
   <button class="ib" data-tool="select" title="Sélectionner / déplacer des objets (V)"><svg class="i"><use href="#i-select"/></svg></button>
+  <button class="ib" data-tool="lasso" title="Sélection multiple : entourez des objets pour les sélectionner et les grouper (Q)"><svg class="i"><use href="#i-lasso"/></svg></button>
   <button class="ib" data-tool="hand" title="Se déplacer dans le tableau (H) — ou Ctrl + glisser"><svg class="i"><use href="#i-hand"/></svg></button>
   <div class="sep"></div>
   <button class="ib on" data-tool="pen" title="Crayon (P)"><svg class="i"><use href="#i-pen"/></svg></button>
@@ -256,14 +261,15 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-fly="insert" title="Insérer image, PDF, Word, capture d'écran"><svg class="i"><use href="#i-insert"/></svg><span class="more"></span></button>
   <button class="ib" data-fly="bg" title="Feuilles : quadrillé, portée, plan cartésien… (objets redimensionnables)"><svg class="i"><use href="#i-bg"/></svg><span class="more"></span></button>
   <div class="sep"></div>
-  <button class="ib" id="bUndo" title="Annuler (Ctrl+Z)"><svg class="i"><use href="#i-undo"/></svg></button>
-  <button class="ib" id="bRedo" title="Rétablir (Ctrl+Y)"><svg class="i"><use href="#i-redo"/></svg></button>
   <button class="ib" id="bClear" title="Effacer la page"><svg class="i"><use href="#i-trash"/></svg></button>
 </div>
 
 <div id="topLeft" class="panel">
   <button class="ib" data-fly="menu" title="Menu"><svg class="i"><use href="#i-menu"/></svg></button>
   <button class="ib" id="bHelp" title="Aide"><svg class="i"><use href="#i-help"/></svg></button>
+  <div class="vsep"></div>
+  <button class="ib" id="bUndo" title="Annuler (Ctrl+Z)"><svg class="i"><use href="#i-undo"/></svg></button>
+  <button class="ib" id="bRedo" title="Rétablir (Ctrl+Y)"><svg class="i"><use href="#i-redo"/></svg></button>
 </div>
 
 <div id="topRight" class="panel">
@@ -284,6 +290,8 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 <div id="props" class="panel"></div>
 
 <div id="selbar" class="panel">
+  <button class="ib" data-act="group" title="Grouper (Ctrl+G)"><svg class="i"><use href="#i-group"/></svg></button>
+  <button class="ib" data-act="ungroup" title="Dégrouper (Ctrl+Maj+G)"><svg class="i"><use href="#i-ungroup"/></svg></button>
   <button class="ib" data-act="dup" title="Dupliquer (Ctrl+D)"><svg class="i"><use href="#i-copy"/></svg></button>
   <button class="ib" data-act="front" title="Mettre au premier plan"><svg class="i"><use href="#i-front"/></svg></button>
   <button class="ib" data-act="back" title="Mettre en arrière-plan"><svg class="i"><use href="#i-back"/></svg></button>
@@ -818,11 +826,17 @@ function drawOverlay() {
   if (G && G.type === 'shape') drawObj(ctx, G.obj, isDark(page()));
   // sélection
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (G && G.type === 'lasso' && G.pts.length > 1) {
+    ctx.save(); ctx.beginPath(); G.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
+    ctx.fillStyle = 'rgba(37,99,235,.08)'; ctx.fill(); ctx.setLineDash([7, 5]); ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+  }
   const sel = selObjs();
   if (sel.length) {
     ctx.save();
     ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-    for (const o of sel) { const b = bbox(o), a = toScreen(b.x, b.y); ctx.strokeRect(a.x - 4, a.y - 4, b.w * v.z + 8, b.h * v.z + 8); }
+    const oneGroup = sel.length > 1 && sel[0].g && sel.every(o => o.g === sel[0].g);
+    if (oneGroup) { const b = selBox(), a = toScreen(b.x, b.y); ctx.lineWidth = 2.5; ctx.setLineDash([10, 5]); ctx.strokeRect(a.x - 8, a.y - 8, b.w * v.z + 16, b.h * v.z + 16); ctx.lineWidth = 1.5; }
+    else for (const o of sel) { const b = bbox(o), a = toScreen(b.x, b.y); ctx.strokeRect(a.x - 4, a.y - 4, b.w * v.z + 8, b.h * v.z + 8); }
     ctx.setLineDash([]);
     for (const h of handles()) {
       const s = toScreen(h.x, h.y);
@@ -925,6 +939,9 @@ function placeSelbar() {
   if (!sel.length || (G && G.type !== 'none' && G.type !== 'pan') || editing) { bar.style.display = 'none'; return; }
   const b = selBox(), a = toScreen(b.x, b.y), w = b.w * V().z, h = b.h * V().z;
   bar.style.display = 'flex';
+  const gids = new Set(sel.map(o => o.g || ('#' + o.id)));
+  bar.querySelector('[data-act=group]').style.display = sel.length > 1 && gids.size > 1 ? 'flex' : 'none';
+  bar.querySelector('[data-act=ungroup]').style.display = sel.some(o => o.g) ? 'flex' : 'none';
   const one = sel.find(o => DOMT.has(o.t)) || (sel.length === 1 ? sel[0] : null);
   bar.classList.toggle('isweb', !!one && DOMT.has(one.t)); bar.classList.toggle('islive', !!one && one.t === 'live');
   const bw = bar.offsetWidth || 250, bh = bar.offsetHeight || 54;
@@ -944,11 +961,22 @@ function selAction(act) {
   if (act === 'totab') return webToLive(wo.url, wo);
   if (act === 'reload') { const el = domEls.get(wo.id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = wo.url, 50); } return; }
   if (act === 'open') { window.open(wo.url, '_blank', 'noopener'); return; }
+  if (act === 'group') {
+    if (sel.length < 2) return;
+    snapshot(); const g = 'g' + uid(); for (const o of sel) replaceObj(o, { ...o, g });
+    toast('Objets groupés : ils se sélectionnent et se déplacent ensemble.');
+    return afterChange();
+  }
+  if (act === 'ungroup') {
+    snapshot(); for (const o of sel) if (o.g) { const n = { ...o }; delete n.g; replaceObj(o, n); }
+    toast('Groupe défait'); return afterChange();
+  }
   if (act === 'del') { sel.forEach(o => { if (o.t === 'live') stopLive(o.id); });
     snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)); S.sel = []; }
   else if (act === 'dup') {
     snapshot(); const off = 24 / V().z;
-    const copies = sel.map(o => { const n = transformObj(o, (x, y) => [x + off, y + off]); n.id = uid(); delete n.lock; return n; });
+    const gmap = {};
+    const copies = sel.map(o => { const n = transformObj(o, (x, y) => [x + off, y + off]); n.id = uid(); delete n.lock; if (o.g) n.g = gmap[o.g] ||= 'g' + uid(); return n; });
     objs.push(...copies); S.sel = copies.map(o => o.id);
   }
   else if (act === 'front') { snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)).concat(sel); }
@@ -1068,14 +1096,21 @@ over.addEventListener('pointerdown', e => {
       const o = hitTest(p, dbl);
       if (o && dbl && o.t === 'text' && !o.lock) { S.sel = []; openTextEditor(o, false); updateProps(); return; }
       if (o) {
-        if (e.shiftKey) S.sel = S.sel.includes(o.id) ? S.sel.filter(i => i !== o.id) : [...S.sel, o.id];
-        else if (!S.sel.includes(o.id)) S.sel = [o.id];
+        const grp = groupIds(o);
+        if (e.shiftKey) S.sel = S.sel.includes(o.id) ? S.sel.filter(i => !grp.includes(i)) : [...new Set([...S.sel, ...grp])];
+        else if (!S.sel.includes(o.id)) S.sel = grp;
         updateProps(); renderOverlay();
         if (o.lock) { startPan(sx, sy); return; }
-        G = { type: 'move', start: p, orig: selObjs().filter(x => !x.lock), moved: false }; return;
+        const orig = selObjs().filter(x => !x.lock);
+        G = { type: 'move', start: p, orig: orig.concat(attachedTo(orig)), moved: false }; return;
       }
       if (!e.shiftKey) selectNone();
       startPan(sx, sy); return;
+    }
+    case 'lasso': {
+      const o = hitTest(p, false);
+      if (o && S.sel.includes(o.id)) { const orig = selObjs().filter(x => !x.lock); G = { type: 'move', start: p, orig: orig.concat(attachedTo(orig)), moved: false }; return; }
+      G = { type: 'lasso', pts: [[sx, sy]] }; return;
     }
     case 'pen': case 'hl': {
       const hl = S.tool === 'hl';
@@ -1108,6 +1143,7 @@ over.addEventListener('pointermove', e => {
   const v = V();
   switch (G.type) {
     case 'lp': lpHot(e.clientX, e.clientY); return;
+    case 'lasso': { const l = G.pts[G.pts.length - 1]; if (Math.hypot(e.clientX - l[0], e.clientY - l[1]) > 3) G.pts.push([e.clientX, e.clientY]); renderOverlay(); return; }
     case 'tap': return;
     case 'pinch': {
       if (ptrs.size < 2) return;
@@ -1211,6 +1247,7 @@ function endPointer(e) {
       } else if (S.tool === 'stamp') placeStamp(g.p);
       break;
     }
+    case 'lasso': finishLasso(g); break;
     case 'lp': {
       const hot = lpHot(e.clientX, e.clientY);
       if (hot) hot.click();
@@ -1259,6 +1296,7 @@ window.addEventListener('keydown', e => {
     else if (k === 's') { e.preventDefault(); saveFile(); }
     else if (k === 'o') { e.preventDefault(); $('#fOpen').click(); }
     else if (k === 'd') { e.preventDefault(); selAction('dup'); }
+    else if (k === 'g') { e.preventDefault(); selAction(e.shiftKey ? 'ungroup' : 'group'); }
     else if (k === 'a') { e.preventDefault(); setTool('select'); S.sel = page().objects.filter(o => !o.lock).map(o => o.id); updateProps(); renderOverlay(); }
     return;
   }
@@ -1269,7 +1307,7 @@ window.addEventListener('keydown', e => {
   if (e.key === '+' || e.key === '=') return zoomAt(W / 2, H / 2, 1.25);
   if (e.key === '-' || e.key === '_') return zoomAt(W / 2, H / 2, .8);
   if (e.key === '0') return fitAll();
-  const map = { v: 'select', h: 'hand', p: 'pen', s: 'hl', e: 'eraser', r: 'shape', f: 'arrow', t: 'text', l: 'laser' };
+  const map = { v: 'select', q: 'lasso', h: 'hand', p: 'pen', s: 'hl', e: 'eraser', r: 'shape', f: 'arrow', t: 'text', l: 'laser' };
   if (map[k]) setTool(map[k]);
 });
 window.addEventListener('keyup', e => {
@@ -1283,7 +1321,7 @@ function setTool(t) {
   commitText();
   S.tool = t;
   $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('sticky', !!S.sticky && b.dataset.tool === t));
-  if (t !== 'select') selectNone();
+  if (t !== 'select' && t !== 'lasso') selectNone();
   document.body.className = document.body.className.replace(/\bt-\S+/g, '').trim() + ' t-' + t;
   $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
   updateProps(); renderOverlay();
@@ -1604,6 +1642,46 @@ $$('#toolbar [data-tool]').forEach(b => b.addEventListener('dblclick', () => {
   S.sticky = true; setTool(b.dataset.tool); closeFly();
   toast('Outil verrouillé : il reste actif après chaque utilisation. Touchez-le une fois pour revenir au mode normal.', 4000);
 }));
+
+/* ---------- Groupes, lasso et objets « accrochés » aux feuilles ---------- */
+function groupIds(o) { return o.g ? page().objects.filter(x => x.g === o.g).map(x => x.id) : [o.id]; }
+function expandGroups(ids) {
+  const gs = new Set(page().objects.filter(o => ids.includes(o.id) && o.g).map(o => o.g));
+  return page().objects.filter(o => ids.includes(o.id) || (o.g && gs.has(o.g))).map(o => o.id);
+}
+// Objets placés devant une feuille et qui la touchent : ils suivent la feuille quand on la déplace
+function attachedTo(list) {
+  const objs = page().objects, ids = new Set(list.map(o => o.id)), out = [];
+  for (const sh of list) {
+    if (sh.t !== 'sheet') continue;
+    const b = bbox(sh), i = objs.findIndex(o => o.id === sh.id);
+    for (let j = i + 1; j < objs.length; j++) {
+      const o = objs[j];
+      if (ids.has(o.id) || o.t === 'sheet' || !intersects(bbox(o), b)) continue;
+      for (const id of groupIds(o)) if (!ids.has(id)) { ids.add(id); out.push(objs.find(x => x.id === id)); }
+    }
+  }
+  return out;
+}
+function finishLasso(g) {
+  const pts = g.pts;
+  const span = pts.reduce((m, [x, y]) => Math.max(m, Math.hypot(x - pts[0][0], y - pts[0][1])), 0);
+  if (span < 12) { // simple toucher : sélection d'un objet
+    const o = hitTest(toWorld(pts[0][0], pts[0][1]), false);
+    S.sel = o ? groupIds(o) : [];
+  } else {
+    const poly = pts.map(([x, y]) => { const w = toWorld(x, y); return [w.x, w.y]; });
+    const inside = (x, y) => inPoly({ x, y }, poly);
+    S.sel = expandGroups(page().objects.filter(o => {
+      if (o.lock) return false;
+      const b = bbox(o);
+      if (o.t === 'sheet') return inside(b.x, b.y) && inside(b.x + b.w, b.y) && inside(b.x, b.y + b.h) && inside(b.x + b.w, b.y + b.h);
+      return inside(b.x + b.w / 2, b.y + b.h / 2);
+    }).map(o => o.id));
+  }
+  if (S.sel.length > 1 && !selObjs().every(o => o.g && o.g === selObjs()[0].g)) toast(`${S.sel.length} objets sélectionnés — touchez « Grouper » pour les lier.`, 3000);
+  setTool('select'); updateProps(); renderOverlay();
+}
 
 /* ---------- Pages ---------- */
 function goPage(i) {
@@ -2152,11 +2230,13 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Sélection multiple et groupes</b> : l’outil lasso (sous la flèche) permet d’entourer plusieurs objets; touchez ensuite « Grouper » (ou <kbd>Ctrl+G</kbd>). Un groupe se sélectionne et se déplace d’un seul geste; « Dégrouper » le défait. Avec la flèche, <kbd>Maj</kbd> + clic ajoute un objet à la sélection.</p>
+  <p><b>Feuilles</b> : ce qui est écrit ou posé sur une feuille (et qui la touche) la suit quand on la déplace.</p>
   <p><b>Appui long</b> : maintenez le doigt immobile sur le tableau pour ouvrir le menu des <b>3 derniers outils utilisés</b> (glissez sur un choix ou touchez-le). Un symbole (GN, Prédicat…) ou une forme y est posé directement à cet endroit.</p>
   <p><b>Formes, flèches, texte et symboles</b> : après chaque ajout, l’outil Sélection revient automatiquement. Double-cliquez un outil pour le garder actif.</p>
   <p><b>Feuilles</b> : le bouton quadrillé insère une feuille (quadrillée, portée, plan cartésien…) que l’on déplace et redimensionne comme un objet.</p>
   <p><b>Objets</b> : avec l’outil Sélection, touchez un objet pour le déplacer; tirez les coins pour le redimensionner. Double-cliquez un texte pour le modifier. Les documents PDF/Word insérés sont <b>verrouillés</b> (double-clic pour les sélectionner).</p>
-  <p><b>Raccourcis</b> : <kbd>V</kbd> sélection, <kbd>H</kbd> main, <kbd>P</kbd> crayon, <kbd>S</kbd> surligneur, <kbd>E</kbd> gomme, <kbd>R</kbd> formes, <kbd>F</kbd> flèches, <kbd>T</kbd> texte, <kbd>L</kbd> laser,
+  <p><b>Raccourcis</b> : <kbd>V</kbd> sélection, <kbd>Q</kbd> lasso, <kbd>H</kbd> main, <kbd>P</kbd> crayon, <kbd>S</kbd> surligneur, <kbd>E</kbd> gomme, <kbd>R</kbd> formes, <kbd>F</kbd> flèches, <kbd>T</kbd> texte, <kbd>L</kbd> laser,
   <kbd>Ctrl+Z</kbd> annuler, <kbd>Ctrl+Y</kbd> rétablir, <kbd>Suppr</kbd> supprimer, <kbd>Ctrl+D</kbd> dupliquer, <kbd>Ctrl+V</kbd> coller une image ou du texte,
   <kbd>Page préc./suiv.</kbd> changer de page, <kbd>0</kbd> tout afficher, <kbd>Ctrl+S</kbd> enregistrer.</p>
   <p><b>Pages web</b> : <i>Insérer → Page web</i> affiche un site en direct; écrivez par-dessus. Pour cliquer ou défiler dans la page, sélectionnez-la puis touchez le bouton « main ». Si la page reste vide ou affiche 🚫, le site interdit l’affichage intégré : sélectionnez le cadre puis le bouton écran pour l’afficher en direct depuis un onglet. Le bouton « Figer » (appareil photo) transforme la page en image pour que les annotations restent alignées.</p>
