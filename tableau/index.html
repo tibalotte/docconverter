@@ -40,6 +40,33 @@ body.capturing #main,body.capturing #over,body.capturing .panel,body.capturing #
 #lp .lpi .g i{width:12px;height:12px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
 #lp .empty{max-width:240px;font-size:14px;color:var(--muted);padding:6px}
 .ib.sticky::after{content:'';position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+#studio{position:fixed;inset:0;z-index:90;background:#eef1f5;display:none;flex-direction:column}
+#studio.open{display:flex}
+.s3top{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);z-index:2}
+.s3top .pill:disabled{opacity:.4;cursor:default}
+.s3main{flex:1;display:flex;min-height:0}
+.s3shapes{width:108px;overflow-y:auto;background:#fff;padding:8px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line)}
+.s3shape{border:0;border-radius:12px;background:var(--hover);padding:10px 4px;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1.15}
+.s3shape:hover{background:var(--accent-soft);color:var(--accent)}
+.s3shape svg{width:34px;height:34px;stroke-width:1.6}
+.s3view{flex:1;position:relative;min-width:0;touch-action:none}
+.s3view canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important;display:block}
+.s3labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.s3l{position:absolute;transform:translate(-50%,-50%);font:400 11px "Segoe UI",system-ui,sans-serif;color:#7b8794;white-space:nowrap}
+.s3l.ax{font:700 15px "Segoe UI",system-ui,sans-serif}.s3l.x{color:#e53935}.s3l.y{color:#2e7d32}.s3l.z{color:#1e63d6}
+.s3l.dim{font:700 14px "Segoe UI",system-ui,sans-serif;color:#111;background:rgba(255,255,255,.88);padding:2px 7px;border-radius:7px;border:1px solid #c9d1da}
+.s3panel{width:300px;background:#fff;overflow-y:auto;padding:14px 16px;border-left:1px solid var(--line);-webkit-user-select:text;user-select:text}
+.s3panel h3{margin:0 0 10px;font-size:19px}.s3panel h3 small{color:var(--muted);font-weight:400}
+.s3panel h4{margin:14px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.s3panel p{font-size:15px;line-height:1.45;margin:0 0 8px}
+.s3row{display:flex;align-items:center;gap:4px;margin:4px 0}
+.s3row label{flex:1;font-size:14px}
+.s3row input{width:74px;height:38px;border:1px solid var(--line);border-radius:8px;font-size:16px;text-align:center;-webkit-user-select:text;user-select:text}
+.s3row button{width:38px;height:38px;border:0;border-radius:8px;background:var(--hover);font-size:20px;cursor:pointer}
+.s3row span{width:26px;font-size:13px;color:var(--muted)}
+.s3meas{margin-top:14px;background:var(--hover);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.s3meas div{display:flex;justify-content:space-between;font-size:15px}
+.s3hint{color:var(--muted);font-size:14px!important}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -233,6 +260,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-lasso" viewBox="0 0 24 24"><path d="M7.5 17.2C4.8 16 3 14 3 11.5 3 7.4 7 4 12 4s9 3.4 9 7.5-4 7.5-9 7.5c-1.4 0-2.8-.2-4-.7" stroke-dasharray="3 2.5"/><circle cx="7" cy="18" r="1.6"/><path d="M7 19.5c0 1.5-1 2.5-2.5 2.5"/></symbol>
     <symbol id="i-group" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 2.5"/><rect x="6.5" y="6.5" width="6.5" height="6.5" rx="1"/><rect x="11" y="11" width="6.5" height="6.5" rx="1" fill="currentColor"/></symbol>
     <symbol id="i-ungroup" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor"/><path d="M15 5h4v4M9 19H5v-4" stroke-dasharray="2 2"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="M4 7.5l8-4 8 4v9l-8 4-8-4z"/><path d="M4 7.5l8 4 8-4M12 11.5v9"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -290,6 +318,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 <div id="props" class="panel"></div>
 
 <div id="selbar" class="panel">
+  <button class="ib" data-act="edit3d" title="Modifier la forme 3D"><svg class="i"><use href="#i-cube"/></svg></button>
   <button class="ib" data-act="group" title="Grouper (Ctrl+G)"><svg class="i"><use href="#i-group"/></svg></button>
   <button class="ib" data-act="ungroup" title="Dégrouper (Ctrl+Maj+G)"><svg class="i"><use href="#i-ungroup"/></svg></button>
   <button class="ib" data-act="dup" title="Dupliquer (Ctrl+D)"><svg class="i"><use href="#i-copy"/></svg></button>
@@ -824,6 +853,17 @@ function drawOverlay() {
     ctx.restore();
   }
   if (G && G.type === 'shape') drawObj(ctx, G.obj, isDark(page()));
+  if (G && G.snapAt) {
+    const a = G.snapAt; ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const q = toScreen(a.x, a.y);
+    ctx.strokeStyle = '#d946ef'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(q.x, q.y, 9, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#d946ef'; ctx.beginPath(); ctx.arc(q.x, q.y, 3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  }
+  if (G && G.snapLabel) {
+    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const b = selBox(), q = toScreen(b.x + b.w / 2, b.y + b.h);
+    ctx.font = '600 15px "Segoe UI",sans-serif'; const tw = ctx.measureText('🧲 ' + G.snapLabel).width;
+    ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(q.x - tw / 2 - 12, q.y + 14, tw + 24, 30, 15) : ctx.rect(q.x - tw / 2 - 12, q.y + 14, tw + 24, 30); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🧲 ' + G.snapLabel, q.x, q.y + 29); ctx.restore();
+  }
   // sélection
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (G && G.type === 'lasso' && G.pts.length > 1) {
@@ -894,7 +934,7 @@ function redo() {
   h.u.push(page().objects); page().objects = h.r.pop(); S.sel = []; afterChange();
 }
 function updateUndo() { const h = H_(); $('#bUndo').disabled = !h.u.length; $('#bRedo').disabled = !h.r.length; }
-function afterChange() { S.sel = S.sel.filter(id => page().objects.some(o => o.id === id)); render(); updateUndo(); updateProps(); scheduleSave(); }
+function afterChange() { assignAtt(page()); S.sel = S.sel.filter(id => page().objects.some(o => o.id === id)); render(); updateUndo(); updateProps(); scheduleSave(); }
 function replaceObj_(oldO, newO) { replaceObj(oldO, newO); }
 function replaceObj(oldO, newO) { const a = page().objects, i = a.indexOf(oldO); if (i >= 0) a[i] = newO; }
 
@@ -940,6 +980,7 @@ function placeSelbar() {
   const b = selBox(), a = toScreen(b.x, b.y), w = b.w * V().z, h = b.h * V().z;
   bar.style.display = 'flex';
   const gids = new Set(sel.map(o => o.g || ('#' + o.id)));
+  bar.querySelector('[data-act=edit3d]').style.display = sel.length === 1 && sel[0].m3d ? 'flex' : 'none';
   bar.querySelector('[data-act=group]').style.display = sel.length > 1 && gids.size > 1 ? 'flex' : 'none';
   bar.querySelector('[data-act=ungroup]').style.display = sel.some(o => o.g) ? 'flex' : 'none';
   const one = sel.find(o => DOMT.has(o.t)) || (sel.length === 1 ? sel[0] : null);
@@ -961,6 +1002,7 @@ function selAction(act) {
   if (act === 'totab') return webToLive(wo.url, wo);
   if (act === 'reload') { const el = domEls.get(wo.id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = wo.url, 50); } return; }
   if (act === 'open') { window.open(wo.url, '_blank', 'noopener'); return; }
+  if (act === 'edit3d') return open3D(sel[0]);
   if (act === 'group') {
     if (sel.length < 2) return;
     snapshot(); const g = 'g' + uid(); for (const o of sel) replaceObj(o, { ...o, g });
@@ -976,7 +1018,7 @@ function selAction(act) {
   else if (act === 'dup') {
     snapshot(); const off = 24 / V().z;
     const gmap = {};
-    const copies = sel.map(o => { const n = transformObj(o, (x, y) => [x + off, y + off]); n.id = uid(); delete n.lock; if (o.g) n.g = gmap[o.g] ||= 'g' + uid(); return n; });
+    const copies = sel.map(o => { const n = transformObj(o, (x, y) => [x + off, y + off]); n.id = uid(); delete n.lock; delete n.att; if (o.g) n.g = gmap[o.g] ||= 'g' + uid(); return n; });
     objs.push(...copies); S.sel = copies.map(o => o.id);
   }
   else if (act === 'front') { snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)).concat(sel); }
@@ -1091,9 +1133,11 @@ over.addEventListener('pointerdown', e => {
 
   switch (S.tool) {
     case 'select': {
+      assignAtt(page());
       const h = hitHandle(sx, sy);
-      if (h) { G = { type: 'handle', h, orig: selObjs(), B: selBox(), moved: false }; return; }
+      if (h) { G = { type: 'handle', h, orig: selObjs(), B: selBox(), moved: false, direct: S.sel.slice() }; return; }
       const o = hitTest(p, dbl);
+      if (o && dbl && o.m3d) { open3D(o); return; }
       if (o && dbl && o.t === 'text' && !o.lock) { S.sel = []; openTextEditor(o, false); updateProps(); return; }
       if (o) {
         const grp = groupIds(o);
@@ -1102,14 +1146,15 @@ over.addEventListener('pointerdown', e => {
         updateProps(); renderOverlay();
         if (o.lock) { startPan(sx, sy); return; }
         const orig = selObjs().filter(x => !x.lock);
-        G = { type: 'move', start: p, orig: orig.concat(attachedTo(orig)), moved: false }; return;
+        G = { type: 'move', start: p, orig: orig.concat(attachedTo(orig)), moved: false, direct: orig.map(x => x.id) }; return;
       }
       if (!e.shiftKey) selectNone();
       startPan(sx, sy); return;
     }
     case 'lasso': {
       const o = hitTest(p, false);
-      if (o && S.sel.includes(o.id)) { const orig = selObjs().filter(x => !x.lock); G = { type: 'move', start: p, orig: orig.concat(attachedTo(orig)), moved: false }; return; }
+      assignAtt(page());
+      if (o && S.sel.includes(o.id)) { const orig = selObjs().filter(x => !x.lock); G = { type: 'move', start: p, orig: orig.concat(attachedTo(orig)), moved: false, direct: orig.map(x => x.id) }; return; }
       G = { type: 'lasso', pts: [[sx, sy]] }; return;
     }
     case 'pen': case 'hl': {
@@ -1120,11 +1165,12 @@ over.addEventListener('pointerdown', e => {
     case 'eraser': G = { type: 'erase', last: p }; eraseAt(p, p); return;
     case 'shape': case 'arrow': {
       const k = S.tool === 'shape' ? S.shape : S.arrow;
-      const o = { id: uid(), t: 'shape', k, x1: r1(p.x), y1: r1(p.y), x2: r1(p.x), y2: r1(p.y), c: S.color, w: PEN_W[S.size] };
+      const q = snapPoint(p);
+      const o = { id: uid(), t: 'shape', k, x1: r1(q.x), y1: r1(q.y), x2: r1(q.x), y2: r1(q.y), c: S.color, w: PEN_W[S.size] };
       if (S.tool === 'shape' && S.fill !== 'none' && k !== 'line') o.fill = S.fill;
       if (S.dash) o.dash = 1;
       if (k === 'curve') { o.cx = o.x1; o.cy = o.y1; }
-      G = { type: 'shape', obj: o, start: p }; return;
+      G = { type: 'shape', obj: o, start: p, snapAt: q.snapped ? q : null }; return;
     }
     case 'text': G = { type: 'tap', p }; return;   // créé au relâchement (permet l'appui long)
     case 'stamp': {
@@ -1174,6 +1220,8 @@ over.addEventListener('pointermove', e => {
           x2 = o.x1 + Math.cos(ang) * len; y2 = o.y1 + Math.sin(ang) * len;
         } else { const d = Math.max(Math.abs(x2 - o.x1), Math.abs(y2 - o.y1)); x2 = o.x1 + Math.sign(x2 - o.x1 || 1) * d; y2 = o.y1 + Math.sign(y2 - o.y1 || 1) * d; }
       }
+      G.snapAt = null;
+      if (!e.shiftKey) { const q = snapPoint({ x: x2, y: y2 }, o.id); if (q.snapped) { x2 = q.x; y2 = q.y; G.snapAt = q; } }
       o.x2 = r1(x2); o.y2 = r1(y2);
       if (o.k === 'curve') {
         const mx = (o.x1 + o.x2) / 2, my = (o.y1 + o.y2) / 2, dx = o.x2 - o.x1, dy = o.y2 - o.y1;
@@ -1197,8 +1245,9 @@ over.addEventListener('pointermove', e => {
       const cur = page().objects, h = G.h;
       if (h.id === 'p1' || h.id === 'p2' || h.id === 'cm') {
         const o = G.orig[0], n = { ...o };
-        if (h.id === 'p1') { n.x1 = r1(p.x); n.y1 = r1(p.y); }
-        if (h.id === 'p2') { n.x2 = r1(p.x); n.y2 = r1(p.y); }
+        const q = snapPoint(p, o.id); G.snapAt = q.snapped ? q : null;
+        if (h.id === 'p1') { n.x1 = r1(q.x); n.y1 = r1(q.y); }
+        if (h.id === 'p2') { n.x2 = r1(q.x); n.y2 = r1(q.y); }
         if (h.id === 'cm') { n.cx = r1(2 * p.x - (o.x1 + o.x2) / 2); n.cy = r1(2 * p.y - (o.y1 + o.y2) / 2); }
         const i = cur.findIndex(x => x.id === o.id); if (i >= 0) cur[i] = n;
       } else {
@@ -1207,6 +1256,16 @@ over.addEventListener('pointermove', e => {
         const cx = h.id.includes('w') ? B.x : B.x + B.w, cy = h.id.includes('n') ? B.y : B.y + B.h;
         let sx = B.w > 2 ? (p.x - ax) / (cx - ax) : 1, sy = B.h > 2 ? (p.y - ay) / (cy - ay) : 1;
         sx = clamp(sx, .05, 40); sy = clamp(sy, .05, 40);
+        G.snapLabel = null;
+        if (G.orig.length === 1 && G.orig[0].t === 'sheet' && !e.altKey) {
+          // aimant : la feuille « colle » au format lettre (portrait ou paysage) quand on passe dessus
+          const tol = 18 / v.z;
+          for (const tw of [LETTER[0], LETTER[1]]) if (Math.abs(B.w * sx - tw) < tol) sx = tw / B.w;
+          for (const th of [LETTER[1], LETTER[0]]) if (Math.abs(B.h * sy - th) < tol) sy = th / B.h;
+          const w2 = B.w * sx, h2 = B.h * sy, eq = (a, b) => Math.abs(a - b) < .01;
+          if (eq(w2, LETTER[0]) && eq(h2, LETTER[1])) G.snapLabel = 'Format lettre 8,5 × 11 po';
+          else if (eq(w2, LETTER[1]) && eq(h2, LETTER[0])) G.snapLabel = 'Format lettre 11 × 8,5 po (paysage)';
+        }
         const uniform = !e.shiftKey && G.orig.some(o => o.t === 'image' || o.t === 'text') || (e.shiftKey && !G.orig.some(o => o.t === 'image' || o.t === 'text'));
         if (uniform) { const s = B.w > 2 && B.h > 2 ? Math.max(sx, sy) : (B.w > 2 ? sx : sy); sx = sy = s; }
         for (const o of G.orig) {
@@ -1231,7 +1290,7 @@ function endPointer(e) {
   document.body.classList.remove('grabbing');
   switch (g.type) {
     case 'pan': scheduleSave(); break;
-    case 'draw': snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
+    case 'draw': if (S.magnet) straighten(g.obj); snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
     case 'shape': {
       const o = g.obj, len = Math.hypot(o.x2 - o.x1, o.y2 - o.y1) * V().z;
       if (len < 6) {
@@ -1253,7 +1312,14 @@ function endPointer(e) {
       if (hot) hot.click();
       break;
     }
-    case 'move': case 'handle': if (g.moved) afterChange(); else renderOverlay(); break;
+    case 'move': case 'handle':
+      if (g.moved) {
+        // les objets déplacés directement se rattachent à la feuille où on les dépose
+        const objs = page().objects;
+        for (let i = 0; i < objs.length; i++) if (g.direct?.includes(objs[i].id) && objs[i].t !== 'sheet') { const n = { ...objs[i] }; delete n.att; objs[i] = n; }
+        afterChange();
+      } else renderOverlay();
+      break;
     case 'erase': if (g.snapped) { recordUse(); afterChange(); } break;
     case 'laser': recordUse(); renderOverlay(); break;
   }
@@ -1285,7 +1351,7 @@ over.addEventListener('wheel', e => {
 
 /* ---------- Clavier ---------- */
 window.addEventListener('keydown', e => {
-  if (e.target.matches('input,textarea,select')) return;
+  if (D3.open || e.target.matches('input,textarea,select')) return;
   if ($('#modal').classList.contains('open')) { if (e.key === 'Escape') closeModal(null); return; }
   const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
   if (e.key === 'Control' || e.key === 'Meta') document.body.classList.add('panning');
@@ -1351,6 +1417,7 @@ function updateProps() {
     html += `<div class="vsep"></div><button class="pill" id="pFill">◐ ${fl[S.fill]}</button>`;
   }
   if (t === 'shape' || t === 'arrow') html += `<button class="pill${S.dash ? ' on' : ''}" id="pDash">┄ Pointillé</button>`;
+  if (['pen', 'hl', 'shape', 'arrow'].includes(t)) html += `<button class="pill${S.magnet ? ' on' : ''}" id="pMag" title="Aimant : lignes droites automatiques, accroche aux points et au quadrillage des feuilles">🧲 Aimant</button>`;
   if (t === 'text') {
     html += `<div class="vsep"></div><select class="pill" id="pFont">
       <option value="sans"${S.font === 'sans' ? ' selected' : ''}>Standard</option>
@@ -1371,6 +1438,7 @@ function updateProps() {
     updateProps(); renderOverlay();
   }));
   const pf = $('#pFill'); if (pf) pf.addEventListener('click', () => { S.fill = { none: 'semi', semi: 'solid', solid: 'none' }[S.fill]; updateProps(); });
+  const pm = $('#pMag'); if (pm) pm.addEventListener('click', () => { S.magnet = !S.magnet; try { localStorage.setItem('tableau-magnet', S.magnet ? '1' : '0'); } catch (_) {} updateProps(); toast(S.magnet ? 'Aimant activé : lignes droites et accroche aux points' : 'Aimant désactivé'); });
   const pd = $('#pDash'); if (pd) pd.addEventListener('click', () => { S.dash = !S.dash; updateProps(); });
   const pfo = $('#pFont'); if (pfo) pfo.addEventListener('change', () => { S.font = pfo.value; });
   const ps = $('#pStamp'); if (ps) ps.addEventListener('click', () => openFly('stamps', $('[data-fly=stamps]')));
@@ -1408,7 +1476,8 @@ const shapeIcon = k => {
 };
 const FLY = {
   shapes: () => `<h4>Formes</h4><div class="grid">${SHAPES.map(([k, l]) => `<button class="gb${S.shape === k ? ' on' : ''}" data-shape="${k}" title="${l}">${shapeIcon(k)}</button>`).join('')}</div>
-    <p class="hint" style="margin:10px 4px 0;white-space:normal;max-width:250px">Glissez pour dessiner. Maj = carré / cercle parfait. Un simple appui crée une forme standard.</p>`,
+    <p class="hint" style="margin:10px 4px 0;white-space:normal;max-width:250px">Glissez pour dessiner. Maj = carré / cercle parfait. Un simple appui crée une forme standard.</p>
+    <button class="btn" data-open3d style="width:100%;margin-top:10px">🧊 Formes 3D (atelier)…</button>`,
   arrows: () => `<h4>Flèches</h4><div class="grid" style="grid-template-columns:repeat(5,58px)">${ARROWS.map(([k, l]) => `<button class="gb${S.arrow === k ? ' on' : ''}" data-arrow="${k}" title="${l}">${shapeIcon(k)}</button>`).join('')}</div>
     <p class="hint" style="margin:10px 4px 0;white-space:normal;max-width:300px">Flèche courbe : sélectionnez-la puis tirez la poignée bleue pour changer la courbure.</p>`,
   stamps: () => {
@@ -1424,6 +1493,7 @@ const FLY = {
       <button class="li" data-ins="screen"><svg class="i"><use href="#i-screen"/></svg><span>Capture d’écran<small>D’une fenêtre, d’un onglet ou de l’écran</small></span></button>
       <button class="li" data-ins="web"><svg class="i"><use href="#i-globe"/></svg><span>Page web (lien)<small>YouTube, GeoGebra, Desmos, PhET, Google Docs publiés…</small></span></button>
       <button class="li" data-ins="live"><svg class="i"><use href="#i-live"/></svg><span>Onglet ou fenêtre en direct<small>Fonctionne avec tous les sites et logiciels</small></span></button>
+      <button class="li" data-ins="3d"><svg class="i"><use href="#i-cube"/></svg><span>Formes 3D (atelier)<small>Cubes, cylindres, trous, groupes, cotes en mm</small></span></button>
       <button class="li" data-ins="paste"><svg class="i"><use href="#i-paste"/></svg><span>Coller<small>Image ou texte copié (Ctrl+V)</small></span></button>
     </div><p class="hint" style="margin:8px 6px 2px;white-space:normal;max-width:280px">Astuce : vous pouvez aussi glisser-déposer un fichier sur le tableau.</p>`,
   bg: () => {
@@ -1446,7 +1516,7 @@ const FLY = {
     </div>`,
 };
 const BIND = {
-  shapes: () => $$('[data-shape]', fly).forEach(b => b.addEventListener('click', () => { S.shape = b.dataset.shape; setTool('shape'); closeFly(); })),
+  shapes: () => { $$('[data-shape]', fly).forEach(b => b.addEventListener('click', () => { S.shape = b.dataset.shape; setTool('shape'); closeFly(); })); $('[data-open3d]', fly).addEventListener('click', () => open3D()); },
   arrows: () => $$('[data-arrow]', fly).forEach(b => b.addEventListener('click', () => { S.arrow = b.dataset.arrow; setTool('arrow'); closeFly(); })),
   stamps: () => {
     $$('[data-set]', fly).forEach(b => b.addEventListener('click', () => { S.stampSet = b.dataset.set; fly.innerHTML = FLY.stamps(); BIND.stamps(); }));
@@ -1463,6 +1533,7 @@ const BIND = {
     if (k === 'screen') captureScreen();
     if (k === 'paste') pasteButton();
     if (k === 'web') insertWeb();
+    if (k === '3d') open3D();
     if (k === 'live') insertLive();
   })),
   bg: () => {
@@ -1516,11 +1587,13 @@ function drawSheet(ctx, o) {
   ctx.restore();
   ctx.save(); ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 1 / k; ctx.strokeRect(o.x, o.y, o.w, o.h); ctx.restore();
 }
+const LETTER = [816, 1056];   // 8,5 × 11 po à 96 px/po
 function insertSheet(kind) {
-  const ratio = /staff|piano|tab/.test(kind) ? 1.6 : 1.42;
-  const o = { id: uid(), t: 'sheet', kind, clef: 'g', paper: 'white', ...fitBoxInView(ratio) };
-  snapshot(); page().objects.unshift(o);
+  const c = viewCenter();
+  const o = { id: uid(), t: 'sheet', kind, clef: 'g', paper: 'white', x: r1(c.x - LETTER[0] / 2), y: r1(c.y - LETTER[1] / 2), w: LETTER[0], h: LETTER[1] };
+  snapshot(); const objs = page().objects, i = objs.findIndex(x => x.t !== 'sheet'); objs.splice(i < 0 ? objs.length : i, 0, o);
   setTool('select'); S.sel = [o.id]; afterChange();
+  const v = V(); if (LETTER[1] * v.z > H - 180 || LETTER[0] * v.z > W - 200) fitRect({ x: o.x, y: o.y, w: o.w, h: o.h }, v.z);
 }
 function sheetProps(P, o) {
   P.innerHTML = `<select class="pill" id="shKind" title="Modèle">${SHEETS.map(([k, l]) => `<option value="${k}"${o.kind === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
@@ -1643,6 +1716,54 @@ $$('#toolbar [data-tool]').forEach(b => b.addEventListener('dblclick', () => {
   toast('Outil verrouillé : il reste actif après chaque utilisation. Touchez-le une fois pour revenir au mode normal.', 4000);
 }));
 
+/* ---------- Aimant : accroche aux points et au quadrillage, lignes droites ---------- */
+S.magnet = (() => { try { return localStorage.getItem('tableau-magnet') !== '0'; } catch (_) { return true; } })();
+function keyPts(o) {
+  if (o.t === 'stroke') { const a = o.pts[0], z = o.pts[o.pts.length - 1]; return [a, z]; }
+  if (o.t !== 'shape') return [];
+  if (POLY[o.k]) { const pts = shapePolys(o)[0].pts.slice(0, -1); pts.push([(o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2]); return pts; }
+  if (o.k === 'ellipse') { const cx = (o.x1 + o.x2) / 2, cy = (o.y1 + o.y2) / 2; return [[cx, cy], [o.x1, cy], [o.x2, cy], [cx, o.y1], [cx, o.y2]]; }
+  return [[o.x1, o.y1], [o.x2, o.y2], [(o.x1 + o.x2) / 2, (o.y1 + o.y2) / 2]];
+}
+function sheetGrid(sh) {
+  const step = { grid: 40, smallgrid: 20, mm: 8, dots: 32, cartesian: 40 }[sh.kind]; if (!step) return null;
+  if (sh.kind === 'cartesian') { const z = V().z; return { step, ox: sh.x + Math.round(sh.w * z / 2) / z, oy: sh.y + Math.round(sh.h * z / 2) / z }; }
+  return { step, ox: sh.x, oy: sh.y };
+}
+function snapPoint(p, exclude) {
+  if (!S.magnet) return { x: p.x, y: p.y };
+  const tol = 14 / V().z; let best = null, bd = tol;
+  for (const o of page().objects) {
+    if (o.id === exclude || (o.t !== 'shape' && o.t !== 'stroke')) continue;
+    const b = bbox(o); if (p.x < b.x - tol || p.x > b.x + b.w + tol || p.y < b.y - tol || p.y > b.y + b.h + tol) continue;
+    for (const [x, y] of keyPts(o)) { const d = Math.hypot(x - p.x, y - p.y); if (d < bd) { bd = d; best = { x, y, snapped: 'pt' }; } }
+  }
+  if (best) return best;
+  const objs = page().objects;
+  for (let i = objs.length - 1; i >= 0; i--) {
+    const sh = objs[i]; if (sh.t !== 'sheet' || p.x < sh.x || p.x > sh.x + sh.w || p.y < sh.y || p.y > sh.y + sh.h) continue;
+    const g = sheetGrid(sh); if (!g) break;
+    const gx = g.ox + Math.round((p.x - g.ox) / g.step) * g.step, gy = g.oy + Math.round((p.y - g.oy) / g.step) * g.step;
+    if (Math.hypot(gx - p.x, gy - p.y) < Math.max(tol, g.step * .35)) return { x: gx, y: gy, snapped: 'grid' };
+    break;
+  }
+  return { x: p.x, y: p.y };
+}
+// Trait presque droit → vraie ligne droite (0°, 45°, 90°… si proche), extrémités accrochées
+function straighten(o) {
+  const pts = o.pts; if (pts.length < 3) return;
+  const a = pts[0], b = pts[pts.length - 1], z = V().z, L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  if (L * z < 40) return;
+  let maxd = 0; for (const q of pts) maxd = Math.max(maxd, distSeg(q[0], q[1], a[0], a[1], b[0], b[1]));
+  if (maxd * z > Math.max(5, .05 * L * z)) return;
+  const p1 = snapPoint({ x: a[0], y: a[1] }, o.id);
+  let ang = Math.atan2(b[1] - p1.y, b[0] - p1.x); const len = Math.hypot(b[0] - p1.x, b[1] - p1.y);
+  const sn = Math.round(ang / (Math.PI / 4)) * (Math.PI / 4); if (Math.abs(sn - ang) < 7 * Math.PI / 180) ang = sn;
+  let p2 = { x: p1.x + Math.cos(ang) * len, y: p1.y + Math.sin(ang) * len };
+  const q2 = snapPoint({ x: b[0], y: b[1] }, o.id); if (q2.snapped) p2 = q2;
+  o.pts = [[r1(p1.x), r1(p1.y)], [r1(p2.x), r1(p2.y)]];
+}
+
 /* ---------- Groupes, lasso et objets « accrochés » aux feuilles ---------- */
 function groupIds(o) { return o.g ? page().objects.filter(x => x.g === o.g).map(x => x.id) : [o.id]; }
 function expandGroups(ids) {
@@ -1650,16 +1771,25 @@ function expandGroups(ids) {
   return page().objects.filter(o => ids.includes(o.id) || (o.g && gs.has(o.g))).map(o => o.id);
 }
 // Objets placés devant une feuille et qui la touchent : ils suivent la feuille quand on la déplace
+// Un objet s'attache UNE fois à la feuille sur laquelle il est créé ou déposé (champ att);
+// une autre feuille qui passe dessus ou dessous ne le récupère pas.
+function computeAtt(o, objs) {
+  if (o.t === 'sheet') return null;
+  const b = bbox(o);
+  for (let j = objs.indexOf(o) - 1; j >= 0; j--) { const s = objs[j]; if (s.t === 'sheet' && intersects(bbox(s), b)) return s.id; }
+  return null;
+}
+function assignAtt(pg) {
+  const objs = pg.objects;
+  for (let i = 0; i < objs.length; i++) { const o = objs[i]; if (o.t !== 'sheet' && !('att' in o)) objs[i] = { ...o, att: computeAtt(o, objs) }; }
+}
 function attachedTo(list) {
   const objs = page().objects, ids = new Set(list.map(o => o.id)), out = [];
-  for (const sh of list) {
-    if (sh.t !== 'sheet') continue;
-    const b = bbox(sh), i = objs.findIndex(o => o.id === sh.id);
-    for (let j = i + 1; j < objs.length; j++) {
-      const o = objs[j];
-      if (ids.has(o.id) || o.t === 'sheet' || !intersects(bbox(o), b)) continue;
-      for (const id of groupIds(o)) if (!ids.has(id)) { ids.add(id); out.push(objs.find(x => x.id === id)); }
-    }
+  const sheets = new Set(list.filter(o => o.t === 'sheet').map(o => o.id));
+  if (!sheets.size) return out;
+  for (const o of objs) {
+    if (ids.has(o.id) || !sheets.has(o.att)) continue;
+    for (const id of groupIds(o)) if (!ids.has(id)) { ids.add(id); out.push(objs.find(x => x.id === id)); }
   }
   return out;
 }
@@ -1681,6 +1811,504 @@ function finishLasso(g) {
   }
   if (S.sel.length > 1 && !selObjs().every(o => o.g && o.g === selObjs()[0].g)) toast(`${S.sel.length} objets sélectionnés — touchez « Grouper » pour les lier.`, 3000);
   setTool('select'); updateProps(); renderOverlay();
+}
+
+/* ---------- Atelier 3D (formes 3D : ajouter, percer, grouper, coter en mm) ---------- */
+const CDN3D = {
+  three: 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+  orbit: 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js',
+  jscad: 'https://cdn.jsdelivr.net/npm/@jscad/modeling@2.12.5/dist/jscad-modeling.min.js',
+};
+const SHAPES3D = [
+  ['box', 'Cube / pavé', [20, 20, 20]], ['cyl', 'Cylindre', [20, 20, 20]], ['sphere', 'Sphère', [20, 20, 20]],
+  ['cone', 'Cône', [20, 20, 20]], ['pyr', 'Pyramide', [20, 20, 20]], ['prism', 'Prisme triangulaire', [20, 20, 20]],
+  ['hemi', 'Demi-sphère', [20, 20, 10]], ['torus', 'Tore', [40, 40, 10]], ['tube', 'Tube', [20, 20, 20]],
+];
+const ICON3D = {
+  box: '<path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
+  cyl: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/>',
+  sphere: '<circle cx="12" cy="12" r="8"/><ellipse cx="12" cy="12" rx="8" ry="3"/>',
+  cone: '<path d="M12 3L5 18M12 3l7 15"/><ellipse cx="12" cy="18" rx="7" ry="2.5"/>',
+  pyr: '<path d="M12 3L3 17l8 4 10-5z"/><path d="M12 3l-1 18M12 3l9 13"/>',
+  prism: '<path d="M3 19h10L8 9z"/><path d="M8 9l9-4 5 10-9 4"/>',
+  hemi: '<path d="M4 15a8 8 0 0 1 16 0"/><ellipse cx="12" cy="15" rx="8" ry="2.8"/>',
+  torus: '<ellipse cx="12" cy="12" rx="9" ry="5"/><ellipse cx="12" cy="11.5" rx="3.5" ry="1.6"/>',
+  tube: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><ellipse cx="12" cy="6" rx="3.3" ry="1.1"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6"/>',
+};
+const COLORS3D = ['#e53935', '#fb8c00', '#fdd835', '#43a047', '#1e88e5', '#8e24aa', '#ec407a', '#78909c'];
+const D3 = { open: false, items: [], sel: [], undo: [], redo: [], snap: 5, multi: false, grid: true, target: null, drag: null, down: null, nColor: 0 };
+const UNIT3 = {};
+let T3 = null;
+const fmtmm = n => String(Math.round(n * 10) / 10).replace('.', ',');
+const name3D = it => it.type === 'group' ? 'Groupe' : (SHAPES3D.find(s => s[0] === it.type)?.[1] || it.type);
+
+function fitUnit(g) {
+  const M = jscadModeling.measurements, Tr = jscadModeling.transforms;
+  const [[a, b, c], [d, e, f]] = M.measureBoundingBox(g);
+  g = Tr.translate([-(a + d) / 2, -(b + e) / 2, -(c + f) / 2], g);
+  return Tr.scale([1 / (d - a), 1 / (e - b), 1 / (f - c)], g);
+}
+function unitGeom(type) {
+  const { primitives: P, booleans: B } = jscadModeling;
+  let g;
+  switch (type) {
+    case 'box': g = P.cuboid({ size: [1, 1, 1] }); break;
+    case 'cyl': g = P.cylinder({ radius: .5, height: 1, segments: 48 }); break;
+    case 'sphere': g = P.sphere({ radius: .5, segments: 36 }); break;
+    case 'cone': g = P.cylinderElliptic({ height: 1, startRadius: [.5, .5], endRadius: [0, 0], segments: 48 }); break;
+    case 'pyr': g = P.polyhedron({ points: [[-.5, -.5, -.5], [.5, -.5, -.5], [.5, .5, -.5], [-.5, .5, -.5], [0, 0, .5]], faces: [[3, 2, 1, 0], [0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]] }); break;
+    case 'prism': g = P.cylinder({ radius: .5, height: 1, segments: 3 }); break;
+    case 'hemi': g = B.intersect(P.sphere({ radius: .5, segments: 36 }), P.cuboid({ size: [1.2, 1.2, .6], center: [0, 0, .3] })); break;
+    case 'torus': g = P.torus({ innerRadius: .12, outerRadius: .38, innerSegments: 24, outerSegments: 48 }); break;
+    case 'tube': g = B.subtract(P.cylinder({ radius: .5, height: 1, segments: 48 }), P.cylinder({ radius: .32, height: 1.2, segments: 48 })); break;
+    default: g = P.cuboid({ size: [1, 1, 1] });
+  }
+  return fitUnit(g);
+}
+function geomOf(it) {
+  const { transforms: Tr, booleans: B } = jscadModeling;
+  if (it.type === 'group') {
+    const sol = [], hol = [];
+    for (const c of it.children) { const g = geomOf(c); if (g) (c.hole ? hol : sol).push(g); }
+    if (!sol.length) return hol.length ? (hol.length > 1 ? B.union(...hol) : hol[0]) : null;
+    let g = sol.length > 1 ? B.union(...sol) : sol[0];
+    if (hol.length) g = B.subtract(g, ...hol);
+    return g;
+  }
+  let g = UNIT3[it.type] ||= unitGeom(it.type);
+  g = Tr.scale(it.dims, g);
+  const r = (it.rot || [0, 0, 0]).map(d => d * Math.PI / 180);
+  if (r.some(Boolean)) g = Tr.rotate(r, g);
+  return Tr.translate([it.pos[0], it.pos[1], it.pos[2] + it.dims[2] / 2], g);
+}
+function meshFrom(g, color, hole) {
+  const polys = jscadModeling.geometries.geom3.toPolygons(g), pos = [];
+  for (const p of polys) { const v = p.vertices; for (let i = 1; i < v.length - 1; i++) pos.push(...v[0], ...v[i], ...v[i + 1]); }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals();
+  const mat = hole
+    ? new THREE.MeshStandardMaterial({ color: 0x9aa5b1, transparent: true, opacity: .4, depthWrite: false, roughness: .9 })
+    : new THREE.MeshStandardMaterial({ color, roughness: .55, metalness: .05, flatShading: true });
+  const mesh = new THREE.Mesh(geo, mat);
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), new THREE.LineBasicMaterial({ color: hole ? 0x56606b : 0x000000, transparent: true, opacity: hole ? .8 : .3 }));
+  mesh.add(edges); mesh.userData.edges = edges;
+  return mesh;
+}
+function dispose3(obj) { obj.traverse(o => { o.geometry?.dispose(); o.material?.dispose?.(); }); obj.parent?.remove(obj); }
+
+/* --- données --- */
+const findItem = id => D3.items.find(i => i.id === id);
+const selItems = () => D3.sel.map(findItem).filter(Boolean);
+function push3() { D3.undo.push(JSON.stringify(D3.items)); if (D3.undo.length > 100) D3.undo.shift(); D3.redo.length = 0; }
+function moveItem(it, d) { if (it.type === 'group') it.children.forEach(c => moveItem(c, d)); else it.pos = it.pos.map((v, i) => r1(v + d[i])); }
+function scaleItem(it, s, c) {
+  if (it.type === 'group') { it.children.forEach(ch => scaleItem(ch, s, c)); return; }
+  it.pos = [r1(c[0] + (it.pos[0] - c[0]) * s[0]), r1(c[1] + (it.pos[1] - c[1]) * s[1]), r1(c[2] + (it.pos[2] - c[2]) * s[2])];
+  it.dims = it.dims.map((v, i) => Math.max(.5, r1(v * s[i])));
+}
+function rotateItemZ(it, deg, cx, cy) {
+  if (it.type === 'group') { it.children.forEach(ch => rotateItemZ(ch, deg, cx, cy)); return; }
+  const a = deg * Math.PI / 180, dx = it.pos[0] - cx, dy = it.pos[1] - cy;
+  it.pos = [r1(cx + dx * Math.cos(a) - dy * Math.sin(a)), r1(cy + dx * Math.sin(a) + dy * Math.cos(a)), it.pos[2]];
+  it.rot = [it.rot[0], it.rot[1], ((it.rot[2] + deg) % 360 + 360) % 360];
+}
+function bbox3(it) { const r = T3.meshes.get(it.id); return r?.geom ? jscadModeling.measurements.measureBoundingBox(r.geom) : null; }
+function newId3() { return 'm' + uid(); }
+function reId(it) { it.id = newId3(); it.children?.forEach(reId); return it; }
+
+function addShape3(type) {
+  const def = SHAPES3D.find(s => s[0] === type);
+  push3();
+  let x = 0, y = 0, n = 0;
+  const busy = (x, y) => D3.items.some(o => { const b = bbox3(o); return b && x > b[0][0] - 12 && x < b[1][0] + 12 && y > b[0][1] - 12 && y < b[1][1] + 12; });
+  while (busy(x, y) && n < 40) { n++; x = ((n % 6) - 2) * 30; y = -Math.floor(n / 6) * 30; }
+  const it = { id: newId3(), type, dims: def[2].slice(), pos: [x, y, 0], rot: [0, 0, 0], color: COLORS3D[D3.nColor++ % COLORS3D.length], hole: false };
+  D3.items.push(it); D3.sel = [it.id]; rebuild3();
+}
+function act3(a) {
+  const sel = selItems();
+  switch (a) {
+    case 'undo': if (D3.undo.length) { D3.redo.push(JSON.stringify(D3.items)); D3.items = JSON.parse(D3.undo.pop()); D3.sel = D3.sel.filter(findItem); } break;
+    case 'redo': if (D3.redo.length) { D3.undo.push(JSON.stringify(D3.items)); D3.items = JSON.parse(D3.redo.pop()); D3.sel = D3.sel.filter(findItem); } break;
+    case 'hole': if (!sel.length) return; push3(); { const h = !sel.every(i => i.hole); sel.forEach(i => i.hole = h); } break;
+    case 'group': {
+      if (sel.length < 2) { toast('Sélectionnez au moins 2 formes (bouton « Sélection multiple »).'); return; }
+      push3();
+      const solid = sel.find(i => !i.hole);
+      const g = { id: newId3(), type: 'group', children: sel, color: solid ? solid.color : '#78909c', hole: false };
+      const first = D3.items.indexOf(sel[0]);
+      D3.items = D3.items.filter(i => !sel.includes(i)); D3.items.splice(Math.min(first, D3.items.length), 0, g);
+      D3.sel = [g.id]; D3.multi = false;
+      toast(sel.some(i => i.hole) ? 'Groupe créé : les formes « trou » sont soustraites.' : 'Formes groupées (additionnées).');
+      break;
+    }
+    case 'ungroup': {
+      const gs = sel.filter(i => i.type === 'group'); if (!gs.length) return; push3();
+      const ids = [];
+      for (const g of gs) { const i = D3.items.indexOf(g); D3.items.splice(i, 1, ...g.children); ids.push(...g.children.map(c => c.id)); }
+      D3.sel = ids; break;
+    }
+    case 'dup': {
+      if (!sel.length) return; push3();
+      const copies = sel.map(i => { const c = reId(clone(i)); moveItem(c, [Math.max(D3.snap, 5) * 2, Math.max(D3.snap, 5) * 2, 0]); return c; });
+      D3.items.push(...copies); D3.sel = copies.map(c => c.id); break;
+    }
+    case 'del': if (!sel.length) return; push3(); D3.items = D3.items.filter(i => !sel.includes(i)); D3.sel = []; break;
+    case 'multi': D3.multi = !D3.multi; break;
+    case 'grid': D3.grid = !D3.grid; break;
+    case 'insert': insert3D(); return;
+    case 'close': close3D(); return;
+    case 'all': D3.sel = D3.items.map(i => i.id); D3.multi = true; break;
+  }
+  rebuild3();
+}
+
+/* --- interface --- */
+function buildStudio() {
+  const el = document.createElement('div'); el.id = 'studio';
+  el.innerHTML = `
+  <div class="s3top">
+    <button class="pill" data-s3="undo" title="Annuler (Ctrl+Z)">↶</button><button class="pill" data-s3="redo" title="Rétablir (Ctrl+Y)">↷</button>
+    <span class="vsep"></span>
+    <button class="pill" data-s3="hole" title="Une forme « trou » est soustraite quand on la groupe avec une forme pleine">◌ Trou / plein</button>
+    <button class="pill" data-s3="group" title="Grouper (Ctrl+G) : additionne les formes pleines et soustrait les trous">▣ Grouper</button>
+    <button class="pill" data-s3="ungroup" title="Dégrouper (Ctrl+Maj+G)">◫ Dégrouper</button>
+    <button class="pill" data-s3="dup" title="Dupliquer (Ctrl+D)">⧉ Dupliquer</button>
+    <button class="pill" data-s3="del" title="Supprimer (Suppr)">🗑 Supprimer</button>
+    <button class="pill" data-s3="multi" title="Touchez plusieurs formes pour les sélectionner ensemble">☑ Sélection multiple</button>
+    <span class="vsep"></span>
+    <button class="pill" data-view="iso">3D</button><button class="pill" data-view="top">Dessus</button><button class="pill" data-view="front">Face</button><button class="pill" data-view="side">Côté</button><button class="pill" data-view="fit">Centrer</button>
+    <span class="vsep"></span>
+    <select class="pill" id="s3snap" title="Aimant de déplacement"><option value="1">Aimant 1 mm</option><option value="5" selected>Aimant 5 mm</option><option value="10">Aimant 10 mm</option><option value="0">Sans aimant</option></select>
+    <button class="pill on" data-s3="grid">▦ Grille et axes</button>
+    <span style="flex:1"></span>
+    <button class="btn primary" data-s3="insert">Insérer dans le tableau</button>
+    <button class="btn" data-s3="close">Fermer</button>
+  </div>
+  <div class="s3main">
+    <div class="s3shapes">${SHAPES3D.map(([k, l]) => `<button class="s3shape" data-add="${k}" title="Ajouter : ${l}"><svg class="i" viewBox="0 0 24 24">${ICON3D[k]}</svg>${l}</button>`).join('')}</div>
+    <div class="s3view"><div class="s3labels"></div></div>
+    <aside class="s3panel"></aside>
+  </div>`;
+  document.body.appendChild(el);
+  $$('[data-s3]', el).forEach(b => b.addEventListener('click', () => act3(b.dataset.s3)));
+  $$('[data-view]', el).forEach(b => b.addEventListener('click', () => setView3(b.dataset.view)));
+  $$('[data-add]', el).forEach(b => b.addEventListener('click', () => addShape3(b.dataset.add)));
+  $('#s3snap').addEventListener('change', e => { D3.snap = +e.target.value; });
+}
+async function initThree() {
+  await loadScript(CDN3D.three);
+  await Promise.all([loadScript(CDN3D.orbit), loadScript(CDN3D.jscad)]);
+  const view = $('#studio .s3view');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); renderer.setClearColor(0xf6f8fb);
+  view.insertBefore(renderer.domElement, view.firstChild);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, 1, 1, 6000); camera.up.set(0, 0, 1);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a99ab, .8));
+  const dl = new THREE.DirectionalLight(0xffffff, .6); dl.position.set(140, -180, 260); scene.add(dl);
+  const helpers = new THREE.Group(); scene.add(helpers);
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({ color: 0xe8f0fb, transparent: true, opacity: .55, depthWrite: false, side: THREE.DoubleSide }));
+  plate.position.z = -.2; helpers.add(plate);
+  const g1 = new THREE.GridHelper(200, 200, 0xd3dce7, 0xd3dce7); g1.rotation.x = Math.PI / 2; g1.position.z = -.1; g1.material.transparent = true; g1.material.opacity = .55; helpers.add(g1);
+  const g2 = new THREE.GridHelper(200, 20, 0x9fb2c8, 0x9fb2c8); g2.rotation.x = Math.PI / 2; g2.position.z = -.05; helpers.add(g2);
+  const line = (a, b, c) => new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]), new THREE.LineBasicMaterial({ color: c }));
+  helpers.add(line([-100, 0, 0], [112, 0, 0], 0xe53935), line([0, -100, 0], [0, 112, 0], 0x2e7d32), line([0, 0, 0], [0, 0, 112], 0x1e63d6));
+  const dims = new THREE.Group(); scene.add(dims);
+  renderer.domElement.addEventListener('pointerdown', s3Down);   // avant OrbitControls : priorité à la sélection
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = .12; controls.screenSpacePanning = true; controls.maxDistance = 2500;
+  window.addEventListener('pointermove', s3Move); window.addEventListener('pointerup', s3Up); window.addEventListener('pointercancel', s3Up);
+  T3 = { renderer, scene, camera, controls, helpers, dims, meshes: new Map(), dimLabels: [], raf: 0, ray: new THREE.Raycaster() };
+}
+function resize3() {
+  if (!T3) return;
+  const v = $('#studio .s3view'), w = v.clientWidth, h = v.clientHeight;
+  T3.renderer.setSize(w, h, false); T3.camera.aspect = w / h; T3.camera.updateProjectionMatrix();
+}
+function allBox3(items = D3.items) {
+  let b = null;
+  for (const it of items) { const q = bbox3(it); if (!q) continue; b = b ? [[Math.min(b[0][0], q[0][0]), Math.min(b[0][1], q[0][1]), Math.min(b[0][2], q[0][2])], [Math.max(b[1][0], q[1][0]), Math.max(b[1][1], q[1][1]), Math.max(b[1][2], q[1][2])]] : q; }
+  return b;
+}
+function setView3(name) {
+  const b = allBox3();
+  const c = b ? new THREE.Vector3((b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2, (b[0][2] + b[1][2]) / 2) : new THREE.Vector3(0, 0, 10);
+  const size = b ? Math.max(b[1][0] - b[0][0], b[1][1] - b[0][1], b[1][2] - b[0][2]) : 60;
+  const dist = Math.max(140, size * 3);
+  const dir = { iso: [1, -1.25, 1], top: [0, -.0001, 1], front: [0, -1, .12], side: [1, 0, .12] }[name] || T3.camera.position.clone().sub(T3.controls.target).toArray();
+  if (name !== 'fit' && name !== 'iso' && !b) c.set(0, 0, 0);
+  T3.controls.target.copy(c);
+  T3.camera.position.copy(c.clone().add(new THREE.Vector3(...dir).normalize().multiplyScalar(dist)));
+  T3.controls.update();
+}
+function rebuild3() {
+  const seen = new Set();
+  for (const it of D3.items) {
+    seen.add(it.id);
+    const key = JSON.stringify(it); let rec = T3.meshes.get(it.id);
+    if (!rec || rec.key !== key) {
+      if (rec) dispose3(rec.mesh);
+      let g = null; try { g = geomOf(it); } catch (e) { console.error(e); }
+      const mesh = g ? meshFrom(g, it.color, it.hole) : new THREE.Group();
+      mesh.userData.id = it.id; T3.scene.add(mesh);
+      rec = { key, mesh, geom: g }; T3.meshes.set(it.id, rec);
+    }
+  }
+  for (const [id, rec] of T3.meshes) if (!seen.has(id)) { dispose3(rec.mesh); T3.meshes.delete(id); }
+  for (const [id, rec] of T3.meshes) {
+    const on = D3.sel.includes(id), m = rec.mesh;
+    if (m.material) { m.material.emissive?.set(on ? 0x1d4ed8 : 0x000000); if (m.material.emissive) m.material.emissiveIntensity = on ? .35 : 0; }
+    if (m.userData.edges) { m.userData.edges.material.color.set(on ? 0x1d4ed8 : (findItem(id)?.hole ? 0x56606b : 0x000000)); m.userData.edges.material.opacity = on ? 1 : (findItem(id)?.hole ? .8 : .3); }
+  }
+  T3.helpers.visible = D3.grid;
+  buildDims3(); panel3(); buttons3(); saveDraft3();
+}
+function buttons3() {
+  const el = $('#studio'), sel = selItems();
+  $('[data-s3=multi]', el).classList.toggle('on', D3.multi);
+  $('[data-s3=grid]', el).classList.toggle('on', D3.grid);
+  $('[data-s3=group]', el).disabled = sel.length < 2;
+  $('[data-s3=ungroup]', el).disabled = !sel.some(i => i.type === 'group');
+  for (const k of ['hole', 'dup', 'del']) $(`[data-s3=${k}]`, el).disabled = !sel.length;
+  $('[data-s3=undo]', el).disabled = !D3.undo.length; $('[data-s3=redo]', el).disabled = !D3.redo.length;
+}
+function buildDims3() {
+  T3.dims.children.slice().forEach(dispose3); T3.dimLabels = [];
+  const b = allBox3(D3.dimsAll ? D3.items : selItems()); if (!b) return;
+  const [[x0, y0, z0], [x1, y1, z1]] = b, off = 8, mat = new THREE.LineBasicMaterial({ color: 0x1f2933 });
+  const seg = (pts) => T3.dims.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(...p))), mat));
+  // longueur (X)
+  seg([[x0, y0 - off, z0], [x1, y0 - off, z0]]); seg([[x0, y0, z0], [x0, y0 - off - 3, z0]]); seg([[x1, y0, z0], [x1, y0 - off - 3, z0]]);
+  T3.dimLabels.push({ p: [(x0 + x1) / 2, y0 - off - 5, z0], t: fmtmm(x1 - x0) + ' mm' });
+  // largeur (Y)
+  seg([[x1 + off, y0, z0], [x1 + off, y1, z0]]); seg([[x1, y0, z0], [x1 + off + 3, y0, z0]]); seg([[x1, y1, z0], [x1 + off + 3, y1, z0]]);
+  T3.dimLabels.push({ p: [x1 + off + 5, (y0 + y1) / 2, z0], t: fmtmm(y1 - y0) + ' mm' });
+  // hauteur (Z)
+  seg([[x1 + off, y0 - off, z0], [x1 + off, y0 - off, z1]]); seg([[x1, y0, z1], [x1 + off + 3, y0 - off - 3, z1]]);
+  T3.dimLabels.push({ p: [x1 + off + 4, y0 - off - 4, (z0 + z1) / 2], t: fmtmm(z1 - z0) + ' mm' });
+}
+function labels3() {
+  const box = $('#studio .s3labels'), w = box.clientWidth, h = box.clientHeight, list = [];
+  if (D3.grid) {
+    for (let v = -100; v <= 100; v += 20) if (v) { list.push({ p: [v, -5, 0], t: String(v), c: 'tick' }); list.push({ p: [-5, v, 0], t: String(v), c: 'tick' }); }
+    for (let v = 20; v <= 100; v += 20) list.push({ p: [-5, -5, v], t: String(v), c: 'tick' });
+    list.push({ p: [118, 0, 0], t: 'X', c: 'ax x' }, { p: [0, 118, 0], t: 'Y', c: 'ax y' }, { p: [0, 0, 118], t: 'Z', c: 'ax z' }, { p: [100, -14, 0], t: 'mm', c: 'tick' });
+  }
+  if (!D3.drag?.moved) for (const d of T3.dimLabels) list.push({ ...d, c: 'dim' });
+  const els = box.children; let i = 0;
+  const v3 = new THREE.Vector3();
+  for (const l of list) {
+    v3.set(...l.p).project(T3.camera);
+    if (v3.z > 1 || v3.z < -1) continue;
+    let el = els[i]; if (!el) { el = document.createElement('div'); box.appendChild(el); }
+    el.className = 's3l ' + l.c; if (el.textContent !== l.t) el.textContent = l.t;
+    el.style.left = ((v3.x + 1) / 2 * w) + 'px'; el.style.top = ((1 - v3.y) / 2 * h) + 'px'; el.style.display = '';
+    i++;
+  }
+  for (; i < els.length; i++) els[i].style.display = 'none';
+}
+function loop3() {
+  if (!D3.open) return;
+  T3.raf = requestAnimationFrame(loop3);
+  T3.controls.update(); T3.renderer.render(T3.scene, T3.camera); labels3();
+}
+function panel3() {
+  const P = $('#studio .s3panel'), sel = selItems();
+  if (!sel.length) {
+    P.innerHTML = `<h3>Atelier 3D</h3>
+      <p>1. Touchez une forme à gauche pour l’ajouter.</p>
+      <p>2. Glissez une forme pour la déplacer sur le plan. Glissez le fond pour tourner la vue (deux doigts : zoom).</p>
+      <p>3. Réglez ses <b>dimensions en mm</b> ici.</p>
+      <p>4. Une forme <b>« trou »</b> groupée avec une forme pleine est <b>soustraite</b>; deux formes pleines groupées sont <b>additionnées</b>.</p>
+      <p>5. « Insérer dans le tableau » ajoute l’image avec ses cotes; double-cliquez-la plus tard pour la modifier.</p>`;
+    return;
+  }
+  const b = allBox3(sel), J = jscadModeling.measurements;
+  let vol = 0, area = 0; for (const it of sel) { const g = T3.meshes.get(it.id)?.geom; if (g && !it.hole) { vol += J.measureVolume(g); area += J.measureArea(g); } }
+  const meas = `<div class="s3meas"><div><span>Volume</span><b>${fmtmm(vol / 1000)} cm³</b></div><div><span>Aire totale</span><b>${fmtmm(area / 100)} cm²</b></div></div>`;
+  if (sel.length > 1) {
+    P.innerHTML = `<h3>${sel.length} formes sélectionnées</h3>
+      <button class="btn primary" style="width:100%" data-p="group">▣ Grouper</button>
+      <p class="s3hint">Les formes pleines sont additionnées, les formes « trou » sont soustraites.</p>
+      ${b ? `<p>Encombrement : ${fmtmm(b[1][0] - b[0][0])} × ${fmtmm(b[1][1] - b[0][1])} × ${fmtmm(b[1][2] - b[0][2])} mm</p>` : ''}${meas}`;
+    $('[data-p=group]', P).addEventListener('click', () => act3('group'));
+    return;
+  }
+  const it = sel[0], isG = it.type === 'group';
+  const dims = isG && b ? [b[1][0] - b[0][0], b[1][1] - b[0][1], b[1][2] - b[0][2]] : it.dims;
+  const pos = isG && b ? [(b[0][0] + b[1][0]) / 2, (b[0][1] + b[1][1]) / 2, b[0][2]] : it.pos;
+  const row = (f, label, val, unit) => `<div class="s3row"><label>${label}</label><button data-f="${f}" data-d="-1">−</button><input type="number" step="any" data-f="${f}" value="${Math.round(val * 10) / 10}"><button data-f="${f}" data-d="1">+</button><span>${unit}</span></div>`;
+  P.innerHTML = `<h3>${esc(name3D(it))}${it.hole ? ' <small>(trou)</small>' : ''}</h3>
+    <div class="row"><button class="chip${!it.hole ? ' on' : ''}" data-hole="0">Plein</button><button class="chip${it.hole ? ' on' : ''}" data-hole="1">Trou</button></div>
+    <h4>Dimensions</h4>${row('d0', 'Longueur (X)', dims[0], 'mm')}${row('d1', 'Largeur (Y)', dims[1], 'mm')}${row('d2', 'Hauteur (Z)', dims[2], 'mm')}
+    <h4>Position</h4>${row('p0', 'X', pos[0], 'mm')}${row('p1', 'Y', pos[1], 'mm')}${row('p2', 'Z (base)', pos[2], 'mm')}
+    <h4>Rotation</h4>${isG ? `<button class="btn" data-rz="90" style="width:100%">↻ Tourner de 90° (axe Z)</button>`
+      : `${row('r0', 'Autour de X', it.rot[0], '°')}${row('r1', 'Autour de Y', it.rot[1], '°')}${row('r2', 'Autour de Z', it.rot[2], '°')}`}
+    ${it.hole ? '' : `<h4>Couleur</h4><div class="row">${COLORS3D.map(c => `<button class="sw${it.color === c ? ' on' : ''}" data-c="${c}" style="background:${c};width:34px;height:34px"></button>`).join('')}</div>`}
+    ${meas}`;
+  const apply = (f, val) => {
+    if (!isFinite(val)) return;
+    push3();
+    const k = f[0], i = +f[1];
+    if (k === 'd') {
+      val = Math.max(.5, val);
+      if (isG) { const s = [1, 1, 1]; s[i] = val / (dims[i] || 1); scaleItem(it, s, [pos[0], pos[1], pos[2]]); } else it.dims[i] = r1(val);
+    } else if (k === 'p') {
+      if (isG) { const d = [0, 0, 0]; d[i] = val - pos[i]; moveItem(it, d); } else it.pos[i] = r1(val);
+    } else if (k === 'r') it.rot[i] = ((r1(val) % 360) + 360) % 360;
+    rebuild3();
+  };
+  $$('input[data-f]', P).forEach(inp => inp.addEventListener('change', () => apply(inp.dataset.f, parseFloat(inp.value.replace(',', '.')))));
+  $$('button[data-f]', P).forEach(bt => bt.addEventListener('click', () => {
+    const f = bt.dataset.f, inp = $(`input[data-f="${f}"]`, P), step = f[0] === 'r' ? 15 : (D3.snap || 1);
+    apply(f, parseFloat(inp.value) + step * +bt.dataset.d);
+  }));
+  $$('[data-hole]', P).forEach(bt => bt.addEventListener('click', () => { push3(); it.hole = bt.dataset.hole === '1'; rebuild3(); }));
+  $$('[data-c]', P).forEach(bt => bt.addEventListener('click', () => { push3(); it.color = bt.dataset.c; rebuild3(); }));
+  $('[data-rz]', P)?.addEventListener('click', () => { push3(); rotateItemZ(it, 90, pos[0], pos[1]); rebuild3(); });
+}
+
+/* --- pointeur dans la vue 3D --- */
+function ray3(e) {
+  const r = T3.renderer.domElement.getBoundingClientRect();
+  T3.ray.setFromCamera({ x: (e.clientX - r.left) / r.width * 2 - 1, y: -(e.clientY - r.top) / r.height * 2 + 1 }, T3.camera);
+  return T3.ray;
+}
+function pick3(e) {
+  const meshes = [...T3.meshes.values()].map(r => r.mesh).filter(m => m.isMesh);
+  const hit = ray3(e).intersectObjects(meshes, false)[0];
+  return hit ? { id: hit.object.userData.id, point: hit.point } : null;
+}
+function s3Down(e) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  D3.down = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  const h = pick3(e);
+  if (!h) return;
+  T3.controls.enabled = false;
+  if (D3.multi || e.shiftKey) { D3.sel = D3.sel.includes(h.id) ? D3.sel.filter(i => i !== h.id) : [...D3.sel, h.id]; }
+  else if (!D3.sel.includes(h.id)) D3.sel = [h.id];
+  rebuild3();
+  if (!D3.sel.includes(h.id)) return;
+  const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -h.point.z);
+  D3.drag = { plane, start: h.point.clone(), before: JSON.stringify(D3.items), moved: false, d: [0, 0] };
+}
+function s3Move(e) {
+  if (!D3.drag) return;
+  const p = new THREE.Vector3(); if (!ray3(e).ray.intersectPlane(D3.drag.plane, p)) return;
+  let dx = p.x - D3.drag.start.x, dy = p.y - D3.drag.start.y;
+  if (D3.snap) { dx = Math.round(dx / D3.snap) * D3.snap; dy = Math.round(dy / D3.snap) * D3.snap; }
+  if (dx || dy) D3.drag.moved = true;
+  D3.drag.d = [dx, dy];
+  for (const id of D3.sel) { const m = T3.meshes.get(id)?.mesh; m?.position.set(dx, dy, 0); }
+  T3.dims.position.set(dx, dy, 0);
+}
+function s3Up(e) {
+  if (D3.drag) {
+    const d = D3.drag; D3.drag = null; T3.controls.enabled = true; T3.dims.position.set(0, 0, 0);
+    if (d.moved) {
+      D3.undo.push(d.before); D3.redo.length = 0;
+      for (const it of selItems()) moveItem(it, [d.d[0], d.d[1], 0]);
+      for (const id of D3.sel) T3.meshes.get(id)?.mesh.position.set(0, 0, 0);
+      rebuild3();
+    }
+    D3.down = null; return;
+  }
+  if (D3.down && D3.open && e.target === T3?.renderer.domElement && Math.hypot(e.clientX - D3.down.x, e.clientY - D3.down.y) < 6 && !D3.multi) { D3.sel = []; rebuild3(); }
+  D3.down = null;
+}
+window.addEventListener('keydown', e => {
+  if (!D3.open || e.target.matches('input,textarea,select')) return;
+  const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
+  if (mod && k === 'z') { e.preventDefault(); act3(e.shiftKey ? 'redo' : 'undo'); }
+  else if (mod && k === 'y') { e.preventDefault(); act3('redo'); }
+  else if (mod && k === 'g') { e.preventDefault(); act3(e.shiftKey ? 'ungroup' : 'group'); }
+  else if (mod && k === 'd') { e.preventDefault(); act3('dup'); }
+  else if (mod && k === 'a') { e.preventDefault(); act3('all'); }
+  else if (e.key === 'Delete' || e.key === 'Backspace') act3('del');
+  else if (e.key === 'Escape') { D3.sel = []; rebuild3(); }
+  else if (e.key.startsWith('Arrow') && D3.sel.length) {
+    e.preventDefault(); const s = D3.snap || 1, d = { ArrowLeft: [-s, 0, 0], ArrowRight: [s, 0, 0], ArrowUp: e.shiftKey ? [0, 0, s] : [0, s, 0], ArrowDown: e.shiftKey ? [0, 0, -s] : [0, -s, 0] }[e.key];
+    push3(); selItems().forEach(it => moveItem(it, d)); rebuild3();
+  }
+}, true);
+window.addEventListener('resize', () => { if (D3.open) resize3(); });
+function saveDraft3() { if (!D3.target) try { localStorage.setItem('tableau-3d', JSON.stringify(D3.items)); } catch (_) {} }
+
+/* --- ouverture / insertion --- */
+async function open3D(target) {
+  commitText(); closeFly();
+  if (!$('#studio')) buildStudio();
+  if (!T3) {
+    toast('Chargement de l’atelier 3D…', 0);
+    try { await initThree(); } catch (e) { console.error(e); toast('Impossible de charger l’atelier 3D (connexion Internet nécessaire).', 5000); return; }
+    hideToast();
+  }
+  D3.target = target || null;
+  if (target) { D3.items = clone(target.m3d.items); D3.grid = target.m3d.grid !== false; }
+  else { try { D3.items = JSON.parse(localStorage.getItem('tableau-3d')) || []; } catch (_) { D3.items = []; } }
+  D3.sel = []; D3.undo = []; D3.redo = []; D3.multi = false;
+  $('#studio').classList.add('open'); D3.open = true;
+  resize3(); rebuild3();
+  if (target?.m3d?.cam) { T3.camera.position.fromArray(target.m3d.cam.p); T3.controls.target.fromArray(target.m3d.cam.t); T3.controls.update(); }
+  else setView3('iso');
+  loop3();
+}
+function close3D() {
+  D3.open = false; cancelAnimationFrame(T3?.raf); $('#studio')?.classList.remove('open'); D3.target = null;
+}
+async function insert3D() {
+  if (!D3.items.length) { toast('Ajoutez d’abord une forme.'); return; }
+  D3.sel = []; D3.dimsAll = true; rebuild3(); D3.dimsAll = false;
+  T3.controls.update(); T3.renderer.render(T3.scene, T3.camera); labels3();
+  const src = T3.renderer.domElement, c = document.createElement('canvas');
+  c.width = src.width; c.height = src.height;
+  const ctx = c.getContext('2d'); ctx.drawImage(src, 0, 0);
+  const k = src.width / src.clientWidth;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  $$('#studio .s3l').forEach(l => {
+    if (l.style.display === 'none') return;
+    const x = parseFloat(l.style.left) * k, y = parseFloat(l.style.top) * k, cs = getComputedStyle(l);
+    ctx.font = `${cs.fontWeight} ${parseFloat(cs.fontSize) * k}px ${cs.fontFamily}`;
+    ctx.fillStyle = cs.color; ctx.fillText(l.textContent, x, y);
+  });
+  // recadrage sur le contenu (fond uni retiré)
+  // recadrage sur les formes et leurs cotes
+  const bb = allBox3(), r = src.getBoundingClientRect(), pts = [];
+  if (bb) for (const x of [bb[0][0] - 14, bb[1][0] + 14]) for (const y of [bb[0][1] - 14, bb[1][1] + 14]) for (const z of [bb[0][2], bb[1][2]]) {
+    const v = new THREE.Vector3(x, y, z).project(T3.camera); pts.push([(v.x + 1) / 2 * r.width * k, (1 - v.y) / 2 * r.height * k]);
+  }
+  const cropped = pts.length ? cropRect(c, pts, 50 * k) : crop3(c);
+  const data = { items: clone(D3.items), grid: D3.grid, cam: { p: T3.camera.position.toArray(), t: T3.controls.target.toArray() } };
+  const url = cropped.toDataURL('image/png'), target = D3.target;
+  close3D();
+  if (target && page().objects.includes(target)) {
+    const im = await normalizeImage(url);
+    snapshot(); replaceObj(target, { ...target, a: addAsset(im.src), h: r1(target.w * im.h / im.w), m3d: data }); afterChange();
+  } else await insertImageSrc(url, { m3d: data });
+  toast('Forme 3D insérée. Double-cliquez dessus (outil Sélection) pour la modifier.', 4000);
+}
+function cropRect(c, pts, pad) {
+  let x0 = Math.max(0, Math.min(...pts.map(p => p[0])) - pad), y0 = Math.max(0, Math.min(...pts.map(p => p[1])) - pad);
+  let x1 = Math.min(c.width, Math.max(...pts.map(p => p[0])) + pad), y1 = Math.min(c.height, Math.max(...pts.map(p => p[1])) + pad);
+  if (x1 - x0 < 40 || y1 - y0 < 40) return c;
+  const o = document.createElement('canvas'); o.width = Math.round(x1 - x0); o.height = Math.round(y1 - y0);
+  o.getContext('2d').drawImage(c, x0, y0, o.width, o.height, 0, 0, o.width, o.height);
+  return o;
+}
+function crop3(c) {
+  const ctx = c.getContext('2d'), { width: w, height: h } = c, d = ctx.getImageData(0, 0, w, h).data;
+  const bg = [d[0], d[1], d[2]]; let x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (let y = 0; y < h; y += 2) for (let x = 0; x < w; x += 2) {
+    const i = (y * w + x) * 4;
+    if (Math.abs(d[i] - bg[0]) + Math.abs(d[i + 1] - bg[1]) + Math.abs(d[i + 2] - bg[2]) > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 <= x0 || y1 <= y0) return c;
+  const pad = 24; x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(w, x1 + pad); y1 = Math.min(h, y1 + pad);
+  const o = document.createElement('canvas'); o.width = x1 - x0; o.height = y1 - y0;
+  const octx = o.getContext('2d'); octx.fillStyle = '#fff'; octx.fillRect(0, 0, o.width, o.height);
+  octx.drawImage(c, x0, y0, o.width, o.height, 0, 0, o.width, o.height);
+  return o;
 }
 
 /* ---------- Pages ---------- */
@@ -1759,12 +2387,12 @@ async function normalizeImage(src, max = 2400) {
 function addAsset(src) { const id = 'a' + uid(); S.doc.assets[id] = src; return id; }
 function insertIndex(objs) { const i = objs.findIndex(o => o.t !== 'image' && o.t !== 'sheet'); return i < 0 ? objs.length : i; }
 function viewCenter() { return toWorld(W / 2 + 30, H / 2); }
-async function insertImageSrc(src) {
+async function insertImageSrc(src, extra = {}) {
   const im = await normalizeImage(src), v = V();
   const maxW = (W - 200) * .8 / v.z, maxH = (H - 200) * .8 / v.z;
   const s = Math.min(1 / Math.min(DPR, 2) * 1.5, maxW / im.w, maxH / im.h);
   const w = im.w * s, h = im.h * s, c = viewCenter();
-  const o = { id: uid(), t: 'image', a: addAsset(im.src), x: r1(c.x - w / 2), y: r1(c.y - h / 2), w: r1(w), h: r1(h) };
+  const o = { id: uid(), t: 'image', a: addAsset(im.src), x: r1(c.x - w / 2), y: r1(c.y - h / 2), w: r1(w), h: r1(h), ...extra };
   snapshot(); const objs = page().objects; objs.splice(insertIndex(objs), 0, o);
   setTool('select'); S.sel = [o.id]; afterChange();
 }
@@ -1906,6 +2534,7 @@ async function pasteButton() {
   } catch (e) { toast('Appuyez sur Ctrl + V pour coller.', 3000); }
 }
 window.addEventListener('paste', e => {
+  if (D3.open) return;
   if (e.target.matches && e.target.matches('input,textarea')) return;
   const items = [...(e.clipboardData?.items || [])];
   const imgs = items.filter(i => i.type.startsWith('image/')).map(i => i.getAsFile()).filter(Boolean);
@@ -2132,6 +2761,7 @@ function loadDoc(d) {
     }
   }
   S.doc = { pages: d.pages, assets: d.assets || {} };
+  try { d.pages.forEach(assignAtt); } catch (_) {}
   S.cur = clamp(d.cur | 0, 0, d.pages.length - 1);
   hist.clear(); imgCache.clear(); S.sel = [];
 }
@@ -2231,6 +2861,8 @@ function showHelp() {
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
   <p><b>Sélection multiple et groupes</b> : l’outil lasso (sous la flèche) permet d’entourer plusieurs objets; touchez ensuite « Grouper » (ou <kbd>Ctrl+G</kbd>). Un groupe se sélectionne et se déplace d’un seul geste; « Dégrouper » le défait. Avec la flèche, <kbd>Maj</kbd> + clic ajoute un objet à la sélection.</p>
+  <p><b>Formes 3D</b> : <i>Insérer → Formes 3D</i> ouvre l’atelier : ajoutez cubes, cylindres, cônes…, réglez leurs dimensions en mm, transformez une forme en « trou » puis groupez-la avec une autre pour la soustraire. L’image insérée se modifie par double-clic.</p>
+  <p><b>Aimant</b> (bouton 🧲 du crayon et des formes) : un trait presque droit devient une ligne droite; les formes s’accrochent aux sommets des autres formes et au quadrillage des feuilles. En redimensionnant une feuille, elle « colle » au format lettre 8,5 × 11.</p>
   <p><b>Feuilles</b> : ce qui est écrit ou posé sur une feuille (et qui la touche) la suit quand on la déplace.</p>
   <p><b>Appui long</b> : maintenez le doigt immobile sur le tableau pour ouvrir le menu des <b>3 derniers outils utilisés</b> (glissez sur un choix ou touchez-le). Un symbole (GN, Prédicat…) ou une forme y est posé directement à cet endroit.</p>
   <p><b>Formes, flèches, texte et symboles</b> : après chaque ajout, l’outil Sélection revient automatiquement. Double-cliquez un outil pour le garder actif.</p>
