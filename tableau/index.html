@@ -31,6 +31,7 @@ canvas{position:fixed;left:0;top:0;display:block}
 #webExit{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:50;display:none;background:var(--accent);color:#fff;border:0;border-radius:14px;padding:14px 22px;font-size:17px;font-weight:600;box-shadow:var(--shadow);cursor:pointer}
 #webExit.show{display:block}
 body.capturing #main,body.capturing #over,body.capturing .panel,body.capturing #toast,body.capturing #webExit{visibility:hidden!important}
+.web .cap em{font-style:normal;color:#7b8794}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -281,6 +282,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-act="lock" title="Verrouiller / déverrouiller"><svg class="i"><use href="#i-lock"/></svg></button>
   <button class="ib webonly w" data-act="interact" title="Interagir avec la page (cliquer, défiler)"><svg class="i"><use href="#i-pointer"/></svg></button>
   <button class="ib webonly" data-act="freeze" title="Figer en image (les annotations restent alignées)"><svg class="i"><use href="#i-camera"/></svg></button>
+  <button class="ib webonly w" data-act="totab" title="La page ne s’affiche pas (🚫) ? L’afficher en direct depuis un onglet"><svg class="i"><use href="#i-live"/></svg></button>
   <button class="ib webonly w" data-act="reload" title="Recharger la page"><svg class="i"><use href="#i-reload"/></svg></button>
   <button class="ib webonly w" data-act="open" title="Ouvrir dans un nouvel onglet"><svg class="i"><use href="#i-ext"/></svg></button>
   <button class="ib" data-act="del" title="Supprimer (Suppr)" style="color:var(--danger)"><svg class="i"><use href="#i-trash"/></svg></button>
@@ -868,6 +870,7 @@ function redo() {
 }
 function updateUndo() { const h = H_(); $('#bUndo').disabled = !h.u.length; $('#bRedo').disabled = !h.r.length; }
 function afterChange() { S.sel = S.sel.filter(id => page().objects.some(o => o.id === id)); render(); updateUndo(); updateProps(); scheduleSave(); }
+function replaceObj_(oldO, newO) { replaceObj(oldO, newO); }
 function replaceObj(oldO, newO) { const a = page().objects, i = a.indexOf(oldO); if (i >= 0) a[i] = newO; }
 
 /* ---------- Sélection ---------- */
@@ -911,7 +914,7 @@ function placeSelbar() {
   if (!sel.length || (G && G.type !== 'none' && G.type !== 'pan') || editing) { bar.style.display = 'none'; return; }
   const b = selBox(), a = toScreen(b.x, b.y), w = b.w * V().z, h = b.h * V().z;
   bar.style.display = 'flex';
-  const one = sel.length === 1 ? sel[0] : null;
+  const one = sel.find(o => DOMT.has(o.t)) || (sel.length === 1 ? sel[0] : null);
   bar.classList.toggle('isweb', !!one && DOMT.has(one.t)); bar.classList.toggle('islive', !!one && one.t === 'live');
   const bw = bar.offsetWidth || 250, bh = bar.offsetHeight || 54;
   let top = a.y - bh - 18; if (top < 76) top = a.y + h + 18; if (top + bh > H - 80) top = clamp(a.y + 10, 76, H - bh - 80);
@@ -924,10 +927,12 @@ function placeSelbar() {
 function selAction(act) {
   const sel = selObjs(); if (!sel.length) return;
   const objs = page().objects;
-  if (act === 'interact') return startInteract(sel[0]);
-  if (act === 'freeze') return freezeDom(sel[0]);
-  if (act === 'reload') { const el = domEls.get(sel[0].id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = sel[0].url, 50); } return; }
-  if (act === 'open') { window.open(sel[0].url, '_blank', 'noopener'); return; }
+  const wo = sel.find(o => DOMT.has(o.t)) || sel[0];
+  if (act === 'interact') return startInteract(wo);
+  if (act === 'freeze') return freezeDom(wo);
+  if (act === 'totab') return webToLive(wo.url, wo);
+  if (act === 'reload') { const el = domEls.get(wo.id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = wo.url, 50); } return; }
+  if (act === 'open') { window.open(wo.url, '_blank', 'noopener'); return; }
   if (act === 'del') { sel.forEach(o => { if (o.t === 'live') stopLive(o.id); });
     snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)); S.sel = []; }
   else if (act === 'dup') {
@@ -1697,7 +1702,7 @@ const weblayer = $('#weblayer');
 function makeDom(o) {
   const el = document.createElement('div'); el.className = 'web' + (o.t === 'live' ? ' live' : '');
   if (o.t === 'web') {
-    el.innerHTML = `<div class="cap">🌐 <span></span></div><iframe allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    el.innerHTML = `<div class="cap">🌐 <span></span><em> — page vide ou 🚫 ? Touchez ce cadre, puis le bouton écran</em></div><iframe allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
   } else {
     el.innerHTML = `<div class="cap"><b>●</b> En direct — ${esc(o.label || 'partage d’écran')}</div><video autoplay muted playsinline></video>
       <div class="ended">Le partage est terminé.<br>Supprimez ce cadre ou relancez « Insérer → Onglet ou fenêtre en direct ».</div>`;
@@ -1765,23 +1770,49 @@ async function insertWeb() {
     [{ label: 'Annuler', value: false }, { label: 'Afficher', value: true, cls: 'primary' }]);
   const url = normalizeUrl($('#urlIn')?.value || '');
   if (!ok || !url) return;
+  if (refusesEmbed(url)) { webToLive(url, null, true); return; }
   const ratio = /youtube|vimeo/.test(url) ? 16 / 9 + .1 : 16 / 10;
   addDomObj({ id: uid(), t: 'web', url, ...fitBoxInView(ratio) });
-  toast('Écrivez par-dessus avec vos outils. Pour cliquer dans la page : outil Sélection, touchez la page, puis le bouton « main ».', 6000);
+  toast('Écrivez par-dessus avec vos outils. Si la page reste vide ou affiche 🚫, touchez-la puis le bouton écran (affichage depuis un onglet).', 7000);
 }
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'urlIn') { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
-async function insertLive() {
+// Sites connus pour interdire l'affichage dans une autre page (X-Frame-Options / CSP)
+function refusesEmbed(url) {
+  let u; try { u = new URL(url); } catch (_) { return false; }
+  const h = u.hostname.replace(/^www\./, '');
+  if (/^docs\.google\.com$/.test(h) && /\/(preview|embed|pub|viewform)/.test(u.pathname)) return false;
+  if (/^(youtube-nocookie\.com|player\.vimeo\.com)$/.test(h) || /youtube\.com$/.test(h) && u.pathname.startsWith('/embed/')) return false;
+  return /(^|\.)(google\.[a-z.]+|youtube\.com|bing\.com|facebook\.com|instagram\.com|twitter\.com|x\.com|linkedin\.com|github\.com|office\.com|microsoft\.com|live\.com|sharepoint\.com|onedrive\.live\.com|amazon\.[a-z.]+|netflix\.com|tiktok\.com|reddit\.com|chatgpt\.com|openai\.com|claude\.ai|teams\.microsoft\.com|classroom\.google\.com)$/.test(h);
+}
+// Repli : le site s'ouvre dans un onglet, puis on partage cet onglet en direct sur le tableau
+async function webToLive(url, replaceObj, known) {
+  const host = (() => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (_) { return url; } })();
+  const go = await modal(known ? 'Ce site refuse d’être affiché dans le tableau' : 'Afficher la page depuis un onglet', `
+    <p>${known ? `<b>${esc(host)}</b> interdit l’affichage de ses pages à l’intérieur d’un autre site (règle de sécurité du site).` : 'Si la page reste vide ou affiche 🚫, c’est que le site interdit l’affichage dans une autre page (règle de sécurité du site).'}
+    Solution : l’afficher <b>en direct</b> depuis un onglet.</p>
+    <ol><li><button class="btn" id="openSite" type="button">↗ Ouvrir ${esc(host)} dans un nouvel onglet</button></li>
+    <li style="margin-top:10px">Revenez sur cet onglet du tableau, cliquez <b>Partager l’onglet</b>, puis choisissez l’onglet du site dans la liste.</li></ol>
+    <p style="font-size:14px;color:var(--muted)">Vous annotez par-dessus l’image en direct. Pour naviguer dans le site, utilisez son propre onglet; le bouton « Figer » garde l’image actuelle.</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Partager l’onglet', value: true, cls: 'primary' }],
+    () => $('#openSite').addEventListener('click', () => window.open(url, '_blank')));
+  if (!go) return;
+  insertLive(replaceObj);
+}
+async function insertLive(replaceObj) {
   if (!navigator.mediaDevices?.getDisplayMedia) { toast('Le partage d’écran n’est pas disponible dans ce navigateur. Utilisez Chrome ou Edge.', 5000); return; }
   let stream;
   try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: false, selfBrowserSurface: 'exclude', surfaceSwitching: 'include' }); }
   catch (e) { if (e.name !== 'NotAllowedError') toast('Partage impossible : ' + e.message, 4000); return; }
   const track = stream.getVideoTracks()[0], st = track.getSettings();
   const ratio = (st.width && st.height) ? st.width / st.height : 16 / 9;
-  const box = fitBoxInView(ratio * 0.97);
+  let box = fitBoxInView(ratio * 0.97);
+  if (replaceObj) box = { x: replaceObj.x, y: replaceObj.y, w: replaceObj.w, h: r1(replaceObj.w / ratio + CAP) };
   const o = { id: uid(), t: 'live', label: (track.label || '').slice(0, 60), ...box };
   liveStreams.set(o.id, stream);
   track.addEventListener('ended', () => { render(); toast('Partage d’écran terminé'); });
-  addDomObj(o);
+  if (replaceObj && page().objects.includes(replaceObj)) {
+    snapshot(); replaceObj_(replaceObj, o); setTool('select'); S.sel = [o.id]; afterChange();
+  } else addDomObj(o);
   toast('Image en direct : annotez par-dessus. « Figer » garde l’image actuelle.', 6000);
 }
 function stopLive(id) { liveStreams.get(id)?.getTracks().forEach(t => t.stop()); liveStreams.delete(id); }
@@ -1932,10 +1963,11 @@ function toast(msg, ms = 2600) {
 }
 function hideToast() { $('#toast').classList.remove('show'); }
 let modalResolve = null;
-function modal(title, html, buttons) {
+function modal(title, html, buttons, onOpen) {
   const m = $('#modal'), box = $('.box', m);
   box.innerHTML = `<h3>${esc(title)}</h3>${html}<div class="btns">${buttons.map((b, i) => `<button class="btn ${b.cls || ''}" data-i="${i}">${esc(b.label)}</button>`).join('')}</div>`;
   m.classList.add('open');
+  if (onOpen) onOpen();
   return new Promise(res => {
     modalResolve = res;
     $$('[data-i]', box).forEach(b => b.addEventListener('click', () => closeModal(buttons[+b.dataset.i].value)));
@@ -1956,7 +1988,7 @@ function showHelp() {
   <p><b>Raccourcis</b> : <kbd>V</kbd> sélection, <kbd>H</kbd> main, <kbd>P</kbd> crayon, <kbd>S</kbd> surligneur, <kbd>E</kbd> gomme, <kbd>R</kbd> formes, <kbd>F</kbd> flèches, <kbd>T</kbd> texte, <kbd>L</kbd> laser,
   <kbd>Ctrl+Z</kbd> annuler, <kbd>Ctrl+Y</kbd> rétablir, <kbd>Suppr</kbd> supprimer, <kbd>Ctrl+D</kbd> dupliquer, <kbd>Ctrl+V</kbd> coller une image ou du texte,
   <kbd>Page préc./suiv.</kbd> changer de page, <kbd>0</kbd> tout afficher, <kbd>Ctrl+S</kbd> enregistrer.</p>
-  <p><b>Pages web</b> : <i>Insérer → Page web</i> affiche un site en direct; écrivez par-dessus. Pour cliquer ou défiler dans la page, sélectionnez-la puis touchez le bouton « main ». Si le site refuse de s’afficher, utilisez <i>Insérer → Onglet ou fenêtre en direct</i>. Le bouton « Figer » (appareil photo) transforme la page en image pour que les annotations restent alignées.</p>
+  <p><b>Pages web</b> : <i>Insérer → Page web</i> affiche un site en direct; écrivez par-dessus. Pour cliquer ou défiler dans la page, sélectionnez-la puis touchez le bouton « main ». Si la page reste vide ou affiche 🚫, le site interdit l’affichage intégré : sélectionnez le cadre puis le bouton écran pour l’afficher en direct depuis un onglet. Le bouton « Figer » (appareil photo) transforme la page en image pour que les annotations restent alignées.</p>
   <p><b>Sauvegarde</b> : le tableau est conservé automatiquement dans ce navigateur. Pour le garder ou le partager, utilisez <i>Menu → Enregistrer le tableau</i> (fichier .tableau).</p>`,
     [{ label: 'Fermer', value: true, cls: 'primary' }]);
 }
