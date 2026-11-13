@@ -16,7 +16,13 @@ ouvrir le fichier dans Chrome ou Edge, ou le déposer sur un serveur web / Share
 | Fonds | Uni, quadrillé, petits carreaux, millimétré, pointillé, ligné, interligné (primaire), plan cartésien gradué, **portée** (clé de sol, fa, ut 3e, ut 4e, percussion, aucune), portée de piano (sol + fa), tablature — sur fond blanc, crème, vert ou noir |
 | Symboles | Notes, silences, altérations, nuances, chiffrages de mesure; symboles mathématiques; étiquettes de grammaire (GN, GV, CD, CI, Attr. S…); tampons de correction |
 | Documents | Image, **PDF** (chaque page devient une image annotable), **Word .docx** (converti en pages), capture d'écran, coller (Ctrl+V), glisser-déposer |
+| Pages web | **Page web (lien)** affichée en direct sur le tableau (YouTube, GeoGebra, Desmos, PhET, Google Docs publiés…), avec un mode « interagir » pour cliquer et défiler; **Onglet ou fenêtre en direct** (partage d'écran) pour n'importe quel site ou logiciel; bouton **Figer** pour transformer la page en image annotable |
 | Sauvegarde | Automatique dans le navigateur; fichier `.tableau` à enregistrer/ouvrir; export PNG; impression / PDF de toutes les pages |
+
+Certains sites (Google, réseaux sociaux, banques…) refusent d'être affichés dans une autre
+page : le cadre reste vide. Dans ce cas, ouvrez le site dans un autre onglet et utilisez
+*Insérer → Onglet ou fenêtre en direct*. Les annotations restent fixes sur le tableau : si on
+fait défiler la page web, elles ne suivent pas. Utilisez **Figer** avant d'annoter longuement.
 
 Les documents PDF et Word insérés sont **verrouillés** : on écrit dessus sans les
 déplacer par accident. Double-cliquer dessus avec l'outil Sélection pour les déplacer ou

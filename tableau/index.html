@@ -17,6 +17,25 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#fff;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{position:fixed;left:0;top:0;display:block}
+#bg{z-index:0}#weblayer{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}#main{z-index:2}#over{z-index:3}
+#weblayer.front{z-index:12}
+.web{position:absolute;left:0;top:0;transform-origin:0 0;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.22);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;pointer-events:none}
+.web .cap{height:30px;flex:none;background:#eef1f5;border-bottom:1px solid #d5dbe2;font:13px/30px "Segoe UI",system-ui,sans-serif;color:#45505c;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.web.live .cap{background:#1f2933;color:#fff}
+.web.live .cap b{color:#ff5252}
+.web iframe,.web video{flex:1;width:100%;border:0;display:block;background:#fff;min-height:0}
+.web video{background:#000;object-fit:contain}
+.web .ended{position:absolute;inset:30px 0 0;display:none;align-items:center;justify-content:center;text-align:center;padding:20px;background:#2b333d;color:#fff;font:18px "Segoe UI",sans-serif}
+.web.off .ended{display:flex}
+.web.interact{pointer-events:auto;outline:4px solid var(--accent)}
+#webExit{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:50;display:none;background:var(--accent);color:#fff;border:0;border-radius:14px;padding:14px 22px;font-size:17px;font-weight:600;box-shadow:var(--shadow);cursor:pointer}
+#webExit.show{display:block}
+body.capturing #main,body.capturing #over,body.capturing .panel,body.capturing #toast,body.capturing #webExit{visibility:hidden!important}
+#selbar .webonly{display:none}
+#selbar.isweb .webonly{display:flex}
+#selbar.islive .webonly.w{display:none}
+.urlIn{width:100%;font-size:18px;padding:12px 14px;border:2px solid var(--line);border-radius:12px;outline:none;-webkit-user-select:text;user-select:text}
+.urlIn:focus{border-color:var(--accent)}
 #over{touch-action:none;cursor:crosshair}
 body.t-select #over{cursor:default}
 body.t-hand #over,body.panning #over{cursor:grab}
@@ -195,11 +214,20 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h1.5a1.5 1.5 0 0 1 0 3H8v-3zM8 16v2"/></symbol>
     <symbol id="i-word" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 12l1.5 6 2.5-5 2.5 5 1.5-6"/></symbol>
     <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+    <symbol id="i-live" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="10" r="2.5" fill="currentColor"/></symbol>
+    <symbol id="i-pointer" viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v5l4.5 1a2 2 0 0 1 1.5 2.3L18 19a3 3 0 0 1-3 2h-4a3 3 0 0 1-2.3-1L5 15.5a1.8 1.8 0 0 1 2.6-2.4L9 14.5"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-reload" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
 
+<canvas id="bg"></canvas>
+<div id="weblayer"></div>
 <canvas id="main"></canvas>
+<button id="webExit">✓ Terminer — revenir à l’annotation</button>
 <canvas id="over"></canvas>
 <textarea id="textEd" spellcheck="false"></textarea>
 
@@ -251,6 +279,10 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-act="front" title="Mettre au premier plan"><svg class="i"><use href="#i-front"/></svg></button>
   <button class="ib" data-act="back" title="Mettre en arrière-plan"><svg class="i"><use href="#i-back"/></svg></button>
   <button class="ib" data-act="lock" title="Verrouiller / déverrouiller"><svg class="i"><use href="#i-lock"/></svg></button>
+  <button class="ib webonly w" data-act="interact" title="Interagir avec la page (cliquer, défiler)"><svg class="i"><use href="#i-pointer"/></svg></button>
+  <button class="ib webonly" data-act="freeze" title="Figer en image (les annotations restent alignées)"><svg class="i"><use href="#i-camera"/></svg></button>
+  <button class="ib webonly w" data-act="reload" title="Recharger la page"><svg class="i"><use href="#i-reload"/></svg></button>
+  <button class="ib webonly w" data-act="open" title="Ouvrir dans un nouvel onglet"><svg class="i"><use href="#i-ext"/></svg></button>
   <button class="ib" data-act="del" title="Supprimer (Suppr)" style="color:var(--danger)"><svg class="i"><use href="#i-trash"/></svg></button>
 </div>
 
@@ -366,13 +398,13 @@ const V = () => page().view;
 const isDark = pg => pg.bg.paper === 'green' || pg.bg.paper === 'black';
 
 /* ---------- Canvas ---------- */
-const main = $('#main'), over = $('#over');
+const bgc = $('#bg'), main = $('#main'), over = $('#over'), bgctx = bgc.getContext('2d');
 const mctx = main.getContext('2d'), octx = over.getContext('2d');
 const measureCtx = document.createElement('canvas').getContext('2d');
 
 function resize() {
   DPR = window.devicePixelRatio || 1; W = window.innerWidth; H = window.innerHeight;
-  for (const c of [main, over]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); c.style.width = W + 'px'; c.style.height = H + 'px'; }
+  for (const c of [bgc, main, over]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); c.style.width = W + 'px'; c.style.height = H + 'px'; }
   render();
 }
 let rafMain = 0, rafOver = 0;
@@ -438,7 +470,7 @@ function bbox(o) {
       b = ptsBox(all, pad); break;
     }
     case 'text': { const m = textMetrics(o); b = { x: o.x, y: o.y, w: m.w, h: m.h }; break; }
-    case 'image': b = { x: o.x, y: o.y, w: o.w, h: o.h }; break;
+    case 'image': case 'web': case 'live': b = { x: o.x, y: o.y, w: o.w, h: o.h }; break;
     default: b = { x: 0, y: 0, w: 0, h: 0 };
   }
   bbCache.set(o, b); return b;
@@ -571,7 +603,7 @@ function drawObj(ctx, o, dark) {
   switch (o.t) {
     case 'stroke': {
       ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = o.c; ctx.fillStyle = o.c; ctx.lineWidth = o.w;
-      if (o.hl) { if (dark) ctx.globalAlpha = .45; else { ctx.globalAlpha = .85; ctx.globalCompositeOperation = 'multiply'; } }
+      if (o.hl) { if (dark) ctx.globalAlpha = .45; else { ctx.globalAlpha = .6; ctx.globalCompositeOperation = 'multiply'; } }
       if (o.pts.length === 1) { ctx.beginPath(); ctx.arc(o.pts[0][0], o.pts[0][1], o.w / 2, 0, Math.PI * 2); ctx.fill(); }
       else { strokePath(ctx, o.pts); ctx.stroke(); }
       break;
@@ -731,17 +763,28 @@ function drawScene(ctx, pg, v, W, H, ratio, skipId) {
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
   drawBackground(ctx, pg, v, W, H);
+  drawObjects(ctx, pg, v, W, H, ratio, skipId, false);
+}
+// live = rendu à l'écran : les pages web / vidéos sont des éléments HTML placés sous l'encre
+function drawObjects(ctx, pg, v, W, H, ratio, skipId, live) {
   ctx.setTransform(ratio * v.z, 0, 0, ratio * v.z, ratio * v.x, ratio * v.y);
   const vis = { x: -v.x / v.z, y: -v.y / v.z, w: W / v.z, h: H / v.z };
   const dark = isDark(pg);
   for (const o of pg.objects) {
     if (o.id === skipId) continue;
     if (!intersects(bbox(o), vis)) continue;
+    if (DOMT.has(o.t)) { if (!live) drawDomPlaceholder(ctx, o); continue; }
     drawObj(ctx, o, dark);
   }
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
-function drawMain() { drawScene(mctx, page(), V(), W, H, DPR, editing && editing.o.id); }
+function drawMain() {
+  const v = V();
+  bgctx.setTransform(DPR, 0, 0, DPR, 0, 0); drawBackground(bgctx, page(), v, W, H);
+  mctx.setTransform(1, 0, 0, 1, 0, 0); mctx.clearRect(0, 0, main.width, main.height);
+  drawObjects(mctx, page(), v, W, H, DPR, editing && editing.o.id, true);
+  syncDom();
+}
 
 /* ---------- Couche de dessin temporaire ---------- */
 let G = null;             // geste en cours
@@ -859,7 +902,7 @@ function transformObj(o, f, sx = 1, sy = 1) {
       n.w = Math.max(.5, o.w * ws); break;
     }
     case 'text': [n.x, n.y] = f(o.x, o.y).map(r1); n.s = r1(Math.max(4, o.s * sy)); break;
-    case 'image': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(o.w * sx); n.h = r1(o.h * sy); break;
+    case 'image': case 'web': case 'live': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(o.w * sx); n.h = r1(o.h * sy); break;
   }
   return n;
 }
@@ -868,6 +911,8 @@ function placeSelbar() {
   if (!sel.length || (G && G.type !== 'none' && G.type !== 'pan') || editing) { bar.style.display = 'none'; return; }
   const b = selBox(), a = toScreen(b.x, b.y), w = b.w * V().z, h = b.h * V().z;
   bar.style.display = 'flex';
+  const one = sel.length === 1 ? sel[0] : null;
+  bar.classList.toggle('isweb', !!one && DOMT.has(one.t)); bar.classList.toggle('islive', !!one && one.t === 'live');
   const bw = bar.offsetWidth || 250, bh = bar.offsetHeight || 54;
   let top = a.y - bh - 18; if (top < 76) top = a.y + h + 18; if (top + bh > H - 80) top = clamp(a.y + 10, 76, H - bh - 80);
   bar.style.left = clamp(a.x + w / 2 - bw / 2, 80, W - bw - 10) + 'px';
@@ -879,7 +924,12 @@ function placeSelbar() {
 function selAction(act) {
   const sel = selObjs(); if (!sel.length) return;
   const objs = page().objects;
-  if (act === 'del') { snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)); S.sel = []; }
+  if (act === 'interact') return startInteract(sel[0]);
+  if (act === 'freeze') return freezeDom(sel[0]);
+  if (act === 'reload') { const el = domEls.get(sel[0].id); if (el) { const f = el.querySelector('iframe'); f.src = 'about:blank'; setTimeout(() => f.src = sel[0].url, 50); } return; }
+  if (act === 'open') { window.open(sel[0].url, '_blank', 'noopener'); return; }
+  if (act === 'del') { sel.forEach(o => { if (o.t === 'live') stopLive(o.id); });
+    snapshot(); page().objects = objs.filter(o => !S.sel.includes(o.id)); S.sel = []; }
   else if (act === 'dup') {
     snapshot(); const off = 24 / V().z;
     const copies = sel.map(o => { const n = transformObj(o, (x, y) => [x + off, y + off]); n.id = uid(); delete n.lock; return n; });
@@ -978,6 +1028,7 @@ over.addEventListener('contextmenu', e => e.preventDefault());
 over.addEventListener('pointerdown', e => {
   e.preventDefault();
   closeFly();
+  if (S.interact) exitInteract();
   if (editing) { commitText(); if (S.tool === 'text') return; }
   try { over.setPointerCapture(e.pointerId); } catch (_) {}
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1156,7 +1207,7 @@ function eraseAt(a, b) {
   const samples = []; for (let i = 0; i <= steps; i++) samples.push({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps });
   const kill = new Set();
   for (const o of objs) {
-    if (o.t === 'image' || o.lock) continue;
+    if (o.t === 'image' || DOMT.has(o.t) || o.lock) continue;
     for (const p of samples) if (hitObj(o, p, r)) { kill.add(o); break; }
   }
   if (kill.size) { ensureSnap(); page().objects = objs.filter(o => !kill.has(o)); render(); }
@@ -1306,6 +1357,8 @@ const FLY = {
       <button class="li" data-ins="pdf"><svg class="i"><use href="#i-pdf"/></svg><span>Document PDF<small>Chaque page devient une image annotable</small></span></button>
       <button class="li" data-ins="word"><svg class="i"><use href="#i-word"/></svg><span>Document Word (.docx)<small>Converti en pages annotables</small></span></button>
       <button class="li" data-ins="screen"><svg class="i"><use href="#i-screen"/></svg><span>Capture d’écran<small>D’une fenêtre, d’un onglet ou de l’écran</small></span></button>
+      <button class="li" data-ins="web"><svg class="i"><use href="#i-globe"/></svg><span>Page web (lien)<small>YouTube, GeoGebra, Desmos, PhET, Google Docs publiés…</small></span></button>
+      <button class="li" data-ins="live"><svg class="i"><use href="#i-live"/></svg><span>Onglet ou fenêtre en direct<small>Fonctionne avec tous les sites et logiciels</small></span></button>
       <button class="li" data-ins="paste"><svg class="i"><use href="#i-paste"/></svg><span>Coller<small>Image ou texte copié (Ctrl+V)</small></span></button>
     </div><p class="hint" style="margin:8px 6px 2px;white-space:normal;max-width:280px">Astuce : vous pouvez aussi glisser-déposer un fichier sur le tableau.</p>`,
   bg: () => {
@@ -1346,6 +1399,8 @@ const BIND = {
     if (k === 'word') $('#fWord').click();
     if (k === 'screen') captureScreen();
     if (k === 'paste') pasteButton();
+    if (k === 'web') insertWeb();
+    if (k === 'live') insertLive();
   })),
   bg: () => {
     $$('canvas[data-prev]', fly).forEach(c => {
@@ -1388,7 +1443,7 @@ document.addEventListener('pointerdown', e => {
 /* ---------- Pages ---------- */
 function goPage(i) {
   if (i < 0 || i >= S.doc.pages.length) return;
-  commitText(); G = null; S.sel = []; S.cur = i;
+  commitText(); exitInteract(); G = null; S.sel = []; S.cur = i;
   adaptInk(); afterView(); updatePages(); updateUndo(); updateProps(); scheduleSave();
 }
 function addPage() {
@@ -1634,6 +1689,162 @@ window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth =
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; $('#dropHint').classList.remove('show'); if (e.dataTransfer.files.length) handleFiles([...e.dataTransfer.files]); });
 
+/* ---------- Pages web et partage d'écran en direct ---------- */
+const DOMT = new Set(['web', 'live']);
+const CAP = 30;                       // hauteur de la barre de titre (unités du tableau)
+const domEls = new Map(), liveStreams = new Map();
+const weblayer = $('#weblayer');
+function makeDom(o) {
+  const el = document.createElement('div'); el.className = 'web' + (o.t === 'live' ? ' live' : '');
+  if (o.t === 'web') {
+    el.innerHTML = `<div class="cap">🌐 <span></span></div><iframe allow="fullscreen; autoplay; encrypted-media; picture-in-picture; clipboard-write" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  } else {
+    el.innerHTML = `<div class="cap"><b>●</b> En direct — ${esc(o.label || 'partage d’écran')}</div><video autoplay muted playsinline></video>
+      <div class="ended">Le partage est terminé.<br>Supprimez ce cadre ou relancez « Insérer → Onglet ou fenêtre en direct ».</div>`;
+  }
+  return el;
+}
+function syncDom() {
+  const pg = page(), v = V(), seen = new Set();
+  for (const o of pg.objects) {
+    if (!DOMT.has(o.t)) continue;
+    seen.add(o.id);
+    let el = domEls.get(o.id);
+    if (!el) { el = makeDom(o); domEls.set(o.id, el); weblayer.appendChild(el); }
+    if (o.t === 'web' && el.dataset.url !== o.url) { el.dataset.url = o.url; el.querySelector('.cap span').textContent = o.url; el.querySelector('iframe').src = o.url; }
+    if (o.t === 'live') {
+      const vid = el.querySelector('video'), st = liveStreams.get(o.id);
+      if (st && vid.srcObject !== st) vid.srcObject = st;
+      el.classList.toggle('off', !st || !st.active);
+    }
+    el.style.width = o.w + 'px'; el.style.height = o.h + 'px';
+    el.style.transform = `translate(${o.x * v.z + v.x}px,${o.y * v.z + v.y}px) scale(${v.z})`;
+    el.classList.toggle('interact', S.interact === o.id);
+  }
+  for (const [id, el] of domEls) if (!seen.has(id)) { el.remove(); domEls.delete(id); }
+  weblayer.classList.toggle('front', !!S.interact);
+}
+function drawDomPlaceholder(ctx, o) {
+  ctx.save();
+  ctx.fillStyle = '#f3f5f8'; ctx.strokeStyle = '#c7ced6'; ctx.lineWidth = 2;
+  ctx.fillRect(o.x, o.y, o.w, o.h); ctx.strokeRect(o.x, o.y, o.w, o.h);
+  const vid = o.t === 'live' && domEls.get(o.id)?.querySelector('video');
+  if (vid && vid.readyState >= 2) {
+    const a = o.w / (o.h - CAP), r = vid.videoWidth / vid.videoHeight;
+    const w = r > a ? o.w : (o.h - CAP) * r, h = r > a ? o.w / r : o.h - CAP;
+    ctx.drawImage(vid, o.x + (o.w - w) / 2, o.y + CAP + (o.h - CAP - h) / 2, w, h);
+  }
+  ctx.fillStyle = '#45505c'; ctx.font = `20px ${FONTS.sans}`; ctx.textBaseline = 'top';
+  ctx.fillText(o.t === 'web' ? '🌐 ' + o.url : '● Partage d’écran', o.x + 12, o.y + 6, o.w - 24);
+  ctx.restore();
+}
+function normalizeUrl(u) {
+  u = u.trim(); if (!u) return '';
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  let m;
+  if ((m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/)|youtu\.be\/)([\w-]{11})/))) return `https://www.youtube-nocookie.com/embed/${m[1]}`;
+  if ((m = u.match(/vimeo\.com\/(\d+)/)) && !/player\.vimeo/.test(u)) return `https://player.vimeo.com/video/${m[1]}`;
+  if ((m = u.match(/^(https:\/\/docs\.google\.com\/(?:document|presentation|spreadsheets|forms)\/d\/[\w-]+)\/(?:edit|view)[^#]*/))) return m[1] + (/forms/.test(m[1]) ? '/viewform' : '/preview');
+  return u;
+}
+function fitBoxInView(ratio) {
+  const v = V(), maxW = (W - 220) * .9 / v.z, maxH = (H - 220) * .9 / v.z;
+  let w = maxW, h = w / ratio; if (h > maxH) { h = maxH; w = h * ratio; }
+  const c = viewCenter(); return { x: r1(c.x - w / 2), y: r1(c.y - h / 2), w: r1(w), h: r1(h) };
+}
+function addDomObj(o) {
+  snapshot(); const objs = page().objects; objs.splice(insertIndex(objs), 0, o);
+  setTool('select'); S.sel = [o.id]; afterChange();
+}
+async function insertWeb() {
+  const ok = await modal('Afficher une page web', `
+    <p>Collez l’adresse de la page :</p>
+    <input class="urlIn" id="urlIn" type="url" placeholder="https://…" autocomplete="off">
+    <p style="font-size:14px;color:var(--muted);margin-top:12px">Fonctionne bien avec YouTube, Vimeo, GeoGebra, Desmos, PhET, Google Docs/Slides, Canva publiés et la plupart des sites éducatifs.
+    Certains sites (Google, réseaux sociaux, banques…) refusent de s’afficher dans une autre page : utilisez alors <b>Onglet ou fenêtre en direct</b>.</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Afficher', value: true, cls: 'primary' }]);
+  const url = normalizeUrl($('#urlIn')?.value || '');
+  if (!ok || !url) return;
+  const ratio = /youtube|vimeo/.test(url) ? 16 / 9 + .1 : 16 / 10;
+  addDomObj({ id: uid(), t: 'web', url, ...fitBoxInView(ratio) });
+  toast('Écrivez par-dessus avec vos outils. Pour cliquer dans la page : outil Sélection, touchez la page, puis le bouton « main ».', 6000);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'urlIn') { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
+async function insertLive() {
+  if (!navigator.mediaDevices?.getDisplayMedia) { toast('Le partage d’écran n’est pas disponible dans ce navigateur. Utilisez Chrome ou Edge.', 5000); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: false, selfBrowserSurface: 'exclude', surfaceSwitching: 'include' }); }
+  catch (e) { if (e.name !== 'NotAllowedError') toast('Partage impossible : ' + e.message, 4000); return; }
+  const track = stream.getVideoTracks()[0], st = track.getSettings();
+  const ratio = (st.width && st.height) ? st.width / st.height : 16 / 9;
+  const box = fitBoxInView(ratio * 0.97);
+  const o = { id: uid(), t: 'live', label: (track.label || '').slice(0, 60), ...box };
+  liveStreams.set(o.id, stream);
+  track.addEventListener('ended', () => { render(); toast('Partage d’écran terminé'); });
+  addDomObj(o);
+  toast('Image en direct : annotez par-dessus. « Figer » garde l’image actuelle.', 6000);
+}
+function stopLive(id) { liveStreams.get(id)?.getTracks().forEach(t => t.stop()); liveStreams.delete(id); }
+function startInteract(o) {
+  if (!o || o.t !== 'web') return;
+  S.interact = o.id; S.sel = []; render(); updateProps();
+  $('#webExit').classList.add('show');
+  toast('Mode interaction : cliquez et défilez dans la page. Vos annotations sont masquées pendant ce temps.', 4000);
+}
+function exitInteract() {
+  if (!S.interact) return;
+  S.interact = null; $('#webExit').classList.remove('show'); render();
+  try { document.activeElement?.blur(); window.focus(); } catch (_) {} // rend le clavier au tableau
+}
+$('#webExit').addEventListener('click', exitInteract);
+// Remplace une page web / un partage en direct par une image fixe
+async function freezeDom(o) {
+  const el = domEls.get(o.id); if (!el) return;
+  let canvas;
+  if (o.t === 'live') {
+    const vid = el.querySelector('video');
+    if (!vid || vid.readyState < 2) { toast('Aucune image à figer : le partage est terminé.'); return; }
+    canvas = document.createElement('canvas'); canvas.width = vid.videoWidth; canvas.height = vid.videoHeight;
+    canvas.getContext('2d').drawImage(vid, 0, 0);
+  } else {
+    if (!navigator.mediaDevices?.getDisplayMedia) { toast('Fonction non disponible dans ce navigateur.'); return; }
+    toast('Choisissez « Cet onglet » puis « Partager » pour photographier la page.', 0);
+    let stream;
+    try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'browser' }, audio: false, preferCurrentTab: true, selfBrowserSurface: 'include' }); }
+    catch (e) { hideToast(); return; }
+    try {
+      document.body.classList.add('capturing'); S.sel = []; render();
+      const vid = document.createElement('video'); vid.srcObject = stream; vid.muted = true; await vid.play();
+      await new Promise(r => setTimeout(r, 700));
+      const fr = el.querySelector('iframe').getBoundingClientRect();
+      const kx = vid.videoWidth / window.innerWidth, ky = vid.videoHeight / window.innerHeight;
+      if (Math.abs(kx - ky) / kx > .08) throw new Error('Il faut partager cet onglet (et non un autre écran).');
+      const sx = Math.max(0, fr.left), sy = Math.max(0, fr.top), ex = Math.min(window.innerWidth, fr.right), ey = Math.min(window.innerHeight, fr.bottom);
+      if (ex - sx < 20 || ey - sy < 20) throw new Error('La page doit être visible à l’écran.');
+      canvas = document.createElement('canvas'); canvas.width = Math.round((ex - sx) * kx); canvas.height = Math.round((ey - sy) * ky);
+      canvas.getContext('2d').drawImage(vid, sx * kx, sy * ky, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+      // zone réellement visible, en unités du tableau
+      const v = V(); o = { ...o, _crop: { x: (sx - v.x) / v.z, y: (sy - v.y) / v.z, w: (ex - sx) / v.z, h: (ey - sy) / v.z } };
+    } catch (e) { toast(e.message || 'Capture impossible', 5000); canvas = null; }
+    finally { stream.getTracks().forEach(t => t.stop()); document.body.classList.remove('capturing'); hideToast(); }
+    if (!canvas) { render(); return; }
+  }
+  let rect;
+  if (o._crop) rect = o._crop;
+  else {
+    const a = o.w / (o.h - CAP), r = canvas.width / canvas.height;
+    const w = r > a ? o.w : (o.h - CAP) * r, h = r > a ? o.w / r : o.h - CAP;
+    rect = { x: o.x + (o.w - w) / 2, y: o.y + CAP + (o.h - CAP - h) / 2, w, h };
+  }
+  const img = { id: uid(), t: 'image', a: addAsset(canvas.toDataURL('image/jpeg', .92)), x: r1(rect.x), y: r1(rect.y), w: r1(rect.w), h: r1(rect.h), lock: 1, doc: 1 };
+  snapshot();
+  const objs = page().objects, i = objs.findIndex(x => x.id === o.id);
+  if (i >= 0) objs.splice(i, 1, img); else objs.unshift(img);
+  if (o.t === 'live') stopLive(o.id);
+  S.sel = []; afterChange();
+  toast('Image figée et verrouillée : vos annotations restent en place.', 4000);
+}
+
 /* ---------- Sauvegarde ---------- */
 function serialize() {
   const used = new Set(); S.doc.pages.forEach(p => p.objects.forEach(o => o.a && used.add(o.a)));
@@ -1745,6 +1956,7 @@ function showHelp() {
   <p><b>Raccourcis</b> : <kbd>V</kbd> sélection, <kbd>H</kbd> main, <kbd>P</kbd> crayon, <kbd>S</kbd> surligneur, <kbd>E</kbd> gomme, <kbd>R</kbd> formes, <kbd>F</kbd> flèches, <kbd>T</kbd> texte, <kbd>L</kbd> laser,
   <kbd>Ctrl+Z</kbd> annuler, <kbd>Ctrl+Y</kbd> rétablir, <kbd>Suppr</kbd> supprimer, <kbd>Ctrl+D</kbd> dupliquer, <kbd>Ctrl+V</kbd> coller une image ou du texte,
   <kbd>Page préc./suiv.</kbd> changer de page, <kbd>0</kbd> tout afficher, <kbd>Ctrl+S</kbd> enregistrer.</p>
+  <p><b>Pages web</b> : <i>Insérer → Page web</i> affiche un site en direct; écrivez par-dessus. Pour cliquer ou défiler dans la page, sélectionnez-la puis touchez le bouton « main ». Si le site refuse de s’afficher, utilisez <i>Insérer → Onglet ou fenêtre en direct</i>. Le bouton « Figer » (appareil photo) transforme la page en image pour que les annotations restent alignées.</p>
   <p><b>Sauvegarde</b> : le tableau est conservé automatiquement dans ce navigateur. Pour le garder ou le partager, utilisez <i>Menu → Enregistrer le tableau</i> (fichier .tableau).</p>`,
     [{ label: 'Fermer', value: true, cls: 'primary' }]);
 }
