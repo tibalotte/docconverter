@@ -1355,13 +1355,23 @@ let spaceDown = false, lastTap = { t: 0, x: 0, y: 0 };
 
 function startPan(sx, sy) { const v = V(); G = { type: 'pan', sx, sy, vx: v.x, vy: v.y }; document.body.classList.add('grabbing'); startPanCache(); }
 function startPinch() {
-  startPanCache();
   const [a, b] = [...ptrs.values()], v = V();
+  // les deux doigts sur le même objet (non verrouillé, pas une feuille) : on le déplace et on le redimensionne
+  const oa = hitTest(toWorld(a.x, a.y), false), ob = hitTest(toWorld(b.x, b.y), false);
+  if (oa && oa === ob && oa.t !== 'sheet') {
+    S.sel = groupIds(oa); const orig = selObjs().filter(x => !x.lock);
+    if (orig.length) {
+      const m0 = toWorld((a.x + b.x) / 2, (a.y + b.y) / 2);
+      G = { type: 'pinchobj', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0, orig: orig.concat(attachedTo(orig)), direct: orig.map(x => x.id), moved: false };
+      updateProps(); renderOverlay(); return;
+    }
+  }
+  startPanCache();
   G = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, m0: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }, v0: { ...v } };
 }
 function cancelGesture() {
   if (!G) return;
-  if (G.type === 'move' || G.type === 'handle') { if (G.moved) { const h = H_(); if (h.u.length) page().objects = h.u.pop(); } }
+  if (G.type === 'move' || G.type === 'handle' || G.type === 'pinchobj') { if (G.moved) { const h = H_(); if (h.u.length) page().objects = h.u.pop(); } }
   if (G.type === 'erase' && G.snapped) { const h = H_(); if (h.u.length) page().objects = h.u.pop(); }
   G = null; PANC = null; document.body.classList.remove('grabbing'); render(); updateUndo();
 }
@@ -1471,6 +1481,15 @@ over.addEventListener('pointermove', e => {
     case 'tmode': { const q = snapPoint(toWorld(e.clientX, e.clientY)); G.b = q; G.snapAt = q.snapped ? q : null; renderOverlay(); return; }
     case 'lasso': { const l = G.pts[G.pts.length - 1]; if (Math.hypot(e.clientX - l[0], e.clientY - l[1]) > 3) G.pts.push([e.clientX, e.clientY]); renderOverlay(); return; }
     case 'tap': return;
+    case 'pinchobj': {
+      if (ptrs.size < 2) return;
+      const [a, b] = [...ptrs.values()];
+      const sc = clamp(Math.hypot(a.x - b.x, a.y - b.y) / G.d0, .15, 10), m = toWorld((a.x + b.x) / 2, (a.y + b.y) / 2);
+      if (!G.moved) { if (Math.abs(sc - 1) < .02 && Math.hypot(m.x - G.m0.x, m.y - G.m0.y) * v.z < 4) return; ensureSnap(); G.moved = true; }
+      const f = (x, y) => [m.x + (x - G.m0.x) * sc, m.y + (y - G.m0.y) * sc], cur = page().objects;
+      for (const o of G.orig) { const i = cur.findIndex(x => x.id === o.id); if (i >= 0) cur[i] = transformObj(o, f, sc, sc); }
+      render(); return;
+    }
     case 'pinch': {
       if (ptrs.size < 2) return;
       const [a, b] = [...ptrs.values()];
@@ -1575,6 +1594,15 @@ function endPointer(e) {
   ptrs.delete(e.pointerId);
   clearLP();
   if (!G) return;
+  if (G.type === 'pinchobj') {
+    const g = G; G = ptrs.size ? { type: 'none' } : null;
+    if (g.moved) {
+      const objs = page().objects;
+      for (let i = 0; i < objs.length; i++) if (g.direct.includes(objs[i].id) && objs[i].t !== 'sheet') { let n = { ...objs[i] }; delete n.att; if (n.t === 'note') n = resnapNote(n); objs[i] = n; }
+      afterChange();
+    } else renderOverlay();
+    return;
+  }
   if (G.type === 'pinch' || G.type === 'none') {
     if (G.type === 'pinch') scheduleSave();
     G = ptrs.size ? { type: 'none' } : null; if (!G) endPanCache(); afterView(); return;
@@ -1817,7 +1845,7 @@ const FLY = {
       <button class="li" data-ins="pdf"><svg class="i"><use href="#i-pdf"/></svg><span>Document PDF<small>Chaque page devient une image annotable</small></span></button>
       <button class="li" data-ins="word"><svg class="i"><use href="#i-word"/></svg><span>Document Word (.docx)<small>Converti en pages annotables</small></span></button>
       <button class="li" data-ins="screen"><svg class="i"><use href="#i-screen"/></svg><span>Capture d’écran<small>D’une fenêtre, d’un onglet ou de l’écran</small></span></button>
-      <button class="li" data-ins="web"><svg class="i"><use href="#i-globe"/></svg><span>Page web (lien)<small>YouTube, GeoGebra, Desmos, PhET, Google Docs publiés…</small></span></button>
+      <button class="li" data-ins="web"><svg class="i"><use href="#i-globe"/></svg><span>Page web (lien ou code d’intégration)<small>YouTube, GeoGebra, Desmos, PhET, Canva, Google Docs publiés…</small></span></button>
       <button class="li" data-ins="live"><svg class="i"><use href="#i-live"/></svg><span>Onglet ou fenêtre en direct<small>Fonctionne avec tous les sites et logiciels</small></span></button>
       <button class="li" data-ins="3d"><svg class="i"><use href="#i-cube"/></svg><span>Formes 3D (atelier)<small>Cubes, cylindres, trous, groupes, cotes en mm</small></span></button>
       <button class="li" data-ins="paste"><svg class="i"><use href="#i-paste"/></svg><span>Coller<small>Image ou texte copié (Ctrl+V)</small></span></button>
@@ -4168,7 +4196,10 @@ window.addEventListener('paste', e => {
   const items = [...(e.clipboardData?.items || [])];
   const imgs = items.filter(i => i.type.startsWith('image/')).map(i => i.getAsFile()).filter(Boolean);
   if (imgs.length) { e.preventDefault(); insertImageFiles(imgs); return; }
-  const t = e.clipboardData?.getData('text/plain'); if (t && t.trim()) { e.preventDefault(); insertText(t); }
+  const t = e.clipboardData?.getData('text/plain');
+  if (t && /^\s*<\s*(iframe|embed|object)\b/i.test(t)) { e.preventDefault(); insertWebFrom(t.trim()); return; }
+  if (t && /^\s*https?:\/\/\S+\s*$/i.test(t) && /youtube\.com|youtu\.be|vimeo\.com|geogebra|desmos|phet\.colorado/i.test(t)) { e.preventDefault(); insertWebFrom(t.trim()); return; }
+  if (t && t.trim()) { e.preventDefault(); insertText(t); }
 });
 function handleFiles(files) {
   for (const f of files) {
@@ -4260,19 +4291,37 @@ function addDomObj(o) {
 }
 async function insertWeb() {
   const ok = await modal('Afficher une page web', `
-    <p>Collez l’adresse de la page :</p>
-    <input class="urlIn" id="urlIn" type="url" placeholder="https://…" autocomplete="off">
+    <p>Collez l’adresse de la page <b>ou le code d’intégration</b> fourni par la plateforme (bouton « Partager → Intégrer » : <code>&lt;iframe …&gt;</code>) :</p>
+    <textarea class="urlIn" id="urlIn" rows="3" placeholder="https://…  ou  <iframe src=&quot;…&quot;></iframe>" autocomplete="off" style="resize:vertical;font-size:16px"></textarea>
     <p style="font-size:14px;color:var(--muted);margin-top:12px">Fonctionne bien avec YouTube, Vimeo, GeoGebra, Desmos, PhET, Google Docs/Slides, Canva publiés et la plupart des sites éducatifs.
     Certains sites (Google, réseaux sociaux, banques…) refusent de s’afficher dans une autre page : utilisez alors <b>Onglet ou fenêtre en direct</b>.</p>`,
     [{ label: 'Annuler', value: false }, { label: 'Afficher', value: true, cls: 'primary' }]);
-  const url = normalizeUrl($('#urlIn')?.value || '');
-  if (!ok || !url) return;
-  if (refusesEmbed(url)) { webToLive(url, null, true); return; }
-  const ratio = /youtube|vimeo/.test(url) ? 16 / 9 + .1 : 16 / 10;
+  const raw = ($('#urlIn')?.value || '').trim();
+  if (!ok || !raw) return;
+  insertWebFrom(raw);
+}
+// Code d'intégration (<iframe src=…>, <embed>, <object data=…>) → adresse + proportions
+function parseEmbed(txt) {
+  if (!/<\s*(iframe|embed|object)\b/i.test(txt)) return null;
+  const el = new DOMParser().parseFromString(txt, 'text/html').querySelector('iframe,embed,object');
+  if (!el) return null;
+  let src = (el.getAttribute('src') || el.getAttribute('data') || '').trim();
+  if (src.startsWith('//')) src = 'https:' + src;
+  if (!/^https?:\/\//i.test(src)) return null;
+  const w = parseFloat(el.getAttribute('width')), h = parseFloat(el.getAttribute('height'));
+  return { src, ratio: w > 0 && h > 0 && !/%/.test(el.getAttribute('width') + el.getAttribute('height')) ? w / h : null, title: el.getAttribute('title') || '' };
+}
+function insertWebFrom(raw) {
+  const emb = parseEmbed(raw);
+  if (/<\s*(iframe|embed|object)\b/i.test(raw) && !emb) { toast('Code d’intégration non reconnu : aucune adresse https trouvée.', 4500); return; }
+  const url = normalizeUrl(emb ? emb.src : raw);
+  if (!url) return;
+  if (!emb && refusesEmbed(url)) { webToLive(url, null, true); return; }
+  const ratio = emb?.ratio ? emb.ratio * 1.05 : (/youtube|vimeo/.test(url) ? 16 / 9 + .1 : 16 / 10);   // + barre de titre
   addDomObj({ id: uid(), t: 'web', url, ...fitBoxInView(ratio) });
   toast('Écrivez par-dessus avec vos outils. Si la page reste vide ou affiche 🚫, touchez-la puis le bouton écran (affichage depuis un onglet).', 7000);
 }
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'urlIn') { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'urlIn') { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
 // Sites connus pour interdire l'affichage dans une autre page (X-Frame-Options / CSP)
 function refusesEmbed(url) {
   let u; try { u = new URL(url); } catch (_) { return false; }
@@ -4499,7 +4548,7 @@ function showHelp() {
   <ul>
     <li>Outil <b>Sélection</b> : touchez le fond et glissez.</li>
     <li>N’importe quel outil : <kbd>Ctrl</kbd> + glisser, <kbd>Espace</kbd> + glisser, ou bouton du milieu / droit de la souris.</li>
-    <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
+    <li>Écran tactile : <b>deux doigts</b> = outil main : glisser déplace le tableau, écarter ou rapprocher les doigts zoome et dézoome. Deux doigts posés <b>sur un objet</b> (image, forme, texte…) le déplacent et l’agrandissent ou le rapetissent.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
   <p><b>Univers social et sciences</b> (bouton globe) : cartes du monde, de l’Amérique du Nord, du Canada (avec ou sans noms) et du Québec; ligne du temps modifiable (double-clic); rose des vents; cycles et chaînes d’étapes (cycle de l’eau, chaîne alimentaire, démarche scientifique); diagramme de Venn; tableau de données.</p>
