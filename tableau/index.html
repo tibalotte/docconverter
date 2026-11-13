@@ -32,6 +32,14 @@ canvas{position:fixed;left:0;top:0;display:block}
 #webExit.show{display:block}
 body.capturing #main,body.capturing #over,body.capturing .panel,body.capturing #toast,body.capturing #webExit{visibility:hidden!important}
 .web .cap em{font-style:normal;color:#7b8794}
+#lp{position:fixed;z-index:45;display:none;gap:8px;padding:10px;align-items:stretch}
+#lp.open{display:flex}
+#lp .lpi{width:84px;min-height:84px;border:0;border-radius:14px;background:var(--hover);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:12px;color:var(--muted);padding:6px 4px;text-align:center;line-height:1.15}
+#lp .lpi.hot,#lp .lpi:hover{background:var(--accent-soft);color:var(--accent)}
+#lp .lpi .g{font-size:26px;line-height:1;color:var(--ink);display:flex;align-items:center;gap:4px}
+#lp .lpi .g i{width:12px;height:12px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.2)}
+#lp .empty{max-width:240px;font-size:14px;color:var(--muted);padding:6px}
+.ib.sticky::after{content:'';position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -246,7 +254,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-tool="laser" title="Pointeur laser (L)"><svg class="i"><use href="#i-laser"/></svg></button>
   <div class="sep"></div>
   <button class="ib" data-fly="insert" title="Insérer image, PDF, Word, capture d'écran"><svg class="i"><use href="#i-insert"/></svg><span class="more"></span></button>
-  <button class="ib" data-fly="bg" title="Fond de page (quadrillé, portée, etc.)"><svg class="i"><use href="#i-bg"/></svg><span class="more"></span></button>
+  <button class="ib" data-fly="bg" title="Feuilles : quadrillé, portée, plan cartésien… (objets redimensionnables)"><svg class="i"><use href="#i-bg"/></svg><span class="more"></span></button>
   <div class="sep"></div>
   <button class="ib" id="bUndo" title="Annuler (Ctrl+Z)"><svg class="i"><use href="#i-undo"/></svg></button>
   <button class="ib" id="bRedo" title="Rétablir (Ctrl+Y)"><svg class="i"><use href="#i-redo"/></svg></button>
@@ -289,6 +297,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
 </div>
 
 <div id="fly" class="fly panel"></div>
+<div id="lp" class="panel"></div>
 
 <div id="pagesPanel" class="panel">
   <header><span>Pages</span>
@@ -472,7 +481,7 @@ function bbox(o) {
       b = ptsBox(all, pad); break;
     }
     case 'text': { const m = textMetrics(o); b = { x: o.x, y: o.y, w: m.w, h: m.h }; break; }
-    case 'image': case 'web': case 'live': b = { x: o.x, y: o.y, w: o.w, h: o.h }; break;
+    case 'image': case 'web': case 'live': case 'sheet': b = { x: o.x, y: o.y, w: o.w, h: o.h }; break;
     default: b = { x: 0, y: 0, w: 0, h: 0 };
   }
   bbCache.set(o, b); return b;
@@ -600,7 +609,6 @@ function getImg(id) {
   return im;
 }
 function drawObj(ctx, o, dark) {
-  if (dark && o.c === '#1a1a1a' && o.t !== 'image') o = { ...o, c: '#f4f6f8' }; // encre noire visible sur tableau foncé
   ctx.save();
   switch (o.t) {
     case 'stroke': {
@@ -611,6 +619,7 @@ function drawObj(ctx, o, dark) {
       break;
     }
     case 'shape': drawShape(ctx, o); break;
+    case 'sheet': drawSheet(ctx, o); break;
     case 'text': {
       const m = textMetrics(o);
       ctx.font = fontOf(o); ctx.fillStyle = o.c; ctx.textBaseline = 'top';
@@ -653,7 +662,7 @@ function drawClef(ctx, type, x, top, s, color) {
   ctx.font = `${fs}px ${FONTS.music}`; ctx.textBaseline = 'alphabetic';
   ctx.fillText(ch, x + m.left * fs / 100, top + span[0] * s + m.asc * fs / 100);
 }
-function drawBackground(ctx, pg, v, W, H) {
+function drawBackground(ctx, pg, v, W, H, opts = {}) {
   const bg = pg.bg, dark = isDark(pg), z = v.z;
   ctx.fillStyle = PAPERS[bg.paper] || '#fff'; ctx.fillRect(0, 0, W, H);
   const x0 = -v.x / z, y0 = -v.y / z, x1 = (W - v.x) / z, y1 = (H - v.y) / z;
@@ -740,7 +749,7 @@ function drawBackground(ctx, pg, v, W, H) {
         const sy = Math.round((k * period + st.off + i * sp) * z + v.y) + .5; ctx.moveTo(0, sy); ctx.lineTo(W, sy);
       }
       ctx.strokeStyle = lineCol; ctx.lineWidth = Math.max(1, Math.min(2, z)); ctx.stroke();
-      const lx = W > 600 ? 92 : 10, S2 = sp * z;
+      const lx = opts.lx ?? (W > 600 ? 92 : 10), S2 = sp * z;
       for (let k = k0; k <= k1; k++) {
         const first = staves[0], last = staves[staves.length - 1];
         const top = (k * period + first.off) * z + v.y, bot = (k * period + last.off + (last.n - 1) * sp) * z + v.y;
@@ -768,7 +777,9 @@ function drawScene(ctx, pg, v, W, H, ratio, skipId) {
   drawObjects(ctx, pg, v, W, H, ratio, skipId, false);
 }
 // live = rendu à l'écran : les pages web / vidéos sont des éléments HTML placés sous l'encre
+let RR = 1; // rapport pixels/CSS du rendu en cours
 function drawObjects(ctx, pg, v, W, H, ratio, skipId, live) {
+  RR = ratio;
   ctx.setTransform(ratio * v.z, 0, 0, ratio * v.z, ratio * v.x, ratio * v.y);
   const vis = { x: -v.x / v.z, y: -v.y / v.z, w: W / v.z, h: H / v.z };
   const dark = isDark(pg);
@@ -905,7 +916,7 @@ function transformObj(o, f, sx = 1, sy = 1) {
       n.w = Math.max(.5, o.w * ws); break;
     }
     case 'text': [n.x, n.y] = f(o.x, o.y).map(r1); n.s = r1(Math.max(4, o.s * sy)); break;
-    case 'image': case 'web': case 'live': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(o.w * sx); n.h = r1(o.h * sy); break;
+    case 'image': case 'web': case 'live': case 'sheet': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(o.w * sx); n.h = r1(o.h * sy); break;
   }
   return n;
 }
@@ -1004,11 +1015,13 @@ function commitText() {
   const { o, isNew } = editing; editing = null;
   ted.style.display = 'none';
   const text = ted.value.replace(/\s+$/, '');
-  if (isNew) { if (text) { snapshot(); page().objects.push({ ...o, text }); } }
+  let created = null;
+  if (isNew) { if (text) { snapshot(); created = { ...o, text }; page().objects.push(created); recordUse(); } }
   else if (text !== o.text) {
     snapshot();
     if (text) replaceObj(o, { ...o, text }); else page().objects = page().objects.filter(x => x !== o);
   }
+  if (created) autoReturn(created);
   afterChange();
 }
 
@@ -1034,13 +1047,15 @@ over.addEventListener('pointerdown', e => {
   e.preventDefault();
   closeFly();
   if (S.interact) exitInteract();
-  if (editing) { commitText(); if (S.tool === 'text') return; }
+  if ($('#lp').classList.contains('open')) { hideLP(); return; }
+  if (editing) { const wasText = S.tool === 'text'; commitText(); if (wasText) return; }
   try { over.setPointerCapture(e.pointerId); } catch (_) {}
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
-  if (ptrs.size === 2) { cancelGesture(); startPinch(); return; }
+  if (ptrs.size === 2) { clearLP(); cancelGesture(); startPinch(); return; }
   if (ptrs.size > 2) return;
   const sx = e.clientX, sy = e.clientY, p = toWorld(sx, sy);
   hover = { x: sx, y: sy };
+  if (e.button === 0 || e.pointerType !== 'mouse') armLP(sx, sy);
   if (e.button === 1 || e.button === 2 || e.ctrlKey || e.metaKey || spaceDown || S.tool === 'hand') { startPan(sx, sy); return; }
   const now = performance.now();
   const dbl = now - lastTap.t < 380 && Math.hypot(sx - lastTap.x, sy - lastTap.y) < 30;
@@ -1076,19 +1091,10 @@ over.addEventListener('pointerdown', e => {
       if (k === 'curve') { o.cx = o.x1; o.cy = o.y1; }
       G = { type: 'shape', obj: o, start: p }; return;
     }
-    case 'text': {
-      const o = hitTest(p, false);
-      if (o && o.t === 'text') { openTextEditor(o, false); return; }
-      const s = TXT_S[S.size];
-      openTextEditor({ id: uid(), t: 'text', x: r1(p.x), y: r1(p.y - s * .6), s, c: S.color, f: S.font, text: '' }, true);
-      return;
-    }
+    case 'text': G = { type: 'tap', p }; return;   // créé au relâchement (permet l'appui long)
     case 'stamp': {
-      if (!S.stamp) { openFly('stamps', $('[data-fly=stamps]')); return; }
-      const set = STAMPS[S.stampSet], s = TXT_S[S.size];
-      const o = { id: uid(), t: 'text', x: 0, y: 0, s, c: S.color, f: set.font, text: S.stamp, ...(set.bold ? { b: 1 } : {}) };
-      const m = textMetrics(o); o.x = r1(p.x - m.w / 2); o.y = r1(p.y - m.h / 2);
-      snapshot(); page().objects.push(o); afterChange(); return;
+      if (!S.stamp) { clearLP(); openFly('stamps', $('[data-fly=stamps]')); return; }
+      G = { type: 'tap', p }; return;
     }
     case 'laser': G = { type: 'laser' }; laser.push({ x: p.x, y: p.y, t: performance.now() }); renderOverlay(); return;
   }
@@ -1097,9 +1103,12 @@ over.addEventListener('pointerdown', e => {
 over.addEventListener('pointermove', e => {
   hover = { x: e.clientX, y: e.clientY };
   if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (LP && Math.hypot(e.clientX - LP.x, e.clientY - LP.y) > 10) clearLP();
   if (!G) { if (S.tool === 'eraser' || S.tool === 'laser') renderOverlay(); return; }
   const v = V();
   switch (G.type) {
+    case 'lp': lpHot(e.clientX, e.clientY); return;
+    case 'tap': return;
     case 'pinch': {
       if (ptrs.size < 2) return;
       const [a, b] = [...ptrs.values()];
@@ -1176,6 +1185,7 @@ over.addEventListener('pointermove', e => {
 
 function endPointer(e) {
   ptrs.delete(e.pointerId);
+  clearLP();
   if (!G) return;
   if (G.type === 'pinch' || G.type === 'none') {
     if (G.type === 'pinch') scheduleSave();
@@ -1185,21 +1195,30 @@ function endPointer(e) {
   document.body.classList.remove('grabbing');
   switch (g.type) {
     case 'pan': scheduleSave(); break;
-    case 'draw': snapshot(); page().objects.push(g.obj); afterChange(); break;
+    case 'draw': snapshot(); page().objects.push(g.obj); recordUse(); afterChange(); break;
     case 'shape': {
       const o = g.obj, len = Math.hypot(o.x2 - o.x1, o.y2 - o.y1) * V().z;
       if (len < 6) {
         if (LINEK.has(o.k)) { renderOverlay(); break; }
-        // appui simple : forme de taille par défaut
-        const s = 70 / V().z * (V().z < 1 ? 1 : 1);
-        const wide = o.k === 'rect' || o.k === 'para' || o.k === 'trap';
-        o.x1 = r1(o.x1 - (wide ? s * 1.4 : s)); o.x2 = r1(o.x1 + (wide ? s * 2.8 : s * 2)); o.y1 = r1(o.y1 - s); o.y2 = r1(o.y1 + s * 2);
+        defaultShapeBox(o, { x: o.x1, y: o.y1 }); // appui simple : forme de taille par défaut
       }
-      snapshot(); page().objects.push(o); afterChange(); break;
+      snapshot(); page().objects.push(o); recordUse(); autoReturn(o); afterChange(); break;
+    }
+    case 'tap': {
+      if (S.tool === 'text') {
+        const o = hitTest(g.p, false);
+        if (o && o.t === 'text') openTextEditor(o, false); else startText(g.p);
+      } else if (S.tool === 'stamp') placeStamp(g.p);
+      break;
+    }
+    case 'lp': {
+      const hot = lpHot(e.clientX, e.clientY);
+      if (hot) hot.click();
+      break;
     }
     case 'move': case 'handle': if (g.moved) afterChange(); else renderOverlay(); break;
-    case 'erase': if (g.snapped) afterChange(); break;
-    case 'laser': renderOverlay(); break;
+    case 'erase': if (g.snapped) { recordUse(); afterChange(); } break;
+    case 'laser': recordUse(); renderOverlay(); break;
   }
 }
 over.addEventListener('pointerup', endPointer);
@@ -1212,7 +1231,7 @@ function eraseAt(a, b) {
   const samples = []; for (let i = 0; i <= steps; i++) samples.push({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps });
   const kill = new Set();
   for (const o of objs) {
-    if (o.t === 'image' || DOMT.has(o.t) || o.lock) continue;
+    if (!INKT.has(o.t) || o.lock) continue;
     for (const p of samples) if (hitObj(o, p, r)) { kill.add(o); break; }
   }
   if (kill.size) { ensureSnap(); page().objects = objs.filter(o => !kill.has(o)); render(); }
@@ -1263,17 +1282,20 @@ window.addEventListener('blur', () => { spaceDown = false; document.body.classLi
 function setTool(t) {
   commitText();
   S.tool = t;
+  $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('sticky', !!S.sticky && b.dataset.tool === t));
   if (t !== 'select') selectNone();
   document.body.className = document.body.className.replace(/\bt-\S+/g, '').trim() + ' t-' + t;
   $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
   updateProps(); renderOverlay();
 }
 function applyToSel(fn) {
-  const sel = selObjs().filter(o => o.t !== 'image'); if (!sel.length) return false;
+  const sel = selObjs().filter(o => INKT.has(o.t)); if (!sel.length) return false;
   snapshot(); for (const o of sel) replaceObj(o, fn({ ...o })); afterChange(); return true;
 }
 function updateProps() {
-  const P = $('#props'), t = S.tool, hasSel = t === 'select' && selObjs().some(o => o.t !== 'image');
+  const P = $('#props'), t = S.tool, hasSel = t === 'select' && selObjs().some(o => INKT.has(o.t));
+  const sel1 = t === 'select' && selObjs().length === 1 ? selObjs()[0] : null;
+  if (sel1 && sel1.t === 'sheet') return sheetProps(P, sel1);
   let html = '';
   const hl = t === 'hl';
   const showColors = ['pen', 'hl', 'shape', 'arrow', 'text', 'stamp'].includes(t) || hasSel;
@@ -1368,12 +1390,10 @@ const FLY = {
     </div><p class="hint" style="margin:8px 6px 2px;white-space:normal;max-width:280px">Astuce : vous pouvez aussi glisser-déposer un fichier sur le tableau.</p>`,
   bg: () => {
     const bg = page().bg;
-    const types = [['blank', 'Uni'], ['grid', 'Quadrillé'], ['smallgrid', 'Petits carreaux'], ['mm', 'Millimétré'], ['dots', 'Pointillé'], ['lines', 'Ligné'], ['primary', 'Interligné'], ['cartesian', 'Plan cartésien'], ['staff', 'Portée'], ['piano', 'Portée piano'], ['tab', 'Tablature']];
-    const clefs = [['g', 'Sol'], ['f', 'Fa'], ['c3', 'Ut 3e (alto)'], ['c4', 'Ut 4e (ténor)'], ['perc', 'Percussion'], ['none', 'Aucune']];
-    return `<h4>Type de papier</h4><div class="bgGrid">${types.map(([k, l]) => `<button class="bgb${bg.type === k ? ' on' : ''}" data-bg="${k}"><canvas width="168" height="112" data-prev="${k}"></canvas>${l}</button>`).join('')}</div>
-      ${bg.type === 'staff' ? `<h4 style="margin-top:14px">Clé</h4><div class="row">${clefs.map(([k, l]) => `<button class="chip${(bg.clef || 'g') === k ? ' on' : ''}" data-clef="${k}">${l}</button>`).join('')}</div>` : ''}
-      <h4 style="margin-top:14px">Couleur du fond</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
-      <button class="btn" id="bgAll" style="width:100%;margin-top:4px">Appliquer ce fond à toutes les pages</button>`;
+    return `<h4>Insérer une feuille</h4><div class="bgGrid">${SHEETS.map(([k, l]) => `<button class="bgb" data-bg="${k}"><canvas width="168" height="112" data-prev="${k}"></canvas>${l}</button>`).join('')}</div>
+      <p class="hint" style="margin:8px 4px 0;white-space:normal;max-width:300px">La feuille apparaît au centre : déplacez-la et tirez ses coins pour l’agrandir. Sélectionnez-la pour changer son modèle, sa clé ou sa couleur.</p>
+      <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
+      <button class="btn" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
   menu: () => `<div class="list">
       <button class="li" data-m="new"><svg class="i"><use href="#i-file"/></svg>Nouveau tableau</button>
@@ -1409,19 +1429,14 @@ const BIND = {
   })),
   bg: () => {
     $$('canvas[data-prev]', fly).forEach(c => {
-      const pg = { bg: { ...page().bg, type: c.dataset.prev }, objects: [] };
+      const pg = { bg: { paper: 'white', clef: 'g', type: c.dataset.prev }, objects: [] };
       const ctx = c.getContext('2d'); ctx.scale(2, 2);
       drawBackground(ctx, pg, { x: c.dataset.prev === 'cartesian' ? 42 : 0, y: c.dataset.prev === 'cartesian' ? 28 : -6, z: c.dataset.prev.match(/staff|piano|tab/) ? .38 : .5 }, 84, 56);
     });
     const re = () => { fly.innerHTML = FLY.bg(); BIND.bg(); };
-    $$('[data-bg]', fly).forEach(b => b.addEventListener('click', () => {
-      page().bg.type = b.dataset.bg;
-      if (b.dataset.bg === 'cartesian') { const v = V(); v.z = 1; v.x = Math.round(W / 2); v.y = Math.round(H / 2); afterView(); }
-      render(); scheduleSave(); re();
-    }));
-    $$('[data-clef]', fly).forEach(b => b.addEventListener('click', () => { page().bg.clef = b.dataset.clef; render(); scheduleSave(); re(); }));
+    $$('[data-bg]', fly).forEach(b => b.addEventListener('click', () => { closeFly(); insertSheet(b.dataset.bg); }));
     $$('[data-paper]', fly).forEach(b => b.addEventListener('click', () => { page().bg.paper = b.dataset.paper; adaptInk(); render(); scheduleSave(); re(); }));
-    $('#bgAll').addEventListener('click', () => { for (const p of S.doc.pages) p.bg = clone(page().bg); render(); scheduleSave(); toast('Fond appliqué à toutes les pages'); closeFly(); });
+    $('#bgAll').addEventListener('click', () => { for (const p of S.doc.pages) p.bg.paper = page().bg.paper; render(); scheduleSave(); toast('Couleur appliquée à toutes les pages'); closeFly(); });
   },
   menu: () => $$('[data-m]', fly).forEach(b => b.addEventListener('click', () => {
     closeFly();
@@ -1437,13 +1452,158 @@ function adaptInk() {
 $$('#toolbar [data-tool], #toolbar [data-fly], #topLeft [data-fly]').forEach(b => b.addEventListener('click', () => {
   const t = b.dataset.tool, f = b.dataset.fly;
   if (t) {
-    const was = S.tool === t; setTool(t);
+    const was = S.tool === t; S.sticky = false; setTool(t);
     if (f && (was || (t === 'stamp' && !S.stamp))) openFly(f, b); else closeFly();
   } else if (f) openFly(f, b);
 }));
 document.addEventListener('pointerdown', e => {
   if (!fly.contains(e.target) && !e.target.closest('[data-fly]') && e.target !== over) closeFly();
 });
+
+/* ---------- Feuilles (modèles de papier redimensionnables) ---------- */
+const INKT = new Set(['stroke', 'shape', 'text']);           // objets « encre » (gomme, couleur, épaisseur)
+const SHEETS = [['blank', 'Feuille blanche'], ['grid', 'Quadrillé'], ['smallgrid', 'Petits carreaux'], ['mm', 'Millimétré'], ['dots', 'Pointillé'], ['lines', 'Ligné'], ['primary', 'Interligné'], ['cartesian', 'Plan cartésien'], ['staff', 'Portée'], ['piano', 'Portée piano'], ['tab', 'Tablature']];
+const CLEFS = [['g', 'Sol'], ['f', 'Fa'], ['c3', 'Ut 3e (alto)'], ['c4', 'Ut 4e (ténor)'], ['perc', 'Percussion'], ['none', 'Aucune']];
+function drawSheet(ctx, o) {
+  const m = ctx.getTransform(), k = m.a, z = k / RR;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,.20)'; ctx.shadowBlur = 14; ctx.shadowOffsetY = 3;
+  ctx.fillStyle = PAPERS[o.paper] || '#fff'; ctx.fillRect(o.x, o.y, o.w, o.h);
+  ctx.shadowColor = 'transparent';
+  ctx.setTransform(RR, 0, 0, RR, m.e + o.x * k, m.f + o.y * k);
+  const w = o.w * z, h = o.h * z;
+  ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+  const v = o.kind === 'cartesian' ? { x: Math.round(w / 2), y: Math.round(h / 2), z } : { x: 0, y: 0, z };
+  drawBackground(ctx, { bg: { type: o.kind, paper: o.paper, clef: o.clef } }, v, w, h, { lx: Math.max(6, 22 * z) });
+  ctx.restore();
+  ctx.save(); ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 1 / k; ctx.strokeRect(o.x, o.y, o.w, o.h); ctx.restore();
+}
+function insertSheet(kind) {
+  const ratio = /staff|piano|tab/.test(kind) ? 1.6 : 1.42;
+  const o = { id: uid(), t: 'sheet', kind, clef: 'g', paper: 'white', ...fitBoxInView(ratio) };
+  snapshot(); page().objects.unshift(o);
+  setTool('select'); S.sel = [o.id]; afterChange();
+}
+function sheetProps(P, o) {
+  P.innerHTML = `<select class="pill" id="shKind" title="Modèle">${SHEETS.map(([k, l]) => `<option value="${k}"${o.kind === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+    ${o.kind === 'staff' ? `<select class="pill" id="shClef" title="Clé">${CLEFS.map(([k, l]) => `<option value="${k}"${(o.clef || 'g') === k ? ' selected' : ''}>Clé : ${l}</option>`).join('')}</select>` : ''}
+    <div class="vsep"></div>${Object.keys(PAPERS).map(k => `<button class="paper${o.paper === k ? ' on' : ''}" data-shp="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}`;
+  const upd = ch => { snapshot(); replaceObj(o, { ...o, ...ch }); afterChange(); };
+  $('#shKind', P).addEventListener('change', e => upd({ kind: e.target.value }));
+  $('#shClef', P)?.addEventListener('change', e => upd({ clef: e.target.value }));
+  $$('[data-shp]', P).forEach(b => b.addEventListener('click', () => upd({ paper: b.dataset.shp })));
+}
+
+/* ---------- Retour automatique et appui long (3 derniers outils) ---------- */
+const ONE_SHOT = new Set(['shape', 'arrow', 'text', 'stamp']);   // outils qui créent un objet puis rendent la main
+S.recent = (() => { try { return JSON.parse(localStorage.getItem('tableau-recent')) || []; } catch (_) { return []; } })();
+S.sticky = false;
+function recordUse() {
+  const t = S.tool, e = { tool: t, color: t === 'hl' ? S.hlColor : S.color, size: S.size };
+  if (t === 'shape') e.k = S.shape;
+  if (t === 'arrow') e.k = S.arrow;
+  if (t === 'stamp') { e.stamp = S.stamp; e.set = S.stampSet; }
+  if (t === 'text') e.font = S.font;
+  if (t === 'shape' || t === 'arrow') { e.fill = S.fill; e.dash = S.dash; }
+  e.key = t + ':' + (e.k || e.stamp || '');
+  S.recent = [e, ...S.recent.filter(x => x.key !== e.key)].slice(0, 3);
+  try { localStorage.setItem('tableau-recent', JSON.stringify(S.recent)); } catch (_) {}
+}
+function autoReturn(o) {
+  if (S.sticky || !ONE_SHOT.has(S.tool)) return;
+  S.tool = 'select';
+  document.body.className = document.body.className.replace(/\bt-\S+/g, '').trim() + ' t-select';
+  $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === 'select'));
+  S.sel = [o.id]; updateProps();
+}
+function defaultShapeBox(o, p) {
+  const s = 70 / V().z, wide = o.k === 'rect' || o.k === 'para' || o.k === 'trap';
+  o.x1 = r1(p.x - (wide ? s * 1.4 : s)); o.x2 = r1(o.x1 + (wide ? s * 2.8 : s * 2)); o.y1 = r1(p.y - s); o.y2 = r1(o.y1 + s * 2);
+}
+function startText(p) {
+  const s = TXT_S[S.size];
+  openTextEditor({ id: uid(), t: 'text', x: r1(p.x), y: r1(p.y - s * .6), s, c: S.color, f: S.font, text: '' }, true);
+}
+function placeStamp(p) {
+  if (!S.stamp) return;
+  const set = STAMPS[S.stampSet], s = TXT_S[S.size];
+  const o = { id: uid(), t: 'text', x: 0, y: 0, s, c: S.color, f: set.font, text: S.stamp, ...(set.bold ? { b: 1 } : {}) };
+  const m = textMetrics(o); o.x = r1(p.x - m.w / 2); o.y = r1(p.y - m.h / 2);
+  snapshot(); page().objects.push(o); recordUse(); autoReturn(o); afterChange();
+}
+const TOOL_LABEL = { select: 'Sélection', hand: 'Main', pen: 'Crayon', hl: 'Surligneur', eraser: 'Gomme', text: 'Texte', laser: 'Laser' };
+function presetHTML(e) {
+  const dot = `<i style="background:${e.color}"></i>`;
+  if (e.tool === 'stamp') {
+    const set = STAMPS[e.set] || STAMPS.Musique;
+    const big = e.stamp.length > 3;
+    return `<span class="g" style="font-family:${esc(FONTS[set.font])};${set.bold ? 'font-weight:700;' : ''}${big ? 'font-size:15px;' : ''}color:${e.color === '#ffffff' ? 'var(--ink)' : e.color};white-space:pre">${esc(e.stamp.replace('\n', '/'))}</span>${big ? '' : 'Symbole'}`;
+  }
+  if (e.tool === 'shape' || e.tool === 'arrow') {
+    const name = (e.tool === 'shape' ? SHAPES : ARROWS).find(x => x[0] === e.k)?.[1] || '';
+    return `<span class="g" style="color:${e.color === '#ffffff' ? 'var(--ink)' : e.color}">${shapeIcon(e.k)}</span>${esc(name)}`;
+  }
+  const ic = { select: 'i-select', hand: 'i-hand', pen: 'i-pen', hl: 'i-hl', eraser: 'i-eraser', text: 'i-text', laser: 'i-laser' }[e.tool];
+  return `<span class="g"><svg class="i"><use href="#${ic}"/></svg>${e.tool === 'eraser' || e.tool === 'laser' ? '' : dot}</span>${TOOL_LABEL[e.tool] || ''}`;
+}
+let LP = null;
+function armLP(x, y) {
+  clearLP();
+  LP = { x, y, timer: setTimeout(() => { const at = { x: LP.x, y: LP.y }; LP = null; triggerLP(at); }, 550) };
+}
+function clearLP() { if (LP) { clearTimeout(LP.timer); LP = null; } }
+function triggerLP(at) {
+  if (ptrs.size !== 1 || editing || $('#modal').classList.contains('open')) return;
+  cancelGesture();
+  G = { type: 'lp' };
+  showLP(at);
+  try { navigator.vibrate?.(15); } catch (_) {}
+}
+function showLP(at) {
+  const m = $('#lp');
+  m.innerHTML = S.recent.length
+    ? S.recent.map((e, i) => `<button class="lpi" data-i="${i}">${presetHTML(e)}</button>`).join('')
+    : `<div class="empty">Les 3 derniers outils utilisés apparaîtront ici. Maintenez le doigt immobile pour ouvrir ce menu.</div>`;
+  m.classList.add('open'); m.dataset.x = at.x; m.dataset.y = at.y;
+  const w = m.offsetWidth, h = m.offsetHeight;
+  m.style.left = clamp(at.x - w / 2, 8, W - w - 8) + 'px';
+  m.style.top = (at.y - h - 28 > 8 ? at.y - h - 28 : at.y + 28) + 'px';
+  $$('.lpi', m).forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); const e = S.recent[+b.dataset.i]; hideLP(); applyPreset(e, at); }));
+}
+function hideLP() { $('#lp').classList.remove('open'); if (G && G.type === 'lp') G = null; }
+function lpHot(x, y) {
+  let hot = null;
+  $$('#lp .lpi').forEach(b => { const r = b.getBoundingClientRect(); const on = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; b.classList.toggle('hot', on); if (on) hot = b; });
+  return hot;
+}
+function applyPreset(e, at) {
+  if (!e) return;
+  S.size = e.size ?? S.size;
+  if (e.tool === 'hl') S.hlColor = e.color; else if (e.color) S.color = e.color;
+  if (e.tool === 'shape') S.shape = e.k;
+  if (e.tool === 'arrow') S.arrow = e.k;
+  if (e.fill !== undefined) { S.fill = e.fill; S.dash = !!e.dash; }
+  if (e.tool === 'stamp') { S.stamp = e.stamp; S.stampSet = e.set; }
+  if (e.font) S.font = e.font;
+  S.sticky = false;
+  setTool(e.tool);
+  const p = toWorld(at.x, at.y);
+  if (e.tool === 'stamp') placeStamp(p);
+  else if (e.tool === 'text') startText(p);
+  else if (e.tool === 'shape') {
+    const o = { id: uid(), t: 'shape', k: S.shape, x1: 0, y1: 0, x2: 0, y2: 0, c: S.color, w: PEN_W[S.size] };
+    if (S.fill !== 'none' && o.k !== 'line') o.fill = S.fill;
+    if (S.dash) o.dash = 1;
+    defaultShapeBox(o, p);
+    snapshot(); page().objects.push(o); recordUse(); autoReturn(o); afterChange();
+  }
+}
+// Double-clic sur un outil : il reste actif (pas de retour automatique)
+$$('#toolbar [data-tool]').forEach(b => b.addEventListener('dblclick', () => {
+  if (!ONE_SHOT.has(b.dataset.tool)) return;
+  S.sticky = true; setTool(b.dataset.tool); closeFly();
+  toast('Outil verrouillé : il reste actif après chaque utilisation. Touchez-le une fois pour revenir au mode normal.', 4000);
+}));
 
 /* ---------- Pages ---------- */
 function goPage(i) {
@@ -1519,7 +1679,7 @@ async function normalizeImage(src, max = 2400) {
   return { src: c.toDataURL(png ? 'image/png' : 'image/jpeg', .9), w, h };
 }
 function addAsset(src) { const id = 'a' + uid(); S.doc.assets[id] = src; return id; }
-function insertIndex(objs) { const i = objs.findIndex(o => o.t !== 'image'); return i < 0 ? objs.length : i; }
+function insertIndex(objs) { const i = objs.findIndex(o => o.t !== 'image' && o.t !== 'sheet'); return i < 0 ? objs.length : i; }
 function viewCenter() { return toWorld(W / 2 + 30, H / 2); }
 async function insertImageSrc(src) {
   const im = await normalizeImage(src), v = V();
@@ -1884,7 +2044,15 @@ function serialize() {
 }
 function loadDoc(d) {
   if (!d || !Array.isArray(d.pages) || !d.pages.length) throw new Error('Fichier invalide');
-  for (const p of d.pages) { p.id ||= uid(); p.bg ||= { type: 'blank', paper: 'white', clef: 'g' }; p.objects ||= []; p.view ||= { x: 0, y: 0, z: 1 }; }
+  for (const p of d.pages) {
+    p.id ||= uid(); p.bg ||= { type: 'blank', paper: 'white', clef: 'g' }; p.objects ||= []; p.view ||= { x: 0, y: 0, z: 1 };
+    // anciens fonds de page → feuille (objet redimensionnable)
+    if (p.bg.type && p.bg.type !== 'blank') {
+      const v = p.view, w = (window.innerWidth || 1600) / v.z, h = (window.innerHeight || 900) / v.z;
+      p.objects.unshift({ id: uid(), t: 'sheet', kind: p.bg.type, clef: p.bg.clef || 'g', paper: p.bg.paper || 'white', x: r1(-v.x / v.z), y: r1(-v.y / v.z), w: r1(w), h: r1(h) });
+      p.bg.type = 'blank';
+    }
+  }
   S.doc = { pages: d.pages, assets: d.assets || {} };
   S.cur = clamp(d.cur | 0, 0, d.pages.length - 1);
   hist.clear(); imgCache.clear(); S.sel = [];
@@ -1984,6 +2152,9 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Appui long</b> : maintenez le doigt immobile sur le tableau pour ouvrir le menu des <b>3 derniers outils utilisés</b> (glissez sur un choix ou touchez-le). Un symbole (GN, Prédicat…) ou une forme y est posé directement à cet endroit.</p>
+  <p><b>Formes, flèches, texte et symboles</b> : après chaque ajout, l’outil Sélection revient automatiquement. Double-cliquez un outil pour le garder actif.</p>
+  <p><b>Feuilles</b> : le bouton quadrillé insère une feuille (quadrillée, portée, plan cartésien…) que l’on déplace et redimensionne comme un objet.</p>
   <p><b>Objets</b> : avec l’outil Sélection, touchez un objet pour le déplacer; tirez les coins pour le redimensionner. Double-cliquez un texte pour le modifier. Les documents PDF/Word insérés sont <b>verrouillés</b> (double-clic pour les sélectionner).</p>
   <p><b>Raccourcis</b> : <kbd>V</kbd> sélection, <kbd>H</kbd> main, <kbd>P</kbd> crayon, <kbd>S</kbd> surligneur, <kbd>E</kbd> gomme, <kbd>R</kbd> formes, <kbd>F</kbd> flèches, <kbd>T</kbd> texte, <kbd>L</kbd> laser,
   <kbd>Ctrl+Z</kbd> annuler, <kbd>Ctrl+Y</kbd> rétablir, <kbd>Suppr</kbd> supprimer, <kbd>Ctrl+D</kbd> dupliquer, <kbd>Ctrl+V</kbd> coller une image ou du texte,
