@@ -67,6 +67,17 @@ body.capturing #main,body.capturing #over,body.capturing .panel,body.capturing #
 .s3meas{margin-top:14px;background:var(--hover);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
 .s3meas div{display:flex;justify-content:space-between;font-size:15px}
 .s3hint{color:var(--muted);font-size:14px!important}
+.pchip{height:40px;border:0;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;padding:0 12px;cursor:pointer;white-space:nowrap;margin-left:4px}
+body.locked .pchip{background:#fde8e8;color:#b42318}
+body.locked .lockhide{display:none!important}
+.lvlGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 14px}
+.lvl{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 8px;cursor:pointer;text-align:center;font-size:16px;font-weight:700}
+.lvl small{display:block;font-weight:400;color:var(--muted);font-size:13px;margin-top:2px}
+.lvl.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.toolChecks{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;margin-top:8px}
+.toolChecks label{display:flex;align-items:center;gap:8px;font-size:15px;padding:4px 0}
+.toolChecks input{width:20px;height:20px}
+details.custom summary{cursor:pointer;font-weight:600;color:var(--accent);margin-top:6px}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -289,12 +300,13 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-fly="insert" title="Insérer image, PDF, Word, capture d'écran"><svg class="i"><use href="#i-insert"/></svg><span class="more"></span></button>
   <button class="ib" data-fly="bg" title="Feuilles : quadrillé, portée, plan cartésien… (objets redimensionnables)"><svg class="i"><use href="#i-bg"/></svg><span class="more"></span></button>
   <div class="sep"></div>
-  <button class="ib" id="bClear" title="Effacer la page"><svg class="i"><use href="#i-trash"/></svg></button>
+  <button class="ib lockhide" id="bClear" title="Effacer la page"><svg class="i"><use href="#i-trash"/></svg></button>
 </div>
 
 <div id="topLeft" class="panel">
   <button class="ib" data-fly="menu" title="Menu"><svg class="i"><use href="#i-menu"/></svg></button>
   <button class="ib" id="bHelp" title="Aide"><svg class="i"><use href="#i-help"/></svg></button>
+  <button class="pchip" id="bProfile" title="Niveau et matière (outils affichés)">Tous les outils</button>
   <div class="vsep"></div>
   <button class="ib" id="bUndo" title="Annuler (Ctrl+Z)"><svg class="i"><use href="#i-undo"/></svg></button>
   <button class="ib" id="bRedo" title="Rétablir (Ctrl+Y)"><svg class="i"><use href="#i-redo"/></svg></button>
@@ -384,9 +396,10 @@ const FONTS = {
   serif: 'Georgia,"Times New Roman",serif',
   music: '"Noto Music","Segoe UI Symbol","Segoe UI",serif',
 };
-const PEN_W = [2, 4, 8, 16];
-const HL_W = [14, 24, 40, 64];
-const TXT_S = [24, 36, 56, 96];
+const BASE_W = { pen: [2, 4, 8, 16], hl: [14, 24, 40, 64], txt: [24, 36, 56, 96] };
+let PEN_W = BASE_W.pen.slice();
+let HL_W = BASE_W.hl.slice();
+let TXT_S = BASE_W.txt.slice();
 const ER_W = [16, 36, 72, 140];
 const PEN_COLORS = ['#1a1a1a', '#ffffff', '#e53935', '#fb8c00', '#fdd835', '#43a047', '#1e88e5', '#8e24aa', '#ec407a', '#6d4c41'];
 const HL_COLORS = ['#ffeb3b', '#76ff03', '#18ffff', '#ff80ab', '#ffab40', '#b388ff'];
@@ -419,12 +432,20 @@ const SHAPES = [
 const ARROWS = [['arrow', 'Flèche'], ['darrow', 'Double flèche'], ['curve', 'Flèche courbe'], ['circ', 'Flèche ronde (horaire)'], ['circccw', 'Flèche ronde (antihoraire)']];
 const LINEK = new Set(['line', 'arrow', 'darrow', 'curve']);
 
+// lv : niveaux (pre, c1, c2, c3, sec) — sub : matières (fr, math, mus); sans sub = toutes matières
 const STAMPS = {
-  'Musique': { font: 'music', items: ['\u{1D15D}', '\u{1D15E}', '\u{1D15F}', '\u{1D160}', '\u{1D161}', '♫', '♬', '\u{1D13B}', '\u{1D13C}', '\u{1D13D}', '\u{1D13E}', '\u{1D13F}', '♯', '♭', '♮', '\u{1D110}', '\u{1D11E}', '\u{1D122}', '\u{1D121}', '\u{1D106}', '\u{1D107}', '\u{1D18F}', '\u{1D191}', '\u{1D192}', '\u{1D193}', '\u{1D100}', '\u{1D102}', '\u{1D10B}'] },
-  'Mesures': { font: 'serif', bold: true, items: ['2\n4', '3\n4', '4\n4', '6\n8', '3\n8', '2\n2', 'C', '¢'] },
-  'Maths': { font: 'serif', items: ['π', '√', '∞', '±', '×', '÷', '=', '≠', '≈', '≤', '≥', '<', '>', '∠', '°', '⊥', '∥', '△', '∑', '∫', '½', '⅓', '¼', '¾', '∈', '∅', '∩', '∪', '%', '$', 'x²', 'x³', 'a/b', 'Δ', 'θ', 'α'] },
-  'Grammaire': { font: 'sans', bold: true, words: true, items: ['Sujet', 'Prédicat', 'Compl. P', 'GN', 'GV', 'GPrép', 'GAdj', 'GAdv', 'CD', 'CI', 'Attr. S', 'Modif.', 'Nom', 'Dét.', 'Adj.', 'Pron.', 'Verbe', 'Adv.', 'Prép.', 'Conj.'] },
-  'Correction': { font: 'sans', bold: true, words: true, items: ['✓', '✗', '★', '☺', '☹', '?', '!', '↑', '↓', '←', '→', 'Bravo !', 'Super !', 'À revoir', 'Accord', 'Orthographe', 'Ponctuation', 'Majuscule'] },
+  'Lettres': { lv: ['pre', 'c1'], sub: ['fr'], font: 'school', items: [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', ...'abcdefghijklmnopqrstuvwxyz'] },
+  'Nombres': { lv: ['pre', 'c1'], sub: ['math'], font: 'school', items: Array.from({ length: 21 }, (_, i) => String(i)).concat(['+', '−', '=', '<', '>']) },
+  'Gommettes': { lv: ['pre', 'c1'], font: 'sans', items: ['★', '♥', '☺', '✓', '●', '▲', '■', '◆', '☀', '☁', '♪', '✿'] },
+  // Progression musique primaire : code non traditionnel conventionnel (long, très long, court, très court, silence)
+  'Code rythmique': { lv: ['pre', 'c1', 'c2', 'c3'], sub: ['mus'], font: 'sans', bold: true, words: true, items: ['▬▬▬▬▬▬', '▬▬▬', '▬', '•', '○ silence'] },
+  'Musique': { lv: ['c1', 'c2', 'c3', 'sec'], sub: ['mus'], font: 'music', items: ['\u{1D15D}', '\u{1D15E}', '\u{1D15F}', '\u{1D160}', '\u{1D161}', '♫', '♬', '\u{1D13B}', '\u{1D13C}', '\u{1D13D}', '\u{1D13E}', '\u{1D13F}', '♯', '♭', '♮', '\u{1D110}', '\u{1D11E}', '\u{1D122}', '\u{1D121}', '\u{1D106}', '\u{1D107}', '\u{1D18F}', '\u{1D191}', '\u{1D192}', '\u{1D193}', '\u{1D100}', '\u{1D102}', '\u{1D10B}'] },
+  'Mesures': { lv: ['sec'], sub: ['mus'], font: 'serif', bold: true, items: ['2\n4', '3\n4', '4\n4', '6\n8', '3\n8', '2\n2', 'C', '¢'] },
+  'Maths': { lv: ['c1', 'c2', 'c3', 'sec'], sub: ['math'], font: 'serif', items: ['π', '√', '∞', '±', '×', '÷', '=', '≠', '≈', '≤', '≥', '<', '>', '∠', '°', '⊥', '∥', '△', '∑', '∫', '½', '⅓', '¼', '¾', '∈', '∅', '∩', '∪', '%', '$', 'x²', 'x³', 'a/b', 'Δ', 'θ', 'α'] },
+  // Programme actualisé de français, primaire (2026) : terminologie officielle
+  'Grammaire': { lv: ['c1', 'c2', 'c3'], sub: ['fr'], font: 'sans', bold: true, words: true, items: ['Sujet', 'Prédicat', 'Complément de phrase', 'Groupe du nom', 'Groupe du verbe', 'Attribut du sujet', 'Complément du nom', 'Nom', 'Déterminant', 'Adjectif', 'Verbe', 'Pronom', 'Adverbe', 'Préposition', 'Conjonction'] },
+  'Grammaire (sec.)': { lv: ['sec'], sub: ['fr'], font: 'sans', bold: true, words: true, items: ['Sujet', 'Prédicat', 'Compl. de P', 'GN', 'GV', 'GPrép', 'GAdj', 'GAdv', 'CD', 'CI', 'Attr. S', 'Modif.', 'Compl. du N', 'Nom', 'Dét.', 'Adj.', 'Pron.', 'Verbe', 'Adv.', 'Prép.', 'Conj.'] },
+  'Correction': { lv: ['c1', 'c2', 'c3', 'sec'], font: 'sans', bold: true, words: true, items: ['✓', '✗', '★', '☺', '☹', '?', '!', '↑', '↓', '←', '→', 'Bravo !', 'Super !', 'À revoir', 'Accord', 'Orthographe', 'Ponctuation', 'Majuscule'] },
 };
 
 /* ---------- État ---------- */
@@ -736,11 +757,14 @@ function drawBackground(ctx, pg, v, W, H, opts = {}) {
     }
     case 'lines': hlines(44, C(.35)); break;
     case 'primary': {
-      // interligné primaire : ligne de tête, ligne médiane pointillée, ligne de base
-      hlines(132, C(.45), 1, 0);
-      hlines(132, C(.35), 1, 30, [6, 6]);
-      hlines(132, dark ? 'rgba(255,140,140,.6)' : 'rgba(220,60,60,.55)', 1.5, 60);
-      hlines(132, C(.2), 1, 90);
+      // feuille lignée avec trottoir : ligne supérieure, trottoir (interligne du centre), ligne de base, ligne inférieure
+      const P = 132; if (P * z < 6) break;
+      ctx.fillStyle = dark ? 'rgba(120,170,255,.12)' : 'rgba(37,99,180,.07)';
+      for (let i = Math.floor(y0 / P) - 1; i * P <= y1; i++) { const a = Math.round((i * P + 30) * z + v.y), b = Math.round((i * P + 60) * z + v.y); ctx.fillRect(0, a, W, b - a); }
+      hlines(P, C(.4), 1, 0);
+      hlines(P, C(.55), 1, 30);
+      hlines(P, dark ? 'rgba(255,140,140,.7)' : 'rgba(220,60,60,.6)', 1.5, 60);
+      hlines(P, C(.22), 1, 90, [6, 6]);
       break;
     }
     case 'cartesian': {
@@ -1359,6 +1383,7 @@ window.addEventListener('keydown', e => {
   if (mod) {
     if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
     else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); }
+    else if (isLocked() && 'son'.includes(k)) { e.preventDefault(); }
     else if (k === 's') { e.preventDefault(); saveFile(); }
     else if (k === 'o') { e.preventDefault(); $('#fOpen').click(); }
     else if (k === 'd') { e.preventDefault(); selAction('dup'); }
@@ -1481,8 +1506,9 @@ const FLY = {
   arrows: () => `<h4>Flèches</h4><div class="grid" style="grid-template-columns:repeat(5,58px)">${ARROWS.map(([k, l]) => `<button class="gb${S.arrow === k ? ' on' : ''}" data-arrow="${k}" title="${l}">${shapeIcon(k)}</button>`).join('')}</div>
     <p class="hint" style="margin:10px 4px 0;white-space:normal;max-width:300px">Flèche courbe : sélectionnez-la puis tirez la poignée bleue pour changer la courbure.</p>`,
   stamps: () => {
+    const sets = stampSets(); if (!sets.includes(S.stampSet)) S.stampSet = sets[0];
     const set = STAMPS[S.stampSet];
-    return `<div class="tabs">${Object.keys(STAMPS).map(n => `<button class="tab${n === S.stampSet ? ' on' : ''}" data-set="${n}">${n}</button>`).join('')}</div>
+    return `<div class="tabs">${sets.map(n => `<button class="tab${n === S.stampSet ? ' on' : ''}" data-set="${n}">${n}</button>`).join('')}</div>
       <div class="grid g6${set.words ? ' words' : ''}" style="font-family:${esc(FONTS[set.font])}">${set.items.map(s => `<button class="gb${set.words && s.length > 2 ? ' word' : ''}${S.stamp === s ? ' on' : ''}" data-stamp="${esc(s)}" style="${set.bold ? 'font-weight:700;' : ''}${s.includes('\n') ? 'font-size:17px;line-height:1;white-space:pre' : ''}">${esc(s)}</button>`).join('')}</div>
       <p class="hint" style="margin:10px 4px 0;white-space:normal;max-width:360px">Choisissez un symbole puis touchez le tableau pour le placer (autant de fois que voulu).</p>`;
   },
@@ -1498,12 +1524,19 @@ const FLY = {
     </div><p class="hint" style="margin:8px 6px 2px;white-space:normal;max-width:280px">Astuce : vous pouvez aussi glisser-déposer un fichier sur le tableau.</p>`,
   bg: () => {
     const bg = page().bg;
-    return `<h4>Insérer une feuille</h4><div class="bgGrid">${SHEETS.map(([k, l]) => `<button class="bgb" data-bg="${k}"><canvas width="168" height="112" data-prev="${k}"></canvas>${l}</button>`).join('')}</div>
+    return `<h4>Insérer une feuille</h4><div class="bgGrid">${SHEETS.filter(([k]) => sheetAllowed(k)).map(([k, l]) => `<button class="bgb" data-bg="${k}"><canvas width="168" height="112" data-prev="${k}"></canvas>${l}</button>`).join('')}</div>
       <p class="hint" style="margin:8px 4px 0;white-space:normal;max-width:300px">La feuille apparaît au centre : déplacez-la et tirez ses coins pour l’agrandir. Sélectionnez-la pour changer son modèle, sa clé ou sa couleur.</p>
       <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
-      <button class="btn" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
+      <button class="btn lockhide" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
-  menu: () => `<div class="list">
+  menu: () => isLocked() ? `<div class="list">
+      <button class="li" data-m="unlock"><svg class="i"><use href="#i-unlock"/></svg><span>Déverrouiller<small>Code de l’enseignant requis</small></span></button>
+      <button class="li" data-m="full"><svg class="i"><use href="#i-full"/></svg>Plein écran</button>
+      <button class="li" data-m="help"><svg class="i"><use href="#i-help"/></svg>Aide</button>
+    </div>` : `<div class="list">
+      <button class="li" data-m="profile"><svg class="i"><use href="#i-pages"/></svg><span>Niveau et matière…<small>Choisir les outils affichés</small></span></button>
+      <button class="li" data-m="lock"><svg class="i"><use href="#i-lock"/></svg><span>Mode élève (verrouiller)<small>Cache les fonctions sensibles, protégé par un code</small></span></button>
+      <div class="sep"></div>
       <button class="li" data-m="new"><svg class="i"><use href="#i-file"/></svg>Nouveau tableau</button>
       <button class="li" data-m="open"><svg class="i"><use href="#i-open"/></svg><span>Ouvrir un tableau…<small>Fichier .tableau</small></span></button>
       <button class="li" data-m="save"><svg class="i"><use href="#i-save"/></svg><span>Enregistrer le tableau…<small>Toutes les pages, pour le reprendre plus tard</small></span></button>
@@ -1516,15 +1549,16 @@ const FLY = {
     </div>`,
 };
 const BIND = {
-  shapes: () => { $$('[data-shape]', fly).forEach(b => b.addEventListener('click', () => { S.shape = b.dataset.shape; setTool('shape'); closeFly(); })); $('[data-open3d]', fly).addEventListener('click', () => open3D()); },
-  arrows: () => $$('[data-arrow]', fly).forEach(b => b.addEventListener('click', () => { S.arrow = b.dataset.arrow; setTool('arrow'); closeFly(); })),
+  shapes: () => { $$('[data-shape]', fly).forEach(b => { if (!PROF.shapes.includes(b.dataset.shape)) b.style.display = 'none'; }); if (!PROF.inserts.includes('3d')) $('[data-open3d]', fly).style.display = 'none';
+    $$('[data-shape]', fly).forEach(b => b.addEventListener('click', () => { S.shape = b.dataset.shape; setTool('shape'); closeFly(); })); $('[data-open3d]', fly).addEventListener('click', () => open3D()); },
+  arrows: () => $$('[data-arrow]', fly).forEach(b => (PROF.arrows.includes(b.dataset.arrow) || (b.style.display = 'none'), b).addEventListener('click', () => { S.arrow = b.dataset.arrow; setTool('arrow'); closeFly(); })),
   stamps: () => {
     $$('[data-set]', fly).forEach(b => b.addEventListener('click', () => { S.stampSet = b.dataset.set; fly.innerHTML = FLY.stamps(); BIND.stamps(); }));
     $$('[data-stamp]', fly).forEach(b => b.addEventListener('click', () => {
       S.stamp = b.dataset.stamp; setTool('stamp'); closeFly();
     }));
   },
-  insert: () => $$('[data-ins]', fly).forEach(b => b.addEventListener('click', () => {
+  insert: () => $$('[data-ins]', fly).forEach(b => (PROF.inserts.includes(b.dataset.ins) || (b.style.display = 'none'), b).addEventListener('click', () => {
     closeFly();
     const k = b.dataset.ins;
     if (k === 'image') $('#fImage').click();
@@ -1549,7 +1583,7 @@ const BIND = {
   },
   menu: () => $$('[data-m]', fly).forEach(b => b.addEventListener('click', () => {
     closeFly();
-    ({ new: newBoard, open: () => $('#fOpen').click(), save: saveFile, png: exportPNG, print: printAll, full: toggleFull, help: showHelp })[b.dataset.m]();
+    ({ new: newBoard, open: () => $('#fOpen').click(), save: saveFile, png: exportPNG, print: printAll, full: toggleFull, help: showHelp, profile: () => chooseProfile(), lock: setLock, unlock: unlockPrompt })[b.dataset.m]();
   })),
 };
 function adaptInk() {
@@ -1571,7 +1605,7 @@ document.addEventListener('pointerdown', e => {
 
 /* ---------- Feuilles (modèles de papier redimensionnables) ---------- */
 const INKT = new Set(['stroke', 'shape', 'text']);           // objets « encre » (gomme, couleur, épaisseur)
-const SHEETS = [['blank', 'Feuille blanche'], ['grid', 'Quadrillé'], ['smallgrid', 'Petits carreaux'], ['mm', 'Millimétré'], ['dots', 'Pointillé'], ['lines', 'Ligné'], ['primary', 'Interligné'], ['cartesian', 'Plan cartésien'], ['staff', 'Portée'], ['piano', 'Portée piano'], ['tab', 'Tablature']];
+const SHEETS = [['blank', 'Feuille unie'], ['grid', 'Quadrillé'], ['smallgrid', 'Petits carreaux'], ['mm', 'Millimétré'], ['dots', 'Pointillé'], ['lines', 'Lignée simple'], ['primary', 'Lignée avec trottoir'], ['cartesian', 'Plan cartésien'], ['staff', 'Portée'], ['piano', 'Portée piano'], ['tab', 'Tablature']];
 const CLEFS = [['g', 'Sol'], ['f', 'Fa'], ['c3', 'Ut 3e (alto)'], ['c4', 'Ut 4e (ténor)'], ['perc', 'Percussion'], ['none', 'Aucune']];
 function drawSheet(ctx, o) {
   const m = ctx.getTransform(), k = m.a, z = k / RR;
@@ -1672,8 +1706,9 @@ function triggerLP(at) {
 }
 function showLP(at) {
   const m = $('#lp');
-  m.innerHTML = S.recent.length
-    ? S.recent.map((e, i) => `<button class="lpi" data-i="${i}">${presetHTML(e)}</button>`).join('')
+  const rec = S.recent.map((e, i) => [e, i]).filter(([e]) => toolVisible(e.tool));
+  m.innerHTML = rec.length
+    ? rec.map(([e, i]) => `<button class="lpi" data-i="${i}">${presetHTML(e)}</button>`).join('')
     : `<div class="empty">Les 3 derniers outils utilisés apparaîtront ici. Maintenez le doigt immobile pour ouvrir ce menu.</div>`;
   m.classList.add('open'); m.dataset.x = at.x; m.dataset.y = at.y;
   const w = m.offsetWidth, h = m.offsetHeight;
@@ -2311,6 +2346,115 @@ function crop3(c) {
   return o;
 }
 
+/* ---------- Niveaux, matières et mode élève ---------- */
+const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
+const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
+const TOOL_KEYS = [['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
+const ALL_SHAPES = SHAPES.map(s => s[0]), ALL_ARROWS = ARROWS.map(a => a[0]);
+// Outils par niveau, en lien avec les progressions des apprentissages (voir README)
+const LEVEL_DEF = {
+  pre: { tools: ['hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
+    sheets: ['blank', 'dots', 'grid'], inserts: ['image', 'screen', 'paste'], scale: 1.6, txt: 1.4, size: 2 },
+  c1: { tools: ['hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
+    sheets: ['blank', 'primary', 'lines', 'grid', 'dots', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste'], scale: 1.3, txt: 1.2, size: 1 },
+  c2: { tools: TOOL_KEYS.map(t => t[0]), shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+    sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'dots', 'cartesian', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
+  c3: { tools: TOOL_KEYS.map(t => t[0]), shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+    sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian', 'staff', 'piano', 'tab'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
+};
+LEVEL_DEF.sec = { ...LEVEL_DEF.c3, sheets: SHEETS.map(x => x[0]) };
+LEVEL_DEF.all = { ...LEVEL_DEF.sec };
+const SUBJECT_SHEETS = { fr: ['blank', 'primary', 'lines'], math: ['blank', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian'], mus: ['blank', 'staff', 'piano', 'tab'] };
+let PROF = null;   // profil calculé
+S.profile = (() => { try { return JSON.parse(localStorage.getItem('tableau-profil')); } catch (_) { return null; } })();
+function computeProfile() {
+  const p = S.profile || { level: 'all', subject: 'all' }, d = LEVEL_DEF[p.level] || LEVEL_DEF.all;
+  const tools = new Set(['select', ...TOOL_KEYS.map(t => t[0]).filter(k => (p.custom && k in p.custom) ? p.custom[k] : d.tools.includes(k))]);
+  let sheets = d.sheets;
+  if (SUBJECT_SHEETS[p.subject]) { const f = d.sheets.filter(k => SUBJECT_SHEETS[p.subject].includes(k)); if (f.length > 1) sheets = f; }
+  let inserts = d.inserts.slice();
+  if (inserts.includes('3d') && ['fr', 'mus'].includes(p.subject)) inserts = inserts.filter(x => x !== '3d');
+  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts };
+}
+const toolVisible = t => !PROF || PROF.tools.has(t);
+const sheetAllowed = k => !PROF || PROF.sheets.includes(k);
+function stampSets() {
+  const lv = PROF?.level || 'all', sub = PROF?.subject || 'all';
+  const ok = Object.keys(STAMPS).filter(n => { const st = STAMPS[n];
+    return (lv === 'all' || st.lv.includes(lv)) && (sub === 'all' || sub === 'autre' || lv === 'all' || !st.sub || st.sub.includes(sub)); });
+  return ok.length ? ok : ['Correction'];
+}
+function applyProfile() {
+  computeProfile();
+  PEN_W = BASE_W.pen.map(w => Math.round(w * PROF.scale)); HL_W = BASE_W.hl.map(w => Math.round(w * PROF.scale)); TXT_S = BASE_W.txt.map(w => Math.round(w * PROF.txt));
+  $$('#toolbar [data-tool]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.tool) || b.dataset.tool === 'select' ? '' : 'none'; });
+  $$('#toolbar [data-fly=insert], #toolbar [data-fly=bg]').forEach(b => { b.style.display = PROF.tools.has(b.dataset.fly) ? '' : 'none'; });
+  $('#bClear').style.display = PROF.tools.has('clear') ? '' : 'none';
+  if (!PROF.shapes.includes(S.shape)) S.shape = PROF.shapes[0] || 'rect';
+  if (!PROF.arrows.includes(S.arrow)) S.arrow = PROF.arrows[0] || 'arrow';
+  const sets = stampSets(); if (!sets.includes(S.stampSet)) { S.stampSet = sets[0]; S.stamp = null; }
+  if (!toolVisible(S.tool)) setTool(toolVisible('pen') ? 'pen' : 'select');
+  updateProfileChip(); updateProps(); render();
+}
+function updateProfileChip() {
+  const p = S.profile || { level: 'all', subject: 'all' };
+  const lv = LEVELS.find(l => l[0] === p.level)?.[1] || 'Tous les outils';
+  const sb = p.subject && p.subject !== 'all' ? ' · ' + SUBJECTS.find(x => x[0] === p.subject)[1] : '';
+  $('#bProfile').textContent = (isLocked() ? '🔒 ' : '') + lv + sb;
+  $('#bProfile').title = isLocked() ? 'Mode élève : touchez pour déverrouiller (code)' : 'Niveau et matière : outils affichés';
+}
+async function chooseProfile(first) {
+  if (isLocked()) return unlockPrompt();
+  const cur = S.profile || { level: 'all', subject: 'all' };
+  const st = { level: cur.level, subject: cur.subject || 'all', custom: { ...(cur.custom || {}) } };
+  const checks = () => { const d = LEVEL_DEF[st.level] || LEVEL_DEF.all; return TOOL_KEYS.map(([k, l]) => `<label><input type="checkbox" data-tk="${k}"${(k in st.custom ? st.custom[k] : d.tools.includes(k)) ? ' checked' : ''}>${l}</label>`).join(''); };
+  const ok = await modal(first ? 'Bienvenue! Pour qui est ce tableau?' : 'Niveau et matière', `
+    <p>Le tableau n’affiche que les outils utiles au niveau choisi, selon les progressions des apprentissages du Programme de formation de l’école québécoise. Vous pourrez changer ce choix en tout temps (bouton en haut à gauche).</p>
+    <h4 style="margin:12px 0 4px">Niveau</h4>
+    <div class="lvlGrid">${LEVELS.map(([k, l, s]) => `<button class="lvl${st.level === k ? ' on' : ''}" data-lv="${k}">${l}<small>${s}</small></button>`).join('')}</div>
+    <h4 style="margin:4px 0">Matière</h4>
+    <div class="row">${SUBJECTS.map(([k, l]) => `<button class="chip${st.subject === k ? ' on' : ''}" data-sb="${k}">${l}</button>`).join('')}</div>
+    <details class="custom"><summary>Personnaliser les outils affichés</summary><div class="toolChecks">${checks()}</div></details>`,
+    [{ label: first ? 'Plus tard' : 'Annuler', value: false }, { label: 'Commencer', value: true, cls: 'primary' }],
+    () => {
+      const box = $('#modal .box');
+      $$('[data-lv]', box).forEach(b => b.addEventListener('click', () => { st.level = b.dataset.lv; st.custom = {}; $$('[data-lv]', box).forEach(x => x.classList.toggle('on', x === b)); $('.toolChecks', box).innerHTML = checks(); }));
+      $$('[data-sb]', box).forEach(b => b.addEventListener('click', () => { st.subject = b.dataset.sb; $$('[data-sb]', box).forEach(x => x.classList.toggle('on', x === b)); }));
+      box.addEventListener('change', e => { const k = e.target.dataset?.tk; if (k) st.custom[k] = e.target.checked; });
+    });
+  if (!ok) { if (first && !S.profile) { S.profile = { level: 'all', subject: 'all' }; saveProfile(); } return; }
+  const d = LEVEL_DEF[st.level] || LEVEL_DEF.all;
+  for (const k of Object.keys(st.custom)) if (st.custom[k] === d.tools.includes(k)) delete st.custom[k];
+  S.profile = st; S.size = d.size; saveProfile(); applyProfile();
+  toast('Outils adaptés : ' + $('#bProfile').textContent);
+}
+function saveProfile() { try { localStorage.setItem('tableau-profil', JSON.stringify(S.profile)); } catch (_) {} updateProfileChip(); }
+// Mode élève : cache les fonctions sensibles (nouveau, ouvrir, effacer la page, supprimer une page, niveau…)
+function lockCode() { try { return JSON.parse(localStorage.getItem('tableau-verrou'))?.code || null; } catch (_) { return null; } }
+const isLocked = () => !!lockCode();
+function applyLock() { document.body.classList.toggle('locked', isLocked()); closeFly(); if (PROF) updateProfileChip(); }
+async function setLock() {
+  const ok = await modal('Mode élève', `<p>Les élèves pourront écrire, dessiner, ajouter des pages et utiliser les outils du niveau choisi, mais <b>pas</b> effacer la page, supprimer des pages, ouvrir un autre tableau ni changer de niveau.</p>
+    <p>Choisissez un code de 4 à 8 chiffres (gardez-le en mémoire) :</p><input class="urlIn" id="lockIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8">`,
+    [{ label: 'Annuler', value: false }, { label: 'Verrouiller', value: true, cls: 'primary' }], () => setTimeout(() => $('#lockIn')?.focus(), 50));
+  const v = ($('#lockIn')?.value || '').trim();
+  if (!ok) return;
+  if (!/^\d{4,8}$/.test(v)) { toast('Le code doit contenir de 4 à 8 chiffres.', 3500); return; }
+  try { localStorage.setItem('tableau-verrou', JSON.stringify({ code: v })); } catch (_) { toast('Impossible d’enregistrer le code dans ce navigateur.'); return; }
+  applyLock(); toast('Mode élève activé. Touchez 🔒 en haut à gauche pour déverrouiller.', 4500);
+}
+async function unlockPrompt() {
+  const ok = await modal('Déverrouiller', `<p>Entrez le code de l’enseignant :</p><input class="urlIn" id="unlockIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+    <p style="font-size:14px;color:var(--muted);margin-top:12px">Code oublié : effacez les données de ce site dans les paramètres du navigateur (le tableau en cours sera aussi effacé; enregistrez-le d’abord si possible).</p>`,
+    [{ label: 'Annuler', value: false }, { label: 'Déverrouiller', value: true, cls: 'primary' }], () => setTimeout(() => $('#unlockIn')?.focus(), 50));
+  if (!ok) return;
+  if (($('#unlockIn')?.value || '').trim() !== lockCode()) { toast('Code incorrect.', 2500); return; }
+  try { localStorage.removeItem('tableau-verrou'); } catch (_) {}
+  applyLock(); toast('Mode élève désactivé.');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.target.id === 'lockIn' || e.target.id === 'unlockIn')) { e.preventDefault(); $('#modal .btn.primary')?.click(); } }, true);
+$('#bProfile').addEventListener('click', () => isLocked() ? unlockPrompt() : chooseProfile());
+
 /* ---------- Pages ---------- */
 function goPage(i) {
   if (i < 0 || i >= S.doc.pages.length) return;
@@ -2323,6 +2467,7 @@ function addPage() {
   S.doc.pages.splice(S.cur + 1, 0, pg); goPage(S.cur + 1); toast(`Page ${S.cur + 1} ajoutée`);
 }
 async function deletePage(i) {
+  if (isLocked()) return;
   if (S.doc.pages.length === 1) { snapshot(); page().objects = []; afterChange(); return; }
   const ok = await modal('Supprimer la page ?', `<p>La page ${i + 1} et tout son contenu seront supprimés. Cette action ne peut pas être annulée.</p>`, [{ label: 'Annuler', value: false }, { label: 'Supprimer', value: true, cls: 'danger' }]);
   if (!ok) return;
@@ -2351,7 +2496,7 @@ function renderThumbs() {
       <button class="ib" data-a="up" title="Monter"><svg class="i"><use href="#i-up"/></svg></button>
       <button class="ib" data-a="down" title="Descendre"><svg class="i"><use href="#i-down"/></svg></button>
       <button class="ib" data-a="dup" title="Dupliquer"><svg class="i"><use href="#i-copy"/></svg></button>
-      <button class="ib" data-a="del" title="Supprimer" style="color:var(--danger)"><svg class="i"><use href="#i-trash"/></svg></button></div></div>`;
+      <button class="ib lockhide" data-a="del" title="Supprimer" style="color:var(--danger)"><svg class="i"><use href="#i-trash"/></svg></button></div></div>`;
     const c = $('canvas', d); drawThumb(c, pg);
     d.addEventListener('click', e => {
       const a = e.target.closest('[data-a]')?.dataset.a;
@@ -2787,6 +2932,7 @@ function download(blob, name) {
 const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}h${p(d.getMinutes())}`; };
 function saveFile() { commitText(); download(new Blob([JSON.stringify(serialize())], { type: 'application/json' }), `tableau_${stamp()}.tableau`); toast('Tableau enregistré dans vos téléchargements'); }
 async function openFile(f) {
+  if (isLocked()) { toast('Mode élève : ouverture de tableau désactivée.'); return; }
   try { loadDoc(JSON.parse(await f.text())); goPage(S.cur); scheduleSave(); toast('Tableau ouvert : ' + f.name); }
   catch (e) { toast('Ce fichier n’est pas un tableau valide.', 4000); }
 }
@@ -2860,6 +3006,7 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Niveau et matière</b> : le bouton en haut à gauche choisit le niveau (préscolaire, 1er, 2e ou 3e cycle, secondaire) et la matière; seuls les outils utiles sont affichés. <b>Mode élève</b> (menu) : verrouille avec un code les fonctions sensibles.</p>
   <p><b>Sélection multiple et groupes</b> : l’outil lasso (sous la flèche) permet d’entourer plusieurs objets; touchez ensuite « Grouper » (ou <kbd>Ctrl+G</kbd>). Un groupe se sélectionne et se déplace d’un seul geste; « Dégrouper » le défait. Avec la flèche, <kbd>Maj</kbd> + clic ajoute un objet à la sélection.</p>
   <p><b>Formes 3D</b> : <i>Insérer → Formes 3D</i> ouvre l’atelier : ajoutez cubes, cylindres, cônes…, réglez leurs dimensions en mm, transformez une forme en « trou » puis groupez-la avec une autre pour la soustraire. L’image insérée se modifie par double-clic.</p>
   <p><b>Aimant</b> (bouton 🧲 du crayon et des formes) : un trait presque droit devient une ligne droite; les formes s’accrochent aux sommets des autres formes et au quadrillage des feuilles. En redimensionnant une feuille, elle « colle » au format lettre 8,5 × 11.</p>
@@ -2883,6 +3030,7 @@ function toggleFull() {
 $('#bUndo').addEventListener('click', undo);
 $('#bRedo').addEventListener('click', redo);
 $('#bClear').addEventListener('click', () => {
+  if (isLocked()) return;
   if (!page().objects.length) return;
   snapshot(); page().objects = []; afterChange(); toast('Page effacée — Ctrl+Z ou ↶ pour annuler');
 });
@@ -2912,7 +3060,8 @@ if (document.fonts) {
 (async function init() {
   S.doc = { pages: [newPage()], assets: {} };
   try { const d = await DB.get('doc'); if (d) loadDoc(d); } catch (_) {}
-  resize(); setTool('pen'); adaptInk(); goPage(S.cur);
+  resize(); applyLock(); applyProfile(); setTool(toolVisible('pen') ? 'pen' : 'select'); adaptInk(); goPage(S.cur);
+  if (!S.profile) setTimeout(() => chooseProfile(true), 400);
 })();
 </script>
 </body>

@@ -18,7 +18,9 @@ ouvrir le fichier dans Chrome ou Edge, ou le déposer sur un serveur web / Share
 | Formes 3D | **Atelier 3D** : cube/pavé, cylindre, sphère, cône, pyramide, prisme triangulaire, demi-sphère, tore, tube; plan cartésien 3D gradué en mm; dimensions, position et rotation en mm/degrés; formes **« trou »** soustraites au groupement, formes pleines additionnées (style Tinkercad); cotes, volume et aire; insertion sur le tableau et modification par double-clic |
 | Sélection multiple | Outil **lasso** : entourer des objets pour les sélectionner; **Grouper / Dégrouper** (Ctrl+G / Ctrl+Maj+G); un groupe se sélectionne et se déplace d'un seul geste; Maj + clic ajoute à la sélection |
 | Rapidité | Après une forme, une flèche, un texte ou un symbole, l'outil **Sélection** revient seul (double-clic sur un outil pour le garder actif). **Appui long** immobile sur le tableau : menu des **3 derniers outils utilisés** — un symbole (GN, Prédicat…) ou une forme y est posé directement |
-| Symboles | Notes, silences, altérations, nuances, chiffrages de mesure; symboles mathématiques; étiquettes de grammaire (GN, GV, CD, CI, Attr. S…); tampons de correction |
+| Niveaux et matières | Au premier lancement (puis bouton en haut à gauche) : **préscolaire, 1er, 2e, 3e cycle, secondaire** ou tous les outils, et la matière (français, mathématique, musique, autres). Seuls les outils, feuilles, formes, étiquettes et insertions utiles au niveau sont affichés; traits et texte plus gros pour les petits. Personnalisable outil par outil |
+| Mode élève | Menu → *Mode élève* : verrou par code (4 à 8 chiffres) qui cache effacer la page, supprimer une page, nouveau/ouvrir/enregistrer et le changement de niveau. Le verrou persiste au rechargement |
+| Symboles | Selon le niveau : lettres, nombres et gommettes (préscolaire, 1er cycle); **étiquettes de grammaire du programme de français actualisé** au primaire (sujet, prédicat, complément de phrase, groupe du nom, groupe du verbe, attribut du sujet, complément du nom, classes de mots) et du secondaire (GN, GV, GPrép, CD, CI, modificateur…); code rythmique non traditionnel, notes, silences et nuances en musique; symboles mathématiques; tampons de correction |
 | Documents | Image, **PDF** (chaque page devient une image annotable), **Word .docx** (converti en pages), capture d'écran, coller (Ctrl+V), glisser-déposer |
 | Pages web | **Page web (lien)** affichée en direct sur le tableau (YouTube, GeoGebra, Desmos, PhET, Google Docs publiés…), avec un mode « interagir » pour cliquer et défiler; **Onglet ou fenêtre en direct** (partage d'écran) pour n'importe quel site ou logiciel; bouton **Figer** pour transformer la page en image annotable |
 | Sauvegarde | Automatique dans le navigateur; fichier `.tableau` à enregistrer/ouvrir; export PNG; impression / PDF de toutes les pages |
@@ -56,3 +58,19 @@ le reste du tableau, oui.
 `T` texte · `L` laser · `Ctrl+Z / Ctrl+Y` annuler / rétablir · `Suppr` supprimer ·
 `Ctrl+D` dupliquer · `Ctrl+V` coller · `Page préc. / suiv.` pages · `0` tout afficher ·
 `Ctrl+S` enregistrer.
+
+## Références (programmes en vigueur, vérifiés en novembre 2026)
+
+Les choix par niveau s'appuient sur les publications du ministère de l'Éducation (quebec.ca) :
+
+- Français, langue d'enseignement : **programme d'études actualisé** (août 2026), offert à titre
+  informatif en 2026-2027 et **obligatoire dès la rentrée 2027-2028** — terminologie grammaticale,
+  feuilles lignées avec trottoir, écriture script et cursive.
+- Mathématique : Progression des apprentissages au primaire (mise à jour février 2026) et au
+  secondaire (2023) — plan cartésien (1er quadrant au 2e cycle, 4 quadrants au 3e cycle),
+  développements de solides, réflexion/translation, rapporteur (3e cycle), diagrammes.
+- Musique : Progression des apprentissages au primaire — code non traditionnel, figures de notes
+  et de silences, nuances.
+- Éducation préscolaire : Programme-cycle (4 et 5 ans).
+
+À revalider à chaque mise à jour des programmes.
