@@ -109,6 +109,16 @@ details.custom summary{cursor:pointer;font-weight:600;color:var(--accent);margin
 #spot .sring{position:absolute;border-radius:50%;box-shadow:0 0 0 200vmax rgba(10,14,20,.86);border:3px solid rgba(255,255,255,.6)}
 #spot .sh{position:absolute;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#1f2933;font-size:20px;pointer-events:auto;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4);touch-action:none}
 #spot .sclose{color:var(--danger)}
+.mbpm{display:flex;align-items:center;justify-content:center;gap:14px}
+.mbpm .mv{font:700 56px "Segoe UI",system-ui,sans-serif;min-width:110px;text-align:center;font-variant-numeric:tabular-nums}
+.mdots{display:flex;justify-content:center;gap:12px;margin:12px 0}
+.mdots i{width:22px;height:22px;border-radius:50%;background:var(--line);display:block}
+.mdots i.acc{box-shadow:0 0 0 2px var(--accent) inset}
+.mdots i.on{background:var(--accent)}
+.piano{position:relative;height:190px;margin:4px auto 0;touch-action:none;user-select:none}
+.piano .kw{position:absolute;top:0;height:190px;border:1px solid #9aa5b1;border-radius:0 0 8px 8px;background:#fff;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-size:14px;color:#64707d}
+.piano .kb{position:absolute;top:0;height:115px;border:0;border-radius:0 0 6px 6px;background:#1f2933;cursor:pointer;z-index:2}
+.piano .kw.down{background:var(--accent-soft)}.piano .kb.down{background:#2563eb}
 #selbar .webonly{display:none}
 #selbar.isweb .webonly{display:flex}
 #selbar.islive .webonly.w{display:none}
@@ -123,6 +133,7 @@ body.t-text #over{cursor:text}
 body.t-lasso #over{cursor:crosshair}
 body.tmode #over{cursor:crosshair!important}
 body.t-fr #over{cursor:crosshair}
+body.t-note #over{cursor:copy}
 body.t-stamp #over{cursor:copy}
 svg.i{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;flex:none}
 button{font:inherit;color:inherit}
@@ -311,6 +322,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8"/><path d="M20 3v5h-5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></symbol>
     <symbol id="i-fr" viewBox="0 0 24 24"><path d="M3 15l3.5-9 3.5 9M4.3 12h4.4"/><path d="M13 9.5c1.6-1.2 5-1.2 5 1.5V15M18 12.2c-3.5-.3-5.2.5-5.2 1.6 0 1.4 2.5 1.8 5.2-.4"/><path d="M3 19c3 2.2 6 2.2 9 0M12 19c3 2.2 6 2.2 9 0"/></symbol>
     <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M12 2.5V6M18.5 6.5l1.5-1.5"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M2 6h20M2 10h20M2 14h20M2 18h20" stroke-width="1" opacity=".55"/><ellipse cx="9" cy="16" rx="3" ry="2.2" transform="rotate(-20 9 16)" fill="currentColor"/><path d="M11.8 15V4"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -335,6 +347,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-fly="instr" title="Instruments de géométrie : règle, équerre, rapporteur, compas"><svg class="i"><use href="#i-ruler"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="text" title="Texte (T)"><svg class="i"><use href="#i-text"/></svg></button>
   <button class="ib" data-tool="fr" data-fly="frtools" title="Outils de français : syllabes, sons, crochets, manipulations syntaxiques, accords"><svg class="i"><use href="#i-fr"/></svg><span class="more"></span></button>
+  <button class="ib" data-tool="note" data-fly="music" title="Musique : notes sur la portée, lecture, métronome, clavier"><svg class="i"><use href="#i-note"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="stamp" data-fly="stamps" title="Symboles et tampons"><svg class="i"><use href="#i-stamp"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="laser" title="Pointeur laser (L)"><svg class="i"><use href="#i-laser"/></svg></button>
   <div class="sep"></div>
@@ -587,6 +600,7 @@ function bbox(o) {
     }
     case 'text': { const m = textMetrics(o); b = { x: o.x, y: o.y, w: m.w, h: m.h }; break; }
     case 'image': case 'web': case 'live': case 'sheet': b = { x: o.x, y: o.y, w: o.w, h: o.h }; break;
+    case 'note': b = { x: o.x - o.sp * 2.2, y: Math.min(o.y, o.top) - o.sp * 4, w: o.sp * 4, h: Math.abs(o.y - o.top) + o.sp * 8.5 }; break;
     default: b = { x: 0, y: 0, w: 0, h: 0 };
   }
   bbCache.set(o, b); return b;
@@ -725,6 +739,7 @@ function drawObj(ctx, o, dark) {
     }
     case 'shape': drawShape(ctx, o); break;
     case 'sheet': drawSheet(ctx, o); break;
+    case 'note': drawNote(ctx, o); break;
     case 'text': {
       const m = textMetrics(o);
       ctx.font = fontOf(o); ctx.fillStyle = o.c; ctx.textBaseline = 'top';
@@ -982,6 +997,11 @@ function drawOverlay() {
   }
   // instruments et aperçus
   if (S.instr.length) { ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y); drawInstruments(ctx); ctx.restore(); }
+  if (S.playing) {
+    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    for (const o of page().objects) if (S.playing.includes(o.id)) { const q = toScreen(o.x, o.y); ctx.strokeStyle = 'rgba(37,99,235,.9)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(q.x, q.y, Math.max(16, o.sp * 1.6 * v.z), 0, Math.PI * 2); ctx.stroke(); }
+    ctx.restore();
+  }
   if (G && G.type === 'fr') {
     ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y);
     ctx.strokeStyle = S.color === '#ffffff' ? '#2563eb' : S.color; ctx.lineWidth = PEN_W[S.size]; ctx.lineCap = 'round'; ctx.setLineDash([8 / v.z, 6 / v.z]);
@@ -1063,6 +1083,7 @@ function transformObj(o, f, sx = 1, sy = 1) {
       n.w = Math.max(.5, o.w * ws); break;
     }
     case 'text': [n.x, n.y] = f(o.x, o.y).map(r1); n.s = r1(Math.max(4, o.s * sy)); break;
+    case 'note': [n.x, n.y] = f(o.x, o.y).map(r1); n.top = r1(o.top + (n.y - o.y)); break;
     case 'image': case 'web': case 'live': case 'sheet': [n.x, n.y] = f(o.x, o.y).map(r1); n.w = r1(o.w * sx); n.h = r1(o.h * sy); break;
   }
   return n;
@@ -1282,6 +1303,7 @@ over.addEventListener('pointerdown', e => {
       G = { type: 'shape', obj: o, start: p, snapAt: q.snapped ? q : null }; return;
     }
     case 'text': G = { type: 'tap', p }; return;   // créé au relâchement (permet l'appui long)
+    case 'note': G = { type: 'tap', p }; return;
     case 'stamp': {
       if (!S.stamp) { clearLP(); openFly('stamps', $('[data-fly=stamps]')); return; }
       G = { type: 'tap', p }; return;
@@ -1427,6 +1449,7 @@ function endPointer(e) {
         const o = hitTest(g.p, false);
         if (o && o.t === 'text') openTextEditor(o, false); else startText(g.p);
       } else if (S.tool === 'stamp') placeStamp(g.p);
+      else if (S.tool === 'note') placeNote(g.p);
       else if (S.tool === 'fr') frCreate(g.p, g.p);
       break;
     }
@@ -1443,7 +1466,7 @@ function endPointer(e) {
       if (g.moved) {
         // les objets déplacés directement se rattachent à la feuille où on les dépose
         const objs = page().objects;
-        for (let i = 0; i < objs.length; i++) if (g.direct?.includes(objs[i].id) && objs[i].t !== 'sheet') { const n = { ...objs[i] }; delete n.att; objs[i] = n; }
+        for (let i = 0; i < objs.length; i++) if (g.direct?.includes(objs[i].id) && objs[i].t !== 'sheet') { let n = { ...objs[i] }; delete n.att; if (n.t === 'note') n = resnapNote(n); objs[i] = n; }
         afterChange();
       } else renderOverlay();
       break;
@@ -1552,6 +1575,13 @@ function updateProps() {
       <option value="school"${S.font === 'school' ? ' selected' : ''}>Scolaire (Andika)</option>
       <option value="serif"${S.font === 'serif' ? ' selected' : ''}>Serif</option></select>`;
   }
+  if (t === 'note') {
+    const f = [...NOTE_FIG, ...REST_FIG].find(x => x[0] === S.noteDur);
+    html = PEN_COLORS.slice(0, 7).map(c => `<button class="sw${c === S.color ? ' on' : ''}" data-color="${c}" style="background:${c}"></button>`).join('') + '<div class="vsep"></div>'
+      + `<button class="pill on" id="pNote" style="font-family:${esc(FONTS.music)};font-size:24px">${f ? f[2] : ''} <span style="font-family:${esc(FONTS.sans)};font-size:14px">${f ? f[1] : ''} ▾</span></button>`
+      + ['#', 'b', 'n'].map(a => `<button class="pill${S.noteAcc === a ? ' on' : ''}" data-acc="${a}" style="font-size:20px">${{ '#': '♯', b: '♭', n: '♮' }[a]}</button>`).join('')
+      + `<button class="pill${S.noteNames ? ' on' : ''}" id="pNames">do ré mi</button><button class="pill" id="pPlay">${S.playing ? '■ Arrêter' : '▶ Jouer'}</button>`;
+  }
   if (t === 'fr') {
     const md = FR_MODES.find(m => m[0] === S.frMode);
     html = PEN_COLORS.map(c => `<button class="sw${c === S.color ? ' on' : ''}" data-color="${c}" style="background:${c}"></button>`).join('') + '<div class="vsep"></div>'
@@ -1573,6 +1603,10 @@ function updateProps() {
     updateProps(); renderOverlay();
   }));
   const pf = $('#pFill'); if (pf) pf.addEventListener('click', () => { S.fill = { none: 'semi', semi: 'solid', solid: 'none' }[S.fill]; updateProps(); });
+  $('#pNote', P)?.addEventListener('click', () => openFly('music', $('[data-fly=music]')));
+  $$('[data-acc]', P).forEach(b => b.addEventListener('click', () => { S.noteAcc = S.noteAcc === b.dataset.acc ? '' : b.dataset.acc; updateProps(); }));
+  $('#pNames', P)?.addEventListener('click', () => { S.noteNames = !S.noteNames; render(); updateProps(); });
+  $('#pPlay', P)?.addEventListener('click', () => { S.playing ? stopPlay() : playPage(); setTimeout(updateProps, 60); });
   $$('[data-frl]', P).forEach(b => b.addEventListener('click', () => { S.frLabel = b.dataset.frl; updateProps(); }));
   $$('[data-enc]', P).forEach(b => b.addEventListener('click', () => { S.frEnc = b.dataset.enc; updateProps(); }));
   $('#pFrMode', P)?.addEventListener('click', () => openFly('frtools', $('[data-fly=frtools]')));
@@ -1642,6 +1676,14 @@ const FLY = {
       <h4 style="margin-top:14px">Couleur du tableau</h4><div class="row">${Object.keys(PAPERS).map(k => `<button class="paper${bg.paper === k ? ' on' : ''}" data-paper="${k}" title="${PAPER_NAMES[k]}" style="background:${PAPERS[k]}"></button>`).join('')}</div>
       <button class="btn lockhide" id="bgAll" style="width:100%;margin-top:4px">Appliquer cette couleur à toutes les pages</button>`;
   },
+  music: () => `${PROF.music.includes('notes') ? `<h4>Notes (touchez la portée)</h4><div class="grid" style="font-family:${esc(FONTS.music)}">${NOTE_FIG.map(([k, l, g]) => `<button class="gb${S.noteDur === k ? ' on' : ''}" data-nd="${k}" title="${l}">${g}</button>`).join('')}</div>
+    <h4 style="margin-top:10px">Silences</h4><div class="grid" style="font-family:${esc(FONTS.music)}">${REST_FIG.map(([k, l, g]) => `<button class="gb${S.noteDur === k ? ' on' : ''}" data-nd="${k}" title="${l}">${g}</button>`).join('')}</div>
+    <div class="list" style="margin-top:8px">
+      <button class="li" data-mu="play"><span style="width:26px;text-align:center;font-size:20px">▶</span><span>Jouer les notes de la page<small>Au tempo du métronome (${MET.bpm})</small></span></button>
+      <button class="li" data-mu="staff"><span style="width:26px;text-align:center;font-size:20px">𝄞</span><span>Insérer une feuille Portée</span></button>` : '<div class="list">'}
+      <button class="li" data-mu="piano"><span style="width:26px;text-align:center;font-size:20px">🎹</span><span>Clavier de piano<small>Jouer; écrire les notes sur la portée</small></span></button>
+      <button class="li" data-mu="metro"><span style="width:26px;text-align:center;font-size:20px">♩</span><span>Métronome<small>40 à 208 pulsations, 2 à 6 temps</small></span></button>
+    </div>`,
   classe: () => `<h4>Outils de classe</h4><div class="list">
       <button class="li" data-cl="curtain"><span style="width:26px;text-align:center;font-size:22px">▤</span><span>Rideau<small>Masquer l’écran et révéler peu à peu</small></span></button>
       <button class="li" data-cl="spot"><span style="width:26px;text-align:center;font-size:22px">◉</span><span>Projecteur<small>Assombrir tout sauf une zone</small></span></button>
@@ -1677,6 +1719,13 @@ const FLY = {
     </div>`,
 };
 const BIND = {
+  music: () => {
+    $$('[data-nd]', fly).forEach(b => b.addEventListener('click', () => { S.noteDur = b.dataset.nd; setTool('note'); closeFly(); }));
+    $$('[data-mu]', fly).forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.mu; closeFly();
+      if (k === 'play') playPage(); if (k === 'staff') insertSheet('staff'); if (k === 'piano') openPiano(); if (k === 'metro') openMetronome();
+    }));
+  },
   classe: () => $$('[data-cl]', fly).forEach(b => b.addEventListener('click', () => ({ curtain: openCurtain, spot: openSpot, timer: openTimer, names: openNames, dice: openDice })[b.dataset.cl]())),
   frtools: () => {
     $$('[data-frm]', fly).forEach(b => b.addEventListener('click', () => { if (b.dataset.frm === 'sons') { fly.querySelector('[data-snd]')?.scrollIntoView({ block: 'nearest' }); return; } S.frMode = b.dataset.frm; setTool('fr'); closeFly(); }));
@@ -1735,7 +1784,7 @@ $$('#toolbar [data-tool], #toolbar [data-fly], #topLeft [data-fly]').forEach(b =
   const t = b.dataset.tool, f = b.dataset.fly;
   if (t) {
     const was = S.tool === t; S.sticky = false; setTool(t);
-    if (f && (was || (t === 'stamp' && !S.stamp) || t === 'fr')) openFly(f, b); else closeFly();
+    if (f && (was || (t === 'stamp' && !S.stamp) || t === 'fr' || t === 'note')) openFly(f, b); else closeFly();
   } else if (f) openFly(f, b);
 }));
 document.addEventListener('pointerdown', e => {
@@ -1743,7 +1792,7 @@ document.addEventListener('pointerdown', e => {
 });
 
 /* ---------- Feuilles (modèles de papier redimensionnables) ---------- */
-const INKT = new Set(['stroke', 'shape', 'text']);           // objets « encre » (gomme, couleur, épaisseur)
+const INKT = new Set(['stroke', 'shape', 'text', 'note']);           // objets « encre » (gomme, couleur, épaisseur)
 const SHEETS = [['blank', 'Feuille unie'], ['grid', 'Quadrillé'], ['smallgrid', 'Petits carreaux'], ['mm', 'Millimétré'], ['dots', 'Pointillé'], ['lines', 'Lignée simple'], ['primary', 'Lignée avec trottoir'], ['cartesian', 'Plan cartésien'], ['staff', 'Portée'], ['piano', 'Portée piano'], ['tab', 'Tablature']];
 const CLEFS = [['g', 'Sol'], ['f', 'Fa'], ['c3', 'Ut 3e (alto)'], ['c4', 'Ut 4e (ténor)'], ['perc', 'Percussion'], ['none', 'Aucune']];
 function drawSheet(ctx, o) {
@@ -1788,9 +1837,10 @@ function recordUse() {
   if (t === 'arrow') e.k = S.arrow;
   if (t === 'stamp') { e.stamp = S.stamp; e.set = S.stampSet; }
   if (t === 'fr') { e.fr = S.frMode; e.lab = S.frLabel; }
+  if (t === 'note') e.nd = S.noteDur;
   if (t === 'text') e.font = S.font;
   if (t === 'shape' || t === 'arrow') { e.fill = S.fill; e.dash = S.dash; }
-  e.key = t + ':' + (e.k || e.stamp || e.fr || '');
+  e.key = t + ':' + (e.k || e.stamp || e.fr || e.nd || '');
   S.recent = [e, ...S.recent.filter(x => x.key !== e.key)].slice(0, 3);
   try { localStorage.setItem('tableau-recent', JSON.stringify(S.recent)); } catch (_) {}
 }
@@ -1816,7 +1866,7 @@ function placeStamp(p) {
   const m = textMetrics(o); o.x = r1(p.x - m.w / 2); o.y = r1(p.y - m.h / 2);
   snapshot(); page().objects.push(o); recordUse(); autoReturn(o); afterChange();
 }
-const TOOL_LABEL = { fr: 'Français', select: 'Sélection', hand: 'Main', pen: 'Crayon', hl: 'Surligneur', eraser: 'Gomme', text: 'Texte', laser: 'Laser' };
+const TOOL_LABEL = { note: 'Note', fr: 'Français', select: 'Sélection', hand: 'Main', pen: 'Crayon', hl: 'Surligneur', eraser: 'Gomme', text: 'Texte', laser: 'Laser' };
 function presetHTML(e) {
   const dot = `<i style="background:${e.color}"></i>`;
   if (e.tool === 'stamp') {
@@ -1828,6 +1878,7 @@ function presetHTML(e) {
     const name = (e.tool === 'shape' ? SHAPES : ARROWS).find(x => x[0] === e.k)?.[1] || '';
     return `<span class="g" style="color:${e.color === '#ffffff' ? 'var(--ink)' : e.color}">${shapeIcon(e.k)}</span>${esc(name)}`;
   }
+  if (e.tool === 'note') { const f = [...NOTE_FIG, ...REST_FIG].find(x => x[0] === e.nd); return `<span class="g" style="font-family:${esc(FONTS.music)};font-size:30px">${f ? f[2] : '♩'}</span>${f ? f[1] : 'Note'}`; }
   if (e.tool === 'fr') return `<span class="g" style="font-size:20px;font-weight:700;color:${e.color === '#ffffff' ? 'var(--ink)' : e.color}">${FR_ICON[e.fr] || 'Aa'}</span>${esc(FR_MODES.find(m => m[0] === e.fr)?.[1] || 'Français')}`;
   const ic = { select: 'i-select', hand: 'i-hand', pen: 'i-pen', hl: 'i-hl', eraser: 'i-eraser', text: 'i-text', laser: 'i-laser' }[e.tool];
   return `<span class="g"><svg class="i"><use href="#${ic}"/></svg>${e.tool === 'eraser' || e.tool === 'laser' ? '' : dot}</span>${TOOL_LABEL[e.tool] || ''}`;
@@ -1871,11 +1922,13 @@ function applyPreset(e, at) {
   if (e.tool === 'arrow') S.arrow = e.k;
   if (e.fill !== undefined) { S.fill = e.fill; S.dash = !!e.dash; }
   if (e.tool === 'stamp') { S.stamp = e.stamp; S.stampSet = e.set; }
+  if (e.tool === 'note') S.noteDur = e.nd || 'q';
   if (e.tool === 'fr') { S.frMode = e.fr; S.frLabel = e.lab || ''; }
   if (e.font) S.font = e.font;
   S.sticky = false;
   setTool(e.tool);
   const p = toWorld(at.x, at.y);
+  if (e.tool === 'note') placeNote(p);
   if (e.tool === 'stamp') placeStamp(p);
   else if (e.tool === 'text') startText(p);
   else if (e.tool === 'shape') {
@@ -3064,20 +3117,199 @@ function openDice() {
   });
 }
 
+/* ---------- Outils de musique : notes aimantées à la portée, lecture, métronome, clavier ---------- */
+const NOTE_FIG = [['w', 'Ronde', '\u{1D15D}'], ['h', 'Blanche', '\u{1D15E}'], ['q', 'Noire', '\u{1D15F}'], ['e', 'Croche', '\u{1D160}']];
+const REST_FIG = [['rw', 'Pause', '\u{1D13B}'], ['rh', 'Demi-pause', '\u{1D13C}'], ['rq', 'Soupir', '\u{1D13D}'], ['re', 'Demi-soupir', '\u{1D13E}']];
+const BEATS = { w: 4, h: 2, q: 1, e: .5 };
+const CLEF_BASE = { g: 30, f: 18, c3: 24, c4: 22, perc: 30, none: 30 };   // degré diatonique de la 5e ligne (bas) : mi4, sol2, fa3, ré3
+const NOTE_FR = ['do', 'ré', 'mi', 'fa', 'sol', 'la', 'si'];
+S.noteDur = 'q'; S.noteAcc = ''; S.noteNames = false; S.playing = null;
+function staffLayout(sh) {
+  if (sh.kind === 'staff') return { period: 156, staves: [{ off: 54, clef: sh.clef || 'g' }] };
+  if (sh.kind === 'piano') return { period: 288, staves: [{ off: 60, clef: 'g' }, { off: 174, clef: 'f' }] };
+  return null;
+}
+// Trouve la portée sous le point et aimante la hauteur sur une ligne ou un interligne
+function snapNote(p) {
+  const objs = page().objects, sp = 12;
+  for (let i = objs.length - 1; i >= 0; i--) {
+    const sh = objs[i]; if (sh.t !== 'sheet' || p.x < sh.x || p.x > sh.x + sh.w || p.y < sh.y - 40 || p.y > sh.y + sh.h + 40) continue;
+    const L = staffLayout(sh); if (!L) continue;
+    const k0 = Math.floor((p.y - sh.y) / L.period); let best = null;
+    for (let k = k0 - 1; k <= k0 + 1; k++) for (const st of L.staves) {
+      const top = sh.y + k * L.period + st.off; if (top < sh.y || top + 4 * sp > sh.y + sh.h) continue;
+      const d = Math.abs(p.y - (top + 2 * sp)); if (!best || d < best.d) best = { d, top, clef: st.clef, k };
+    }
+    if (!best) return null;
+    const bottom = best.top + 4 * sp, step = clamp(Math.round((bottom - p.y) / (sp / 2)), -6, 14);
+    return { x: clamp(p.x, sh.x + 70, sh.x + sh.w - 12), y: bottom - step * sp / 2, top: best.top, clef: best.clef, sp, step, sh, k: best.k };
+  }
+  return null;
+}
+const noteStep = o => Math.round((o.top + 4 * o.sp - o.y) / (o.sp / 2));
+function noteClef(o) { const q = snapNote({ x: o.x, y: o.y }); return q && Math.abs(q.top - o.top) < 1 ? q.clef : o.clef; }
+function noteMidi(o) {
+  const d = CLEF_BASE[noteClef(o)] + noteStep(o), letter = ((d % 7) + 7) % 7, oct = Math.floor(d / 7);
+  return 12 * (oct + 1) + [0, 2, 4, 5, 7, 9, 11][letter] + (o.acc === '#' ? 1 : o.acc === 'b' ? -1 : 0);
+}
+function noteName(o) { const d = CLEF_BASE[noteClef(o)] + noteStep(o); return NOTE_FR[((d % 7) + 7) % 7] + (o.acc === '#' ? '♯' : o.acc === 'b' ? '♭' : ''); }
+let restMet = {};
+function drawNote(ctx, o) {
+  const sp = o.sp, x = o.x, y = o.y, step = noteStep(o), bottom = o.top + 4 * sp, c = o.c;
+  ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineCap = 'round';
+  // lignes supplémentaires
+  ctx.lineWidth = sp * .1; ctx.beginPath();
+  for (let s = -2; s >= step; s -= 2) { const ly = bottom - s * sp / 2; ctx.moveTo(x - sp * 1.05, ly); ctx.lineTo(x + sp * 1.05, ly); }
+  for (let s = 10; s <= step; s += 2) { const ly = bottom - s * sp / 2; ctx.moveTo(x - sp * 1.05, ly); ctx.lineTo(x + sp * 1.05, ly); }
+  ctx.stroke();
+  if (o.rest) {
+    const mid = o.top + 2 * sp;
+    if (o.dur === 'w') ctx.fillRect(x - sp * .6, o.top + sp, sp * 1.2, sp * .5);            // pause : sous la 4e ligne
+    else if (o.dur === 'h') ctx.fillRect(x - sp * .6, mid - sp * .5, sp * 1.2, sp * .5);   // demi-pause : sur la 3e ligne
+    else {
+      const ch = o.dur === 'q' ? '\u{1D13D}' : '\u{1D13E}', key = ch + FONTS.music;
+      const m = restMet[key] ||= (() => { measureCtx.font = `100px ${FONTS.music}`; const t = measureCtx.measureText(ch); return { a: t.actualBoundingBoxAscent, h: t.actualBoundingBoxAscent + t.actualBoundingBoxDescent || 100 }; })();
+      const H = (o.dur === 'q' ? 3 : 2) * sp, fs = H / m.h * 100;
+      ctx.font = `${fs}px ${FONTS.music}`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(ch, x, mid - H / 2 + m.a * fs / 100);
+    }
+  } else {
+    const filled = o.dur === 'q' || o.dur === 'e', up = step < 4;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(o.dur === 'w' ? 0 : -.35);
+    ctx.beginPath(); ctx.ellipse(0, 0, sp * (o.dur === 'w' ? .78 : .66), sp * .46, 0, 0, Math.PI * 2);
+    if (filled) ctx.fill(); else { ctx.lineWidth = sp * (o.dur === 'w' ? .2 : .16); ctx.stroke(); }
+    ctx.restore();
+    if (o.dur !== 'w') {
+      const sx = up ? x + sp * .6 : x - sp * .6, ey = up ? y - 3.5 * sp : y + 3.5 * sp;
+      ctx.lineWidth = sp * .12; ctx.beginPath(); ctx.moveTo(sx, y); ctx.lineTo(sx, ey); ctx.stroke();
+      if (o.dur === 'e') {
+        const d = up ? 1 : -1; ctx.lineWidth = sp * .22; ctx.beginPath();
+        ctx.moveTo(sx, ey); ctx.bezierCurveTo(sx + sp * .2, ey + d * sp * 1.1, sx + sp * 1.1, ey + d * sp * 1.4, sx + sp * .8, ey + d * sp * 2.6); ctx.stroke();
+      }
+    }
+    if (o.acc) {
+      ctx.font = `${sp * 2.6}px ${FONTS.music}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText({ '#': '♯', b: '♭', n: '♮' }[o.acc], x - sp * 1.75, y + (o.acc === 'b' ? -sp * .3 : 0));
+    }
+    if (S.noteNames) {
+      ctx.font = `600 ${sp * 1.3}px ${FONTS.sans}`; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(noteName(o), x, Math.max(bottom + sp * 1.6, step < -2 ? y + sp * 1.4 : 0));
+    }
+  }
+}
+function placeNote(p, dur = S.noteDur, acc = S.noteAcc, silent) {
+  const q = snapNote(p);
+  if (!q) { toast('Touchez une feuille Portée (bouton Feuilles → Portée).', 3500); return null; }
+  const rest = dur[0] === 'r', d = rest ? dur.slice(1) : dur;
+  const o = { id: uid(), t: 'note', x: r1(q.x), y: rest ? q.top + 2 * q.sp : q.y, top: q.top, sp: q.sp, clef: q.clef, dur: d, c: S.color, ...(rest ? { rest: 1 } : {}), ...(!rest && acc ? { acc } : {}) };
+  snapshot(); page().objects.push(o); S.noteAcc = ''; recordUse(); afterChange();
+  if (!rest && !silent) playMidi([noteMidi(o)], .45);
+  return o;
+}
+function resnapNote(o) { const q = snapNote({ x: o.x, y: o.y }); if (!q) return o; return o.rest ? { ...o, top: q.top, clef: q.clef, y: q.top + 2 * q.sp } : { ...o, y: q.y, top: q.top, clef: q.clef }; }
+/* Son : petit synthétiseur (aucun fichier externe) */
+let AC = null;
+const ac = () => AC ||= new (window.AudioContext || window.webkitAudioContext)();
+function playMidi(list, dur, when = 0) {
+  try {
+    const a = ac(), t0 = a.currentTime + when;
+    for (const m of list) {
+      const f = 440 * Math.pow(2, (m - 69) / 12), g = a.createGain(), o1 = a.createOscillator(), o2 = a.createOscillator();
+      o1.type = 'triangle'; o1.frequency.value = f; o2.type = 'sine'; o2.frequency.value = f * 2;
+      const g2 = a.createGain(); g2.gain.value = .25; o2.connect(g2).connect(g); o1.connect(g); g.connect(a.destination);
+      g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.28 / list.length + .05, t0 + .015);
+      g.gain.exponentialRampToValueAtTime(.08, t0 + Math.min(dur, .6)); g.gain.exponentialRampToValueAtTime(.0005, t0 + dur + .08);
+      o1.start(t0); o2.start(t0); o1.stop(t0 + dur + .1); o2.stop(t0 + dur + .1);
+    }
+  } catch (_) {}
+}
+let playTimers = [];
+function stopPlay() { playTimers.forEach(clearTimeout); playTimers = []; S.playing = null; renderOverlay(); try { AC?.close(); } catch (_) {} AC = null; }
+function playPage() {
+  stopPlay();
+  const notes = page().objects.filter(o => o.t === 'note');
+  if (!notes.length) { toast('Aucune note sur cette page.'); return; }
+  // ordre : feuille (haut→bas), système, puis x; notes alignées verticalement = accord
+  const sysKey = o => { const q = snapNote({ x: o.x, y: o.top + 2 * o.sp }); return q ? [q.sh.y, q.sh.x, q.k] : [o.top, 0, 0]; };
+  const arr = notes.map(o => ({ o, k: sysKey(o) })).sort((a, b) => a.k[0] - b.k[0] || a.k[1] - b.k[1] || a.k[2] - b.k[2] || a.o.x - b.o.x);
+  const beat = 60 / MET.bpm; let t = 0, i = 0;
+  while (i < arr.length) {
+    const grp = [arr[i]]; while (i + grp.length < arr.length && String(arr[i + grp.length].k) === String(arr[i].k) && Math.abs(arr[i + grp.length].o.x - arr[i].o.x) < 8) grp.push(arr[i + grp.length]);
+    const len = Math.max(...grp.map(g => BEATS[g.o.dur] || 1)) * beat, midis = grp.filter(g => !g.o.rest).map(g => noteMidi(g.o));
+    if (midis.length) playMidi(midis, len * .92, t + .05);
+    const ids = grp.map(g => g.o.id), at = t;
+    playTimers.push(setTimeout(() => { S.playing = ids; renderOverlay(); }, (at + .05) * 1000));
+    t += len; i += grp.length;
+  }
+  playTimers.push(setTimeout(() => { S.playing = null; renderOverlay(); }, (t + .1) * 1000));
+}
+/* Métronome */
+const MET = { bpm: 90, beats: 4, on: false, iv: 0, n: 0 };
+function openMetronome() {
+  const el = makeWidget('wMetro', '🎵 Métronome', `
+    <div class="mbpm"><button class="btn" data-bd="-5">−</button><span class="mv">${MET.bpm}</span><button class="btn" data-bd="5">+</button></div>
+    <div style="text-align:center;color:var(--muted);margin-top:-4px">pulsations par minute</div>
+    <input type="range" class="mrange" min="40" max="208" value="${MET.bpm}" style="width:100%">
+    <div class="row" style="justify-content:center">${[2, 3, 4, 6].map(b => `<button class="chip${b === MET.beats ? ' on' : ''}" data-mb="${b}">${b} temps</button>`).join('')}</div>
+    <div class="mdots"></div>
+    <div class="row" style="justify-content:center"><button class="btn primary mgo" style="min-width:150px">▶ Démarrer</button></div>`, 340, () => { clearInterval(MET.iv); MET.on = false; });
+  const v = $('.mv', el), rg = $('.mrange', el), dots = $('.mdots', el), go = $('.mgo', el);
+  const drawDots = () => { dots.innerHTML = Array.from({ length: MET.beats }, (_, i) => `<i class="${i === 0 ? 'acc' : ''}"></i>`).join(''); };
+  const restart = () => { if (MET.on) { clearInterval(MET.iv); MET.iv = setInterval(tickM, 60000 / MET.bpm); } };
+  const setB = b => { MET.bpm = clamp(b, 40, 208); v.textContent = MET.bpm; rg.value = MET.bpm; restart(); };
+  function tickM() {
+    const i = MET.n++ % MET.beats; const ds = $$('i', dots); ds.forEach((d, j) => d.classList.toggle('on', j === i));
+    try { const a = ac(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = i === 0 ? 1500 : 1000; g.gain.setValueAtTime(.3, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + .06); o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + .07); } catch (_) {}
+  }
+  drawDots();
+  $$('[data-bd]', el).forEach(b => b.addEventListener('click', () => setB(MET.bpm + +b.dataset.bd)));
+  rg.addEventListener('input', () => setB(+rg.value));
+  $$('[data-mb]', el).forEach(b => b.addEventListener('click', () => { MET.beats = +b.dataset.mb; MET.n = 0; $$('[data-mb]', el).forEach(x => x.classList.toggle('on', x === b)); drawDots(); }));
+  go.addEventListener('click', () => { MET.on = !MET.on; go.textContent = MET.on ? '■ Arrêter' : '▶ Démarrer'; clearInterval(MET.iv); if (MET.on) { MET.n = 0; tickM(); MET.iv = setInterval(tickM, 60000 / MET.bpm); } });
+}
+/* Clavier de piano (do4 à si5); peut écrire les notes sur la portée */
+const PIANO = { write: false, names: true };
+function openPiano() {
+  const whites = [], blacks = [];
+  for (let oct = 4; oct <= 5; oct++) [0, 2, 4, 5, 7, 9, 11].forEach((s, i) => { whites.push({ m: 12 * (oct + 1) + s, n: NOTE_FR[i] }); if ([0, 2, 5, 7, 9].includes(s)) blacks.push({ m: 12 * (oct + 1) + s + 1, at: whites.length }); });
+  whites.push({ m: 84, n: 'do' });
+  const kw = 46, el = makeWidget('wPiano', '🎹 Clavier', `
+    <div class="piano" style="width:${whites.length * kw}px">${whites.map((k, i) => `<button class="kw" data-m="${k.m}" style="left:${i * kw}px;width:${kw}px"><span>${PIANO.names ? k.n : ''}</span></button>`).join('')}
+      ${blacks.map(k => `<button class="kb" data-m="${k.m}" style="left:${k.at * kw - kw * .3}px;width:${kw * .6}px"></button>`).join('')}</div>
+    <div class="row" style="justify-content:center"><label class="nopt"><input type="checkbox" class="pwrite"${PIANO.write ? ' checked' : ''}> ✎ Écrire sur la portée</label><label class="nopt"><input type="checkbox" class="pnames"${PIANO.names ? ' checked' : ''}> Nom des notes</label></div>`, whites.length * kw + 30);
+  $$('[data-m]', el).forEach(b => b.addEventListener('pointerdown', e => {
+    e.preventDefault(); const m = +b.dataset.m; playMidi([m], .6); b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 180);
+    if (PIANO.write) writeMidi(m);
+  }));
+  $('.pwrite', el).addEventListener('change', e => { PIANO.write = e.target.checked; if (PIANO.write && !page().objects.some(o => o.t === 'sheet' && staffLayout(o))) toast('Insérez d’abord une feuille Portée (bouton Feuilles).', 4000); });
+  $('.pnames', el).addEventListener('change', e => { PIANO.names = e.target.checked; $$('.kw span', el).forEach((s, i) => s.textContent = PIANO.names ? whites[i].n : ''); });
+}
+function writeMidi(m) {
+  const objs = page().objects, last = [...objs].reverse().find(o => o.t === 'note');
+  let sh = null, top, clef, x, sp = 12;
+  if (last) { const q = snapNote({ x: last.x, y: last.top + 2 * last.sp }); if (q) { sh = q.sh; top = q.top; clef = q.clef; x = last.x + sp * ({ w: 7, h: 5, q: 3.6, e: 3 }[last.dur] || 4); } }
+  if (!sh) { sh = objs.find(o => o.t === 'sheet' && staffLayout(o)); if (!sh) { toast('Insérez d’abord une feuille Portée.'); return; } const L = staffLayout(sh); top = sh.y + L.staves[0].off; clef = L.staves[0].clef; x = sh.x + 90; }
+  if (x > sh.x + sh.w - 20) { const L = staffLayout(sh); const nt = top + L.period; if (nt + 4 * sp > sh.y + sh.h) { toast('La portée est pleine.'); return; } top = nt; x = sh.x + 90; }
+  const s12 = ((m % 12) + 12) % 12, oct = Math.floor(m / 12) - 1;
+  const map = [[0, ''], [0, '#'], [1, ''], [1, '#'], [2, ''], [3, ''], [3, '#'], [4, ''], [4, '#'], [5, ''], [5, '#'], [6, '']][s12];
+  const step = oct * 7 + map[0] - CLEF_BASE[clef];
+  placeNote({ x, y: top + 4 * sp - step * sp / 2 }, S.noteDur[0] === 'r' ? 'q' : S.noteDur, map[1], true);
+}
+
 /* ---------- Niveaux, matières et mode élève ---------- */
 const LEVELS = [['pre', 'Préscolaire', '4 et 5 ans'], ['c1', '1er cycle', '1re et 2e année'], ['c2', '2e cycle', '3e et 4e année'], ['c3', '3e cycle', '5e et 6e année'], ['sec', 'Secondaire', '1re à 5e secondaire'], ['all', 'Tous les outils', 'Aucune restriction']];
 const SUBJECTS = [['all', 'Toutes les matières'], ['fr', 'Français'], ['math', 'Mathématique'], ['mus', 'Musique'], ['autre', 'Autres matières']];
-const TOOL_KEYS = [['classe', 'Outils de classe (minuterie, rideau…)'], ['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
+const TOOL_KEYS = [['note', 'Musique (notes, clavier, métronome)'], ['classe', 'Outils de classe (minuterie, rideau…)'], ['fr', 'Outils de français'], ['instr', 'Instruments de géométrie'], ['lasso', 'Sélection multiple'], ['hand', 'Main (se déplacer)'], ['pen', 'Crayon'], ['hl', 'Surligneur'], ['eraser', 'Gomme'], ['shape', 'Formes'], ['arrow', 'Flèches'], ['text', 'Texte'], ['stamp', 'Symboles et étiquettes'], ['laser', 'Pointeur laser'], ['insert', 'Insérer (images, PDF…)'], ['bg', 'Feuilles'], ['clear', 'Effacer la page']];
 const ALL_SHAPES = SHAPES.map(s => s[0]), ALL_ARROWS = ARROWS.map(a => a[0]);
 // Outils par niveau, en lien avec les progressions des apprentissages (voir README)
 const LEVEL_DEF = {
-  pre: { tools: ['classe', 'fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
+  pre: { music: ['piano', 'metro'], tools: ['note', 'classe', 'fr', 'hand', 'pen', 'eraser', 'shape', 'stamp', 'insert', 'bg', 'clear'], frModes: ['syll', 'sons'], instruments: [], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'star'], arrows: [],
     sheets: ['blank', 'dots', 'grid'], inserts: ['image', 'screen', 'paste'], scale: 1.6, txt: 1.4, size: 2 },
-  c1: { frModes: FR_MODES.map(m => m[0]), tools: ['classe', 'fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
+  c1: { music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: ['note', 'classe', 'fr', 'instr', 'hand', 'pen', 'hl', 'eraser', 'shape', 'arrow', 'text', 'stamp', 'laser', 'insert', 'bg', 'clear'], instruments: ['ruler'], transforms: [], shapes: ['rect', 'ellipse', 'triangle', 'diamond', 'pentagon', 'hexagon', 'star', 'line'], arrows: ['arrow', 'curve', 'circ'],
     sheets: ['blank', 'primary', 'lines', 'grid', 'dots', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste'], scale: 1.3, txt: 1.2, size: 1 },
-  c2: { frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c2: { music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square'], transforms: ['reflect'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'dots', 'cartesian', 'staff'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
-  c3: { frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
+  c3: { music: ['notes', 'piano', 'metro'], frModes: FR_MODES.map(m => m[0]), tools: TOOL_KEYS.map(t => t[0]), instruments: ['ruler', 'square', 'protractor', 'compass'], transforms: ['reflect', 'translate'], shapes: ALL_SHAPES, arrows: ALL_ARROWS,
     sheets: ['blank', 'primary', 'lines', 'grid', 'smallgrid', 'mm', 'dots', 'cartesian', 'staff', 'piano', 'tab'], inserts: ['image', 'pdf', 'word', 'screen', 'web', 'live', 'paste', '3d'], scale: 1, txt: 1, size: 1 },
 };
 LEVEL_DEF.sec = { ...LEVEL_DEF.c3, frModes: ['crochets', 'remplacement', 'encadrement', 'effacement', 'deplacement', 'ajout', 'accord'], sheets: SHEETS.map(x => x[0]), transforms: ['reflect', 'translate', 'rotate'] };
@@ -3095,9 +3327,11 @@ function computeProfile() {
   let instruments = d.instruments, transforms = d.transforms, frModes = d.frModes || [];
   if (['math', 'mus'].includes(p.subject)) frModes = [];
   if (!frModes.length) tools.delete('fr');
+  let music = d.music || []; if (['fr', 'math'].includes(p.subject)) music = [];
+  if (!music.length) tools.delete('note');
   if (['fr', 'mus'].includes(p.subject)) { instruments = []; transforms = []; }
   if (!instruments.length) tools.delete('instr');
-  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms, frModes };
+  PROF = { ...d, level: p.level, subject: p.subject, tools, sheets, inserts, instruments, transforms, frModes, music };
 }
 const toolVisible = t => !PROF || PROF.tools.has(t);
 const sheetAllowed = k => !PROF || PROF.sheets.includes(k);
@@ -3731,6 +3965,7 @@ function showHelp() {
     <li>Écran tactile : <b>deux doigts</b> pour déplacer et zoomer.</li>
     <li>Molette : zoom. <kbd>Maj</kbd> + molette : défilement horizontal.</li>
   </ul>
+  <p><b>Musique</b> (bouton portée) : choisissez une figure (ronde, blanche, noire, croche) ou un silence, puis touchez une feuille Portée : la note s’aimante sur la ligne ou l’interligne et sonne. ♯ ♭ ♮ s’appliquent à la prochaine note; « do ré mi » affiche le nom des notes; ▶ joue les notes de la page. Clavier de piano (peut écrire sur la portée) et métronome.</p>
   <p><b>Outils de classe</b> (bouton chronomètre, en haut à gauche) : rideau à tirer pour révéler, projecteur, minuterie avec alarme et chronomètre, tirage au sort de noms (sans répétition, équipes), dés. Les panneaux se déplacent par leur barre de titre. La liste des noms reste dans ce navigateur.</p>
   <p><b>Outils de français</b> (bouton Aa) : arcs de syllabes (glisser sous chaque syllabe), sons à surligner avec légende, crochets [ ] autour d’un groupe avec étiquette (sujet, prédicat, complément de phrase…), manipulations syntaxiques (remplacement, encadrement « C’est … qui », effacement, déplacement, ajout) et flèche d’accord du donneur vers le receveur. Glissez sur les mots écrits au tableau.</p>
   <p><b>Instruments</b> (bouton règle) : règle graduée (le crayon trace droit le long de ses bords, longueur affichée), équerre, rapporteur (aiguille bleue = angle en degrés), compas (↔ règle le rayon, ✎ trace). ⟳ tourne l’instrument, ✕ le retire. <b>Transformations</b> : sélectionnez une figure, puis Réflexion (tracez l’axe), Translation (tracez la flèche) ou Rotation.</p>
