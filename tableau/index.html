@@ -391,6 +391,10 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
     <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M12 2.5V6M18.5 6.5l1.5-1.5"/></symbol>
     <symbol id="i-note" viewBox="0 0 24 24"><path d="M2 6h20M2 10h20M2 14h20M2 18h20" stroke-width="1" opacity=".55"/><ellipse cx="9" cy="16" rx="3" ry="2.2" transform="rotate(-20 9 16)" fill="currentColor"/><path d="M11.8 15V4"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></symbol>
+    <symbol id="i-geo" viewBox="0 0 24 24"><path d="M3 21V5l14 16z"/><path d="M7 21v-6l5.5 6"/><path d="M3 9h2M3 13h2M3 17h2"/><path d="M15 3l6 6-3 3-6-6z"/></symbol>
+    <symbol id="i-square" viewBox="0 0 24 24"><path d="M4 3v18h17z"/><path d="M8 11v6h6.5z"/><path d="M4 7h2M4 11h2M4 15h2M8 21v-2M12 21v-2M16 21v-2"/></symbol>
+    <symbol id="i-protractor" viewBox="0 0 24 24"><path d="M2 18a10 10 0 0 1 20 0z"/><path d="M12 18l5-7"/><path d="M5 13l1.3.9M12 8v1.6M19 13l-1.3.9M8 9.3l.7 1.4M16 9.3l-.7 1.4"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="4" r="1.8"/><path d="M11 5.6L5.5 20.5M13 5.6l5.5 14.9"/><path d="M7.5 15.2h9"/><path d="M5.5 20.5l-.8 1.5M18.5 20.5l.3 1.6" stroke-width="2.4"/></symbol>
     <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/></symbol>
   </defs>
 </svg>
@@ -414,13 +418,12 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" data-tool="eraser" title="Gomme (E)"><svg class="i"><use href="#i-eraser"/></svg></button>
   <button class="ib" data-tool="shape" data-fly="shapes" title="Formes (R)"><svg class="i"><use href="#i-shapes"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="arrow" data-fly="arrows" title="Flèches (F)"><svg class="i"><use href="#i-arrow"/></svg><span class="more"></span></button>
-  <button class="ib" data-fly="instr" title="Instruments de géométrie : règle, équerre, rapporteur, compas"><svg class="i"><use href="#i-ruler"/></svg><span class="more"></span></button>
+  <button class="ib" data-fly="instr" title="Instruments de géométrie : règle, équerre, rapporteur, compas"><svg class="i"><use href="#i-geo"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="text" title="Texte (T)"><svg class="i"><use href="#i-text"/></svg></button>
   <button class="ib" data-tool="fr" data-fly="frtools" title="Outils de français : syllabes, sons, crochets, manipulations syntaxiques, accords"><svg class="i"><use href="#i-fr"/></svg><span class="more"></span></button>
   <button class="ib" data-fly="social" title="Univers social et sciences : cartes, ligne du temps, schémas, tableaux"><svg class="i"><use href="#i-globe"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="note" data-fly="music" title="Musique : notes sur la portée, lecture, métronome, clavier"><svg class="i"><use href="#i-note"/></svg><span class="more"></span></button>
   <button class="ib" data-tool="stamp" data-fly="stamps" title="Symboles et tampons"><svg class="i"><use href="#i-stamp"/></svg><span class="more"></span></button>
-  <button class="ib" data-tool="laser" title="Pointeur laser (L)"><svg class="i"><use href="#i-laser"/></svg></button>
   <div class="sep"></div>
   <button class="ib" data-fly="insert" title="Insérer image, PDF, Word, capture d'écran"><svg class="i"><use href="#i-insert"/></svg><span class="more"></span></button>
   <button class="ib" data-fly="bg" title="Feuilles : quadrillé, portée, plan cartésien… (objets redimensionnables)"><svg class="i"><use href="#i-bg"/></svg><span class="more"></span></button>
@@ -436,6 +439,7 @@ kbd{background:var(--hover);border:1px solid var(--line);border-radius:6px;paddi
   <button class="ib" id="bUndo" title="Annuler (Ctrl+Z)"><svg class="i"><use href="#i-undo"/></svg></button>
   <button class="ib" id="bRedo" title="Rétablir (Ctrl+Y)"><svg class="i"><use href="#i-redo"/></svg></button>
   <div class="vsep"></div>
+  <button class="ib" data-tool="laser" id="bLaser" title="Pointeur laser (L) : pour montrer sans écrire"><svg class="i"><use href="#i-laser"/></svg></button>
   <button class="ib" data-fly="classe" id="bClasse" title="Outils de classe : rideau, projecteur, minuterie, tirage au sort, dés"><svg class="i"><use href="#i-timer"/></svg><span class="more"></span></button>
 </div>
 
@@ -1105,6 +1109,13 @@ function drawOverlay() {
     for (const o of page().objects) if (S.playing.includes(o.id)) { const q = toScreen(o.x, o.y); ctx.strokeStyle = 'rgba(37,99,235,.9)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(q.x, q.y, Math.max(16, o.sp * 1.6 * v.z), 0, Math.PI * 2); ctx.stroke(); }
     ctx.restore();
   }
+  if (G && G.type === 'stampgrow') {
+    const gr = stampGrow(G.t0), o = stampPreview(G.p, gr);
+    if (o) {
+      ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y); ctx.globalAlpha = .55; drawObj(ctx, o, false); ctx.restore();
+      if (gr > 1.02) { ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); const q = toScreen(G.p.x, G.p.y); pill(ctx, q.x, q.y - 50, '× ' + gr.toFixed(1).replace('.', ',')); ctx.restore(); }
+    }
+  }
   if (G && G.type === 'fr') {
     ctx.save(); ctx.setTransform(DPR * v.z, 0, 0, DPR * v.z, DPR * v.x, DPR * v.y);
     ctx.strokeStyle = S.color === '#ffffff' ? '#2563eb' : S.color; ctx.lineWidth = PEN_W[S.size]; ctx.lineCap = 'round'; ctx.setLineDash([8 / v.z, 6 / v.z]);
@@ -1239,11 +1250,11 @@ function selAction(act) {
   if (act === 'del') {
     // feuille supprimée avec des objets attachés : demander s'il faut les effacer aussi
     assignAtt(page());
-    const sheets = new Set(sel.filter(o => o.t === 'sheet').map(o => o.id));
+    const sheets = new Set(sel.filter(isContainer).map(o => o.id));
     const attached = sheets.size ? page().objects.filter(o => !S.sel.includes(o.id) && sheets.has(o.att)) : [];
     if (attached.length && !selAction.confirmed) {
       const ids = S.sel.slice();
-      modal('Supprimer la feuille', `<p>Effacer également les objets ajoutés à cette page?</p><p style="color:var(--muted);font-size:14px">${attached.length} objet${attached.length > 1 ? 's' : ''} (écriture, formes, symboles…) ${attached.length > 1 ? 'sont attachés' : 'est attaché'} à cette feuille.</p>`,
+      modal(sel.some(o => o.t === 'sheet') ? 'Supprimer la feuille' : 'Supprimer le document', `<p>Effacer également les objets ajoutés à cette page?</p><p style="color:var(--muted);font-size:14px">${attached.length} objet${attached.length > 1 ? 's' : ''} (écriture, formes, symboles…) ${attached.length > 1 ? 'sont attachés' : 'est attaché'} à cette feuille.</p>`,
         [{ label: 'Annuler', value: null }, { label: 'Non, garder les objets', value: 'keep' }, { label: 'Oui, tout effacer', value: 'all', cls: 'danger' }])
         .then(ch => {
           if (!ch) return;
@@ -1386,7 +1397,7 @@ over.addEventListener('pointerdown', e => {
     case 'select': {
       assignAtt(page());
       const h = hitHandle(sx, sy);
-      if (h) { G = { type: 'handle', h, orig: selObjs(), B: selBox(), moved: false, direct: S.sel.slice() }; return; }
+      if (h) { const orig = selObjs(); G = { type: 'handle', h, orig, fol: attachedTo(orig, true), B: selBox(), moved: false, direct: S.sel.slice() }; return; }
       const o = hitTest(p, dbl);
       if (o && dbl && o.m3d) { open3D(o); return; }
       if (o && dbl && o.t === 'timeline') { editTimeline(o); return; }
@@ -1433,8 +1444,9 @@ over.addEventListener('pointerdown', e => {
     case 'text': G = { type: 'tap', p }; return;   // créé au relâchement (permet l'appui long)
     case 'note': G = { type: 'tap', p }; return;
     case 'stamp': {
-      if (!S.stamp) { clearLP(); openFly('stamps', $('[data-fly=stamps]')); return; }
-      G = { type: 'tap', p }; return;
+      clearLP();   // ici l'appui long sert à grossir le tampon
+      if (!S.stamp) { openFly('stamps', $('[data-fly=stamps]')); return; }
+      G = { type: 'stampgrow', p, t0: performance.now() }; stampTick(); return;
     }
     case 'fr': {
       if (!PROF?.frModes.includes(S.frMode)) S.frMode = PROF?.frModes[0] || 'syll';
@@ -1453,6 +1465,7 @@ over.addEventListener('pointermove', e => {
   const v = V();
   switch (G.type) {
     case 'lp': lpHot(e.clientX, e.clientY); return;
+    case 'stampgrow': G.p = toWorld(e.clientX, e.clientY); return;
     case 'instr': moveInstr(toWorld(e.clientX, e.clientY), e); return;
     case 'fr': G.b = toWorld(e.clientX, e.clientY); renderOverlay(); return;
     case 'tmode': { const q = snapPoint(toWorld(e.clientX, e.clientY)); G.b = q; G.snapAt = q.snapped ? q : null; renderOverlay(); return; }
@@ -1548,7 +1561,7 @@ over.addEventListener('pointermove', e => {
         }
         const uniform = !e.shiftKey && G.orig.some(o => o.t === 'image' || o.t === 'text') || (e.shiftKey && !G.orig.some(o => o.t === 'image' || o.t === 'text'));
         if (uniform) { const s = B.w > 2 && B.h > 2 ? Math.max(sx, sy) : (B.w > 2 ? sx : sy); sx = sy = s; }
-        for (const o of G.orig) {
+        for (const o of G.orig.concat(G.fol || [])) {
           const i = cur.findIndex(x => x.id === o.id);
           if (i >= 0) cur[i] = transformObj(o, (x, y) => [ax + (x - ax) * sx, ay + (y - ay) * sy], sx, sy);
         }
@@ -1589,6 +1602,7 @@ function endPointer(e) {
       break;
     }
     case 'lasso': finishLasso(g); break;
+    case 'stampgrow': placeStamp(g.p, stampGrow(g.t0)); renderOverlay(); break;
     case 'instr': G = g; endInstr(); break;
     case 'fr': frCreate(g.a, g.b); renderOverlay(); break;
     case 'tmode': if (Math.hypot(g.b.x - g.a.x, g.b.y - g.a.y) * V().z > 8) applyTransform(g.a, g.b); else toast('Glissez pour tracer.'); renderOverlay(); break;
@@ -1675,7 +1689,7 @@ function setTool(t) {
   $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('sticky', !!S.sticky && b.dataset.tool === t));
   if (t !== 'select' && t !== 'lasso') selectNone();
   document.body.className = document.body.className.replace(/\bt-\S+/g, '').trim() + ' t-' + t;
-  $$('#toolbar [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+  $$('#toolbar [data-tool], #topLeft [data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
   updateProps(); renderOverlay();
 }
 function applyToSel(fn) {
@@ -1837,7 +1851,7 @@ const FLY = {
       <button class="chip" data-snd="+">+ autre</button></div><button class="btn" id="sndLegend" style="width:100%">Insérer la légende des sons</button>` : ''}`,
   instr: () => `<h4>Instruments de géométrie</h4><div class="list">
       ${[['ruler', 'Règle', 'Graduée en cm et mm; le crayon trace droit le long des bords'], ['square', 'Équerre', 'Angle droit, côtés gradués'], ['protractor', 'Rapporteur', 'Mesurer et construire des angles en degrés'], ['compass', 'Compas', 'Tracer cercles et arcs; rayon affiché']]
-        .filter(([k]) => PROF.instruments.includes(k)).map(([k, l, d]) => `<button class="li" data-instr="${k}"><svg class="i"><use href="#i-ruler"/></svg><span>${l}<small>${d}</small></span></button>`).join('')}
+        .filter(([k]) => PROF.instruments.includes(k)).map(([k, l, d]) => `<button class="li" data-instr="${k}"><svg class="i"><use href="#i-${{ ruler: 'ruler', square: 'square', protractor: 'protractor', compass: 'compass' }[k]}"/></svg><span>${l}<small>${d}</small></span></button>`).join('')}
       ${S.instr.length ? '<div class="sep"></div><button class="li" data-instr="none"><svg class="i"><use href="#i-trash"/></svg>Retirer les instruments</button>' : ''}
     </div>`,
   menu: () => isLocked() ? `<div class="list">
@@ -1924,7 +1938,7 @@ function adaptInk() {
   if (!dark && S.color === '#ffffff') S.color = '#1a1a1a';
   updateProps();
 }
-$$('#toolbar [data-tool], #toolbar [data-fly], #topLeft [data-fly]').forEach(b => b.addEventListener('click', () => {
+$$('#toolbar [data-tool], #toolbar [data-fly], #topLeft [data-fly], #topLeft [data-tool]').forEach(b => b.addEventListener('click', () => {
   const t = b.dataset.tool, f = b.dataset.fly;
   if (t) {
     const was = S.tool === t; S.sticky = false; setTool(t);
@@ -2003,9 +2017,17 @@ function startText(p) {
   const s = TXT_S[S.size], q = gridSnap(p);
   openTextEditor({ id: uid(), t: 'text', x: r1(q ? q.x : p.x), y: r1(q ? q.y - s * .125 : p.y - s * .6), s, c: S.color, f: S.font, text: '' }, true);
 }
-function placeStamp(p) {
+// Durée d'appui → facteur de taille : 1 jusqu'à 0,3 s, puis grossit jusqu'à 5 fois (à 2,3 s)
+const stampGrow = t0 => 1 + clamp((performance.now() - t0 - 300) / 2000, 0, 1) * 4;
+function stampTick() { if (G && G.type === 'stampgrow') { renderOverlay(); requestAnimationFrame(stampTick); } }
+function stampPreview(p, grow) {
+  const set = STAMPS[S.stampSet]; if (!set || !S.stamp) return null;
+  const o = { id: 'preview', t: 'text', x: 0, y: 0, s: TXT_S[S.size] * containerScale(p) * grow, c: S.color, f: set.font, text: S.stamp, ...(set.bold ? { b: 1 } : {}) };
+  const m = textMetrics(o), q = gridSnap(p) || p; o.x = q.x - m.w / 2; o.y = q.y - m.h / 2; return o;
+}
+function placeStamp(p, grow = 1) {
   if (!S.stamp) return;
-  const set = STAMPS[S.stampSet], s = TXT_S[S.size];
+  const set = STAMPS[S.stampSet], s = TXT_S[S.size] * containerScale(p) * grow;
   // figures de notes et silences posés sur une portée → vraies notes aimantées (ligne ou interligne)
   const staff = set.font === 'music' && snapNote(p);
   if (staff && GLYPH_NOTE[S.stamp]) { const n = placeNote(p, GLYPH_NOTE[S.stamp], ''); if (n) autoReturn(n); return; }
@@ -2146,25 +2168,45 @@ function expandGroups(ids) {
 // Objets placés devant une feuille et qui la touchent : ils suivent la feuille quand on la déplace
 // Un objet s'attache UNE fois à la feuille sur laquelle il est créé ou déposé (champ att);
 // une autre feuille qui passe dessus ou dessous ne le récupère pas.
+// « Supports » : feuilles et documents importés (images, PDF, Word, pages web, partages d'écran)
+const isContainer = o => o.t === 'sheet' || o.t === 'image' || o.t === 'web' || o.t === 'live';
+const isDocContainer = o => isContainer(o) && o.t !== 'sheet';
 function computeAtt(o, objs) {
   if (o.t === 'sheet') return null;
   const b = bbox(o);
-  for (let j = objs.indexOf(o) - 1; j >= 0; j--) { const s = objs[j]; if (s.t === 'sheet' && intersects(bbox(s), b)) return s.id; }
+  for (let j = objs.indexOf(o) - 1; j >= 0; j--) { const s = objs[j]; if (isContainer(s) && intersects(bbox(s), b)) return s.id; }
   return null;
 }
 function assignAtt(pg) {
   const objs = pg.objects;
+  if (!pg.attV2) {   // migration : les objets non attachés peuvent maintenant s'attacher à un document
+    for (let i = 0; i < objs.length; i++) if (objs[i].att === null) { const n = { ...objs[i] }; delete n.att; objs[i] = n; }
+    pg.attV2 = 1;
+  }
   for (let i = 0; i < objs.length; i++) { const o = objs[i]; if (o.t !== 'sheet' && !('att' in o)) objs[i] = { ...o, att: computeAtt(o, objs) }; }
 }
-function attachedTo(list) {
+// Objets qui suivent les supports de la liste (récursif : document sur une feuille, écriture sur le document…)
+function attachedTo(list, onlyDocs) {
   const objs = page().objects, ids = new Set(list.map(o => o.id)), out = [];
-  const sheets = new Set(list.filter(o => o.t === 'sheet').map(o => o.id));
-  if (!sheets.size) return out;
-  for (const o of objs) {
-    if (ids.has(o.id) || !sheets.has(o.att)) continue;
-    for (const id of groupIds(o)) if (!ids.has(id)) { ids.add(id); out.push(objs.find(x => x.id === id)); }
+  let hosts = new Set(list.filter(o => onlyDocs ? isDocContainer(o) : isContainer(o)).map(o => o.id));
+  while (hosts.size) {
+    const next = new Set();
+    for (const o of objs) {
+      if (ids.has(o.id) || !hosts.has(o.att)) continue;
+      for (const id of groupIds(o)) if (!ids.has(id)) { ids.add(id); const x = objs.find(y => y.id === id); out.push(x); if (isContainer(x)) next.add(x.id); }
+    }
+    hosts = next;
   }
   return out;
+}
+// Facteur d'échelle d'un document (pour garder les tampons proportionnels à la page affichée)
+function containerScale(p) {
+  const objs = page().objects;
+  for (let i = objs.length - 1; i >= 0; i--) {
+    const o = objs[i]; if (!isDocContainer(o) || p.x < o.x || p.x > o.x + o.w || p.y < o.y || p.y > o.y + o.h) continue;
+    const w0 = o.w0 || (o.doc ? 816 : 0); return w0 ? o.w / w0 : 1;
+  }
+  return 1;
 }
 function finishLasso(g) {
   const pts = g.pts;
@@ -3831,6 +3873,7 @@ function applyProfile() {
   S.instr = S.instr.filter(o => PROF.instruments.includes(o.type));
   $('#bClear').style.display = PROF.tools.has('clear') ? '' : 'none';
   $('#bClasse').style.display = PROF.tools.has('classe') ? '' : 'none';
+  $('#bLaser').style.display = PROF.tools.has('laser') ? '' : 'none';
   if (!PROF.shapes.includes(S.shape)) S.shape = PROF.shapes[0] || 'rect';
   if (!PROF.arrows.includes(S.arrow)) S.arrow = PROF.arrows[0] || 'arrow';
   const sets = stampSets(); if (!sets.includes(S.stampSet)) { S.stampSet = sets[0]; S.stamp = null; }
@@ -3978,7 +4021,7 @@ async function insertImageSrc(src, extra = {}) {
   const maxW = (W - 200) * .8 / v.z, maxH = (H - 200) * .8 / v.z;
   const s = Math.min(1 / Math.min(DPR, 2) * 1.5, maxW / im.w, maxH / im.h);
   const w = im.w * s, h = im.h * s, c = viewCenter();
-  const o = { id: uid(), t: 'image', a: addAsset(im.src), x: r1(c.x - w / 2), y: r1(c.y - h / 2), w: r1(w), h: r1(h), ...extra };
+  const o = { id: uid(), t: 'image', a: addAsset(im.src), x: r1(c.x - w / 2), y: r1(c.y - h / 2), w: r1(w), h: r1(h), w0: r1(w), ...extra };
   snapshot(); const objs = page().objects; objs.splice(insertIndex(objs), 0, o);
   setTool('select'); S.sel = [o.id]; afterChange();
 }
@@ -4001,7 +4044,7 @@ async function placeDocPages(imgs, name) {
     ]);
     if (!mode) return;
   }
-  const mk = (im, x, y) => ({ id: uid(), t: 'image', a: addAsset(im.src), x: r1(x), y: r1(y), w: r1(im.w), h: r1(im.h), doc: 1, lock: 1 });
+  const mk = (im, x, y) => ({ id: uid(), t: 'image', a: addAsset(im.src), x: r1(x), y: r1(y), w: r1(im.w), h: r1(im.h), w0: r1(im.w), doc: 1, lock: 1 });
   if (mode === 'pages') {
     const start = S.cur, reuse = page().objects.length === 0; let idx = start;
     imgs.forEach((im, i) => {
@@ -4211,6 +4254,7 @@ function fitBoxInView(ratio) {
   const c = viewCenter(); return { x: r1(c.x - w / 2), y: r1(c.y - h / 2), w: r1(w), h: r1(h) };
 }
 function addDomObj(o) {
+  o.w0 ||= o.w;
   snapshot(); const objs = page().objects; objs.splice(insertIndex(objs), 0, o);
   setTool('select'); S.sel = [o.id]; afterChange();
 }
@@ -4472,6 +4516,9 @@ function showHelp() {
   <p><b>Aimant</b> (bouton 🧲 du crayon et des formes) : un trait presque droit devient une ligne droite; les formes s’accrochent aux sommets des autres formes et au quadrillage des feuilles. En redimensionnant une feuille, elle « colle » au format lettre 8,5 × 11.</p>
   <p><b>Feuilles</b> : ce qui est écrit ou posé sur une feuille (et qui la touche) la suit quand on la déplace.</p>
   <p><b>Appui long</b> : maintenez le doigt immobile sur le tableau pour ouvrir le menu des <b>3 derniers outils utilisés</b> (glissez sur un choix ou touchez-le). Un symbole (GN, Prédicat…) ou une forme y est posé directement à cet endroit.</p>
+  <p><b>Tampons</b> : un toucher pose le tampon à sa taille normale; <b>maintenez</b> pour le grossir (jusqu’à 5 fois), puis relâchez. Sur un document importé (PDF, Word, image, page web), sa taille suit la taille affichée du document.</p>
+  <p><b>Documents importés</b> : l’écriture, les formes et les tampons posés dessus s’y attachent; ils suivent le document quand on le déplace et grandissent ou rapetissent avec lui quand on le redimensionne.</p>
+  <p><b>Pointeur laser</b> : bouton ✳ dans la barre du haut (touche L).</p>
   <p><b>Formes, flèches, texte et symboles</b> : après chaque ajout, l’outil Sélection revient automatiquement. Double-cliquez un outil pour le garder actif.</p>
   <p><b>Feuilles</b> : le bouton quadrillé insère une feuille (quadrillée, portée, plan cartésien…) que l’on déplace et redimensionne comme un objet.</p>
   <p><b>Objets</b> : avec l’outil Sélection, touchez un objet pour le déplacer; tirez les coins pour le redimensionner. Double-cliquez un texte pour le modifier. Les documents PDF/Word insérés sont <b>verrouillés</b> (double-clic pour les sélectionner).</p>
