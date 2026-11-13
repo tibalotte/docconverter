@@ -21,7 +21,6 @@ ouvrir le fichier dans Chrome ou Edge, ou le déposer sur un serveur web / Share
 | Outils de français | Bouton **Aa** : **arcs de syllabes** (glisser sous chaque syllabe, arcs enchaînés), **sons** à surligner avec un code de couleurs et légende, **crochets [ ]** autour d'un groupe avec étiquette (sujet, prédicat, complément de phrase, groupe du nom, groupe du verbe), **manipulations syntaxiques** : remplacement (ex. : par un pronom de conjugaison), encadrement *C'est … qui / Ce sont … qui*, effacement, déplacement, ajout; **flèche d'accord** du donneur vers le receveur. Préscolaire : syllabes et sons; secondaire : crochets, manipulations et accords |
 | Instruments de géométrie | **Règle** graduée cm/mm (le crayon trace droit le long des bords, longueur affichée), **équerre**, **rapporteur** (aiguille et angle en degrés), **compas** (réglage du rayon, tracé d'arcs et de cercles). Se déplacent et tournent au doigt (⟳, angle affiché, aimant à 15°). Échelle réelle : 1 cm = 1 cm des feuilles quadrillées, millimétrées et du plan cartésien |
 | Transformations | Sur une figure sélectionnée : **réflexion** (tracer l'axe), **translation** (tracer la flèche), **rotation** (angle et sens, puis centre). L'image est créée avec l'axe, la flèche ou le centre |
-
 | Formes 3D | **Atelier 3D** : cube/pavé, cylindre, sphère, cône, pyramide, prisme triangulaire, demi-sphère, tore, tube; plan cartésien 3D gradué en mm; dimensions, position et rotation en mm/degrés; formes **« trou »** soustraites au groupement, formes pleines additionnées (style Tinkercad); cotes, volume et aire; insertion sur le tableau et modification par double-clic |
 | Sélection multiple | Outil **lasso** : entourer des objets pour les sélectionner; **Grouper / Dégrouper** (Ctrl+G / Ctrl+Maj+G); un groupe se sélectionne et se déplace d'un seul geste; Maj + clic ajoute à la sélection |
 | Documents et tampons | L'écriture, les formes et les tampons posés sur un **document importé** (PDF, Word, image, page web, partage d'écran) s'y attachent : ils suivent le document et sont **redimensionnés proportionnellement** avec lui. Les tampons prennent la taille relative du document affiché; **maintenir** l'appui grossit le tampon jusqu'à **5 fois** (aperçu et facteur affichés). Le pointeur laser est dans la barre du haut |
@@ -75,8 +74,6 @@ Tout fonctionne hors ligne, sauf ce qui est chargé à la demande depuis Interne
 - Cartes : `world-atlas` 2.0.2 (données Natural Earth) + `topojson-client` 3.1.0, `@svg-maps/canada` 2.0.0 (CC BY 4.0, attribution sur la carte) — jsDelivr
 - Atelier 3D : `three.js` r128 (cdnjs) + `OrbitControls` et `@jscad/modeling` 2.12.5 (jsDelivr)
 - Polices *Noto Music* (clés et notes) et *Andika* (Google Fonts) — sinon, polices du système.
-
-L'atelier 3D charge three.js (cdnjs) et @jscad/modeling (jsDelivr).
 
 Si le réseau de l'école bloque `cdnjs.cloudflare.com`, l'import PDF/Word ne fonctionnera pas;
 le reste du tableau, oui.
