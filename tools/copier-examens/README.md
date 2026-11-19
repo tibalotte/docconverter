@@ -58,3 +58,9 @@ Les homonymes reçoivent un suffixe « (2) ».
   les fichiers ont été copiés.
 - Laisser OneDrive terminer la synchronisation (icône nuage) avant de fermer
   l'ordinateur.
+
+## Version « bouton » dans SharePoint / Teams
+
+Voir [POWER-PLATFORM.md](POWER-PLATFORM.md) : application Power Apps intégrée à une
+page SharePoint ou à un onglet Teams, plus deux flux Power Automate. Rien à installer
+sur le poste.
