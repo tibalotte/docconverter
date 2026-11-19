@@ -61,8 +61,10 @@ Les homonymes reçoivent un suffixe « (2) ».
 
 ## Version Microsoft 365 (recommandée)
 
-Voir [POWER-PLATFORM.md](POWER-PLATFORM.md). L'application Power Apps « Salle d'évaluation »
-s'ouvre dans un onglet Teams ou une page SharePoint. Elle remplace le document Word de la
-feuille de salle : chaque poste correspond à un dossier EXnnAM/PM et à l'élève qui
-l'occupe. Un bouton « Envoyer en correction » lance un flux Power Automate qui copie
-chaque dossier vers `Correction/<Nom, Prénom>`.
+Voir [POWER-PLATFORM.md](POWER-PLATFORM.md). L'enseignante demande la passation dans la liste
+SharePoint `Passations`. La secrétaire y attribue un code EX, puis clique sur
+**Envoyer en correction** sur la ligne de l'élève. Un flux Power Automate copie alors le dossier
+EX vers `Correction/<année scolaire>/<AAAA-MM-JJ AM|PM>/<Nom, Prénom>`, passe le statut à
+« À corriger » et avise l'enseignante dans Teams.
+
+Le script PowerShell ci-dessus reste une solution de secours hors ligne.
