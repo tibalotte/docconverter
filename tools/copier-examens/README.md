@@ -59,8 +59,10 @@ Les homonymes reçoivent un suffixe « (2) ».
 - Laisser OneDrive terminer la synchronisation (icône nuage) avant de fermer
   l'ordinateur.
 
-## Version « bouton » dans SharePoint / Teams
+## Version Microsoft 365 (recommandée)
 
-Voir [POWER-PLATFORM.md](POWER-PLATFORM.md) : application Power Apps intégrée à une
-page SharePoint ou à un onglet Teams, plus deux flux Power Automate. Rien à installer
-sur le poste.
+Voir [POWER-PLATFORM.md](POWER-PLATFORM.md). L'application Power Apps « Salle d'évaluation »
+s'ouvre dans un onglet Teams ou une page SharePoint. Elle remplace le document Word de la
+feuille de salle : chaque poste correspond à un dossier EXnnAM/PM, avec l'élève et la
+compétence. Un bouton « Envoyer en correction » lance un flux Power Automate qui copie
+chaque dossier vers `Correction/<Compétence>/<Nom, Prénom>`.
