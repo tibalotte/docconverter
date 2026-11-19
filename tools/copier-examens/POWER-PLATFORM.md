@@ -297,6 +297,37 @@ pour que les postes soient prêts pour la séance suivante).
 - **Onglet Teams** (dans l'équipe du personnel) : **+** → **Power Apps** → « Salle d'évaluation ».
 - **Page SharePoint** : Nouveau → Page → ➕ → composant **Power Apps** → lien de l'application.
 
+## 4 bis. Autorisations du dossier « Correction »
+
+État constaté (Gérer l'accès → Groupes) :
+
+| Groupe | Accès |
+|---|---|
+| Propriétaires de RAVE-Salle d'examen (groupe moderne et groupe SharePoint) | Propriétaire |
+| RAVE-Salle d'examen - Membres | Consultation |
+| Rave-examen-ACI | Consultation |
+
+Conséquences :
+- Les dossiers copiés **héritent** de ces autorisations. Tout membre de l'équipe peut donc
+  **lire** les copies nominatives.
+- **Si les comptes EX01AM… EX25PM sont membres de l'équipe**, un élève connecté sur un poste
+  peut ouvrir « Correction » et voir les examens des autres, avec leurs noms. Il faut alors
+  retirer « RAVE-Salle d'examen - Membres » du dossier Correction :
+  Gérer l'accès → Groupes → le groupe → **Supprimer l'accès**.
+- **Seuls les propriétaires peuvent écrire** dans Correction :
+  - le flux doit être **créé par un propriétaire** de l'équipe (il s'exécute avec ses droits).
+    La secrétaire peut rester en consultation : c'est le flux qui copie ;
+  - les enseignants qui annotent les copies directement dans les fichiers ont besoin de
+    **Peut modifier**. Ajouter un groupe « Correcteurs » (personnel seulement) avec Modification.
+- Solution la plus sûre : mettre « Correction » **hors de l'équipe de la salle d'examen**,
+  dans l'équipe du personnel. Seul `destPath` du flux change :
+  `https://<école>.sharepoint.com/sites/<EquipePersonnel>/Shared Documents/Correction/...`.
+  `CopyFolderByPath` copie d'un site à l'autre dans le même locataire. L'action
+  « Créer un dossier » doit alors viser ce site.
+
+À vérifier : qui est dans « RAVE-Salle d'examen - Membres » (Teams → ⋯ de l'équipe →
+Gérer l'équipe → Membres) et dans « Rave-examen-ACI ».
+
 ## 5. Mise en route
 
 1. Créer les 3 listes et importer élèves et compétences.
