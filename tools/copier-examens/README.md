@@ -63,6 +63,6 @@ Les homonymes reçoivent un suffixe « (2) ».
 
 Voir [POWER-PLATFORM.md](POWER-PLATFORM.md). L'application Power Apps « Salle d'évaluation »
 s'ouvre dans un onglet Teams ou une page SharePoint. Elle remplace le document Word de la
-feuille de salle : chaque poste correspond à un dossier EXnnAM/PM, avec l'élève et la
-compétence. Un bouton « Envoyer en correction » lance un flux Power Automate qui copie
-chaque dossier vers `Correction/<Compétence>/<Nom, Prénom>`.
+feuille de salle : chaque poste correspond à un dossier EXnnAM/PM et à l'élève qui
+l'occupe. Un bouton « Envoyer en correction » lance un flux Power Automate qui copie
+chaque dossier vers `Correction/<Nom, Prénom>`.

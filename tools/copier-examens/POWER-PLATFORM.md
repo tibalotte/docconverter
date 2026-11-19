@@ -1,33 +1,31 @@
 # Salle d'évaluation : version Microsoft 365 (SharePoint + Power Apps + Power Automate)
 
 Cette version remplace **le document Word « Tableau salle d'examen »**
-(SALLE D'ÉVALUATION · MERCREDI PM · 18 NOVEMBRE 2026, postes 1 à 20 → élève,
-liste des compétences) **et** la copie manuelle des dossiers EX.
+(SALLE D'ÉVALUATION · MERCREDI PM · 18 NOVEMBRE 2026, postes 1 à 20 → élève) **et** la copie manuelle des dossiers EX.
 
 ## Principe
 
 Le numéro de poste sur la feuille de salle **est** le code d'examen :
 poste 7 en après-midi = compte et dossier **EX07PM**. Dès que la secrétaire remplit
-la feuille de salle dans l'application, on sait à quel élève et à quelle compétence
+la feuille de salle dans l'application, on sait à quel élève
 correspond chaque dossier EX. Il n'y a plus rien à demander au moment de la copie.
 
 ```
  Onglet Teams / page SharePoint (personnel seulement)
    └─ Application « Salle d'évaluation »
-        ├─ Écran Feuille de salle : date + AM/PM → postes 1 à 25 : élève + compétence + absent
+        ├─ Écran Feuille de salle : date + AM/PM → postes 1 à 25 : élève + absent
         │      (enregistré dans la liste SharePoint « Passations »)
         ├─ Bouton Imprimer : remplace le document Word
         └─ Bouton Envoyer en correction ──► Flux « Examens - Envoyer en correction »
                  pour chaque passation de la séance (présent, statut Planifié) :
-                 General/ex07pm  ──copie──►  General/Correction/<Compétence>/<Nom, Prénom>
+                 General/ex07pm  ──copie──►  General/Correction/<Nom, Prénom>
                  (option) vide ex07pm (corbeille SharePoint), statut → « En correction »
 ```
 
 Avantages par rapport au Word :
 - historique de toutes les séances (qui a passé quoi, quand, sur quel poste) ;
-- les enseignants voient **leurs copies à corriger** (vue « À corriger » groupée par compétence)
-  et marquent « Corrigé » ;
-- un élève placé sur deux postes ou un poste sans compétence est bloqué à l'enregistrement ;
+- les enseignants voient **les copies à corriger** (vue « À corriger ») et marquent « Corrigé » ;
+- un élève placé sur deux postes est bloqué à l'enregistrement ;
 - plus aucune erreur de recopie entre la feuille de salle et les dossiers.
 
 Tous les connecteurs sont **standard** (inclus dans Microsoft 365 Éducation).
@@ -44,7 +42,7 @@ Aucun droit d'administrateur requis.
 
 ---
 
-## 1. Les trois listes SharePoint (site du personnel)
+## 1. Les deux listes SharePoint (site du personnel)
 
 Site → **Nouveau → Liste**.
 
@@ -59,25 +57,6 @@ Site → **Nouveau → Liste**.
 Création rapide : **Nouveau → Liste → À partir d'Excel**, avec la liste Excel actuelle
 (prévoir une colonne « Nom, Prénom » : formule Excel `=A2&", "&B2`).
 
-### `Competences`
-| Colonne | Type | Note |
-|---|---|---|
-| Titre | (existante) | ex. `1-460-596 Opérations comptables` |
-| Enseignant | Personne | facultatif : qui corrige |
-| Actif | Oui/Non | défaut Oui |
-
-Données de départ (tirées du document actuel) :
-```
-1-460-596 Opérations comptables
-1-461-213 Système comptable
-1-460-554 Gestion documentaire
-1-460-644 Conception tableaux et graphiques
-2-461-122 Production de paies
-1-461-175 Coût d'un bien et d'un service
-1-461-083 Gestion de l'encaisse
-1-461-093 Législation des affaires
-```
-
 ### `Passations` (une ligne = un élève sur un poste pour une séance)
 | Colonne | Type | Note |
 |---|---|---|
@@ -87,13 +66,13 @@ Données de départ (tirées du document actuel) :
 | Periode | Choix : `AM`, `PM` | |
 | Poste | Nombre | 1 à 25 |
 | EleveNom | Texte | |
-| Competence | Texte | |
+| Competence | Texte | facultatif, laissé vide (colonne vide sur la feuille imprimée) |
 | Absent | Oui/Non | défaut Non |
 | Statut | Choix : `Planifié` (défaut), `En correction`, `Corrigé` | |
 | LienCorrection | Lien hypertexte | rempli par le flux |
 
 Vues utiles :
-- **À corriger** : filtre Statut = En correction, regrouper par Competence.
+- **À corriger** : filtre Statut = En correction, trier par EleveNom.
 - **Par séance** : regrouper par Seance, trier par Poste.
 
 ---
@@ -116,12 +95,10 @@ Valeurs utilisées ci-dessous (à adapter, voir « Ouvrir dans SharePoint » dep
 | 2 | SharePoint – **Obtenir les éléments** | Site du personnel, liste `Passations`. Requête de filtre ci-dessous |
 | 3 | **Appliquer à chacun** sur *value* de l'étape 2 (Paramètres : contrôle d'accès concurrentiel **désactivé**) | |
 | 3a | **Composer** renommé `NomEleve` | expression *nettoyer* appliquée à `EleveNom` (ci-dessous) |
-| 3b | **Composer** renommé `NomCompetence` | expression *nettoyer* appliquée à `Competence` |
-| 3c | **Étendue** renommée `Essai`, contenant 3d → 3g | |
-| 3d | SharePoint – **Créer un dossier** | Site `SITE_EXAMEN`, bibliothèque Documents, chemin `General/Correction/@{outputs('NomCompetence')}` |
+| 3c | **Étendue** renommée `Essai`, contenant 3e → 3g | |
 | 3e | SharePoint – **Envoyer une requête HTTP à SharePoint** (copie + renommage) | voir « Copie » |
 | 3f | **Condition** `deplacer` = `true` → *Si oui* : « Vider le dossier EX » (voir plus bas) | |
-| 3g | SharePoint – **Mettre à jour l'élément** | liste `Passations`, ID = `ID` de l'élément, Statut = `En correction`, LienCorrection = `SITE_EXAMEN/Shared Documents/General/Correction/@{outputs('NomCompetence')}/@{outputs('NomEleve')}` |
+| 3g | SharePoint – **Mettre à jour l'élément** | liste `Passations`, ID = `ID` de l'élément, Statut = `En correction`, LienCorrection = `SITE_EXAMEN/Shared Documents/General/Correction/@{outputs('NomEleve')}` |
 | 3h | **Ajouter à une variable chaîne** `resume` | `✔ @{items('Appliquer_à_chacun')?['Title']} → @{outputs('NomEleve')}` + saut de ligne · *Configurer l'exécution après* : `Essai` **a réussi** |
 | 3i | **Ajouter à une variable chaîne** `resume` | `✖ @{items('Appliquer_à_chacun')?['Title']} (@{items('Appliquer_à_chacun')?['EleveNom']}) : erreur` + saut de ligne · *exécution après* : `Essai` **a échoué** |
 | 4 | **Répondre à une application ou un flux Power App** | Sortie *Texte* `resume` = variable `resume` |
@@ -133,7 +110,7 @@ Seance eq '@{triggerBody()?['text']}' and Absent eq 0 and Statut eq 'Planifié'
 (insérer `seance` par **Contenu dynamique** à la place de `triggerBody()?['text']`)
 
 **Expression *nettoyer*** (retire les caractères interdits dans un nom de dossier ;
-remplacer `X` par `items('Appliquer_à_chacun')?['EleveNom']` ou `?['Competence']`) :
+remplacer `X` par `items('Appliquer_à_chacun')?['EleveNom']`) :
 ```
 trim(replace(replace(replace(replace(replace(replace(replace(replace(replace(X, '\', ' '), '/', ' '), ':', ' '), '*', ' '), '?', ' '), '"', ' '), '<', ' '), '>', ' '), '|', ' '))
 ```
@@ -145,11 +122,11 @@ trim(replace(replace(replace(replace(replace(replace(replace(replace(replace(X, 
   ```json
   {
     "srcPath":  { "DecodedUrl": "SITE_EXAMEN/Shared Documents/General/@{toLower(items('Appliquer_à_chacun')?['Title'])}" },
-    "destPath": { "DecodedUrl": "SITE_EXAMEN/Shared Documents/General/Correction/@{outputs('NomCompetence')}/@{outputs('NomEleve')}" },
+    "destPath": { "DecodedUrl": "SITE_EXAMEN/Shared Documents/General/Correction/@{outputs('NomEleve')}" },
     "options":  { "KeepBoth": true, "ResetAuthorAndCreatedOnCopy": false, "ShouldBypassSharedLocks": true }
   }
   ```
-  `KeepBoth` : en cas de reprise (même élève, même compétence), SharePoint crée
+  `KeepBoth` : en cas de reprise (même élève, nouvelle séance), SharePoint crée
   `Tremblay, Julie 1` au lieu d'écraser.
 
 **Vider le dossier EX (mode « déplacer »)**. Le dossier `ex07pm` est **conservé** avec
@@ -166,15 +143,12 @@ ses autorisations (celles du compte EX07PM) et sa colonne AM/PM. Seul son conten
 > Les noms entre `'…'` (`Appliquer_à_chacun`, `ContenuEX`…) doivent correspondre aux
 > noms réels des actions (espaces → `_`). Le plus sûr : passer par **Contenu dynamique**.
 
-*Option :* ajouter **Publier un message dans une conversation ou un canal** (Teams)
-pour prévenir l'enseignant de la compétence que des copies l'attendent.
-
 ---
 
 ## 3. Application « Salle d'évaluation » (Power Apps)
 
 [make.powerapps.com](https://make.powerapps.com) → **Application canevas vide** (format tablette).
-**Données** : ajouter les listes `Eleves`, `Competences`, `Passations`.
+**Données** : ajouter les listes `Eleves` et `Passations`.
 **Power Automate** (⚡) : ajouter le flux « Examens - Envoyer en correction ».
 
 ### App — `OnStart`
@@ -201,7 +175,6 @@ Set(varNbPostes, 25)
   - `DisplayFields` / `SearchFields` : `["Title"]` ; `SelectMultiple` : `false` ; `IsSearchable` : `true`
   - `DefaultSelectedItems` : `Filter(Eleves, Title = LookUp(colSeance, Poste = ThisItem.Value).EleveNom)`
   - `DisplayMode` : `If(LookUp(colSeance, Poste = ThisItem.Value).Statut.Value in ["En correction", "Corrigé"], DisplayMode.View, DisplayMode.Edit)`
-- Zone de liste déroulante `cbComp` : même chose avec `Competences` et `.Competence`
 - Case à cocher `chkAbsent` (texte « Absent ») : `Default` = `LookUp(colSeance, Poste = ThisItem.Value).Absent`
 - Étiquette statut : `Coalesce(LookUp(colSeance, Poste = ThisItem.Value).Statut.Value, "")`
 
@@ -210,14 +183,11 @@ Set(varNbPostes, 25)
 With({lignes: ForAll(galPostes.AllItems As r, {
         Poste: r.Value,
         Nom: r.cbEleve.Selected.Title,
-        Comp: r.cbComp.Selected.Title,
         Absent: r.chkAbsent.Value})},
   With({remplies: Filter(lignes, !IsBlank(Nom))},
     If(
       CountRows(remplies) <> CountRows(Distinct(remplies, Nom)),
         Notify("Un élève est placé sur plus d'un poste.", NotificationType.Error),
-      CountRows(Filter(remplies, IsBlank(Comp))) > 0,
-        Notify("Choisir la compétence de chaque élève.", NotificationType.Warning),
       // sinon : enregistrer
       ForAll(lignes As l,
         With({ex: LookUp(colSeance, Poste = l.Poste)},
@@ -233,7 +203,6 @@ With({lignes: ForAll(galPostes.AllItems As r, {
                 Periode: {Value: ddPeriode.Selected.Value},
                 Poste: l.Poste,
                 EleveNom: l.Nom,
-                Competence: l.Comp,
                 Absent: l.Absent
               })
           )));
@@ -254,7 +223,7 @@ pour que les postes soient prêts pour la séance suivante).
   ```powerfx
   "Envoyer en correction — séance " & varSeance & " :" & Char(10) & Char(10) &
   Concat(SortByColumns(Filter(colSeance, !Absent && Statut.Value = "Planifié"), Poste),
-         Title & "  →  " & EleveNom & "   (" & Competence & ")", Char(10)) &
+         Title & "  →  " & EleveNom, Char(10)) &
   If(tglDeplacer.Value, Char(10) & Char(10) & "Les dossiers EX seront vidés (corbeille SharePoint).", "")
   ```
 - **Confirmer** :
@@ -278,10 +247,9 @@ pour que les postes soient prêts pour la séance suivante).
   Upper(Text(dpDate.SelectedDate, "dddd", "fr-CA")) & " " & ddPeriode.Selected.Value & Char(10) &
   Upper(Text(dpDate.SelectedDate, "d mmmm yyyy", "fr-CA"))
   ```
-- Galerie (texte seulement), `Items` : `SortByColumns(colSeance, Poste)`. Étiquette :
-  `ThisItem.Poste & ".  " & ThisItem.EleveNom & "  —  " & ThisItem.Competence & If(ThisItem.Absent, "  (absent)", "")`
-- Étiquette « Compétences évaluées » :
-  `Concat(Distinct(colSeance, Competence), Value, Char(10))`
+- Galerie (tableau à 2 colonnes, bordures), `Items` : `SortByColumns(colSeance, Poste)`
+  - colonne gauche : `ThisItem.Poste & ".  " & ThisItem.EleveNom & If(ThisItem.Absent, "  (absent)", "")`
+  - colonne droite : **vide** (case encadrée, à remplir à la main)
 - Bouton **Imprimer** : `Print()` ; bouton **Retour** : `Back()`
 
 **Enregistrer → Publier → Partager** avec la secrétaire et les enseignants
@@ -307,7 +275,7 @@ Effet du flux sur ces autorisations :
   suivante. Ne **pas** remplacer la copie par `MoveFolderByPath`.
 - **La copie dans Correction hérite des accès de Correction.** Le compte EX01AM **n'y a pas
   accès**, et les enseignants ACI voient les copies nominatives. À vérifier au premier test :
-  Gérer l'accès sur `Correction/<Compétence>/<Nom, Prénom>` ne doit montrer aucune
+  Gérer l'accès sur `Correction/<Nom, Prénom>` ne doit montrer aucune
   « Personnes » (aucun compte EX).
 - **Écriture dans Correction** : seuls les propriétaires peuvent y écrire. Le flux doit
   donc être **créé par un propriétaire** de l'équipe, puisqu'il s'exécute avec ses droits.
@@ -322,10 +290,10 @@ Effet du flux sur ces autorisations :
 
 ## 5. Mise en route
 
-1. Créer les 3 listes et importer élèves et compétences.
+1. Créer les 2 listes et importer les élèves.
 2. Créer le flux, puis l'application ; publier ; ajouter l'onglet.
 3. Test : séance fictive (date future), 2 postes, dossiers EX de test → vérifier
-   `Correction/<Compétence>/<Nom, Prénom>` et le statut « En correction ».
+   `Correction/<Nom, Prénom>` et le statut « En correction ».
 4. Dans les vrais dossiers EX, faire un premier envoi **sans** « vider les dossiers EX ».
 
 ## Bon à savoir
@@ -335,5 +303,5 @@ Effet du flux sur ces autorisations :
 - **Historique** : la liste `Passations` garde l'historique de toutes les séances, et
   Power Automate → Historique garde le détail de chaque envoi.
 - **Plus de 20 postes** : modifier `varNbPostes` (le flux suit, puisqu'il lit la liste).
-- **Reprises** : le même élève et la même compétence lors d'une autre séance donnent un
+- **Reprises** : le même élève lors d'une autre séance donne un
   dossier `Nom, Prénom 1` dans Correction (rien n'est écrasé).
