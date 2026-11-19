@@ -33,14 +33,11 @@ Avantages par rapport au Word :
 Tous les connecteurs sont **standard** (inclus dans Microsoft 365 Éducation).
 Aucun droit d'administrateur requis.
 
-> ⚠️ **Confidentialité (anonymat des examens, Loi 25).** Les comptes EX01AM… EX25PM
-> sont membres de l'équipe « RAVE-Salle d'examen ». Les listes ci-dessous révèlent la
-> correspondance code ↔ élève : il ne faut **pas** les créer dans cette équipe, sauf
-> à leur retirer l'héritage des autorisations.
-> **Recommandé :** créer les listes et l'application dans une équipe ou un site
-> **réservé au personnel** (ex. l'équipe des enseignants de Comptabilité). Le flux sait
-> copier d'un site à l'autre. Vérifier aussi que les comptes EX n'ont pas accès au dossier
-> « Correction ».
+> 🔒 **Confidentialité (anonymat, Loi 25).** Les comptes EX01AM… EX25PM ne sont **pas**
+> membres de l'équipe. Chacun n'a accès qu'à **son** dossier (autorisation directe sur
+> `ex01am`, etc.). Les listes peuvent donc être créées dans le site de « RAVE-Salle d'examen ».
+> Elles hériteront des accès Propriétaires, Membres et Visiteurs, sans les comptes EX.
+> Vérifier quand même qu'aucun compte EX n'est dans le groupe **Visiteurs** du site.
 
 > ⚠️ Guide non testé dans votre locataire : faire un premier essai avec une séance
 > fictive et 2 ou 3 dossiers EX de test.
@@ -297,36 +294,31 @@ pour que les postes soient prêts pour la séance suivante).
 - **Onglet Teams** (dans l'équipe du personnel) : **+** → **Power Apps** → « Salle d'évaluation ».
 - **Page SharePoint** : Nouveau → Page → ➕ → composant **Power Apps** → lien de l'application.
 
-## 4 bis. Autorisations du dossier « Correction »
+## 4 bis. Autorisations : état actuel et effet du flux
 
-État constaté (Gérer l'accès → Groupes) :
-
-| Groupe | Accès |
+| Élément | Accès constatés |
 |---|---|
-| Propriétaires de RAVE-Salle d'examen (groupe moderne et groupe SharePoint) | Propriétaire |
-| RAVE-Salle d'examen - Membres | Consultation |
-| Rave-examen-ACI | Consultation |
+| `ex01am` (et autres EX) | **autorisations propres** : le compte EX01AM (Personnes · 1), Propriétaires, Visiteurs (consultation) |
+| `Correction` | Propriétaires, **Membres** (consultation), **Rave-examen-ACI** = enseignants du secteur (consultation) |
 
-Conséquences :
-- Les dossiers copiés **héritent** de ces autorisations. Tout membre de l'équipe peut donc
-  **lire** les copies nominatives.
-- **Si les comptes EX01AM… EX25PM sont membres de l'équipe**, un élève connecté sur un poste
-  peut ouvrir « Correction » et voir les examens des autres, avec leurs noms. Il faut alors
-  retirer « RAVE-Salle d'examen - Membres » du dossier Correction :
-  Gérer l'accès → Groupes → le groupe → **Supprimer l'accès**.
-- **Seuls les propriétaires peuvent écrire** dans Correction :
-  - le flux doit être **créé par un propriétaire** de l'équipe (il s'exécute avec ses droits).
-    La secrétaire peut rester en consultation : c'est le flux qui copie ;
-  - les enseignants qui annotent les copies directement dans les fichiers ont besoin de
-    **Peut modifier**. Ajouter un groupe « Correcteurs » (personnel seulement) avec Modification.
-- Solution la plus sûre : mettre « Correction » **hors de l'équipe de la salle d'examen**,
-  dans l'équipe du personnel. Seul `destPath` du flux change :
-  `https://<école>.sharepoint.com/sites/<EquipePersonnel>/Shared Documents/Correction/...`.
-  `CopyFolderByPath` copie d'un site à l'autre dans le même locataire. L'action
-  « Créer un dossier » doit alors viser ce site.
-
-À vérifier : qui est dans « RAVE-Salle d'examen - Membres » (Teams → ⋯ de l'équipe →
-Gérer l'équipe → Membres) et dans « Rave-examen-ACI ».
+Effet du flux sur ces autorisations :
+- **Le dossier EX n'est jamais déplacé.** Le flux *copie* puis vide le contenu (corbeille).
+  `ex01am` garde donc son autorisation pour le compte EX01AM et reste prêt pour la séance
+  suivante. Ne **pas** remplacer la copie par `MoveFolderByPath`.
+- **La copie dans Correction hérite des accès de Correction.** Le compte EX01AM **n'y a pas
+  accès**, et les enseignants ACI voient les copies nominatives. À vérifier au premier test :
+  Gérer l'accès sur `Correction/<Compétence>/<Nom, Prénom>` ne doit montrer aucune
+  « Personnes » (aucun compte EX).
+- **Écriture dans Correction** : seuls les propriétaires peuvent y écrire. Le flux doit
+  donc être **créé par un propriétaire** de l'équipe, puisqu'il s'exécute avec ses droits.
+  La secrétaire peut rester membre en consultation : c'est le flux qui copie.
+- **Annotation des copies** : si les enseignants corrigent directement dans les fichiers,
+  passer **Rave-examen-ACI** à « Peut modifier » sur `Correction` (Gérer l'accès → Groupes
+  → Rave-examen-ACI → Peut modifier). Sinon, ils doivent télécharger les fichiers ou en
+  faire une copie.
+- **Statut « Corrigé »** dans la liste `Passations` : donner **Modification** à
+  Rave-examen-ACI sur la liste (Paramètres de la liste → Autorisations), ou ajouter le
+  groupe comme membre du site.
 
 ## 5. Mise en route
 
