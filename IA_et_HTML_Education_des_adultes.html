@@ -768,6 +768,69 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 .gg-tip:empty{display:none}
 .gg-nav{display:flex;gap:.5rem;justify-content:space-between;margin-top:.6rem}
 @media (max-width:1000px){.gg{grid-template-columns:1fr}.gg-list{display:flex;flex-wrap:wrap;gap:.2rem}.gg-list li button span{display:none}.gg-main{grid-template-columns:1fr}}
+
+/* Confidentialité */
+#confSlide,#envoiSlide,#tokenSlide,#relaisSlide{justify-content:flex-start;padding-top:.8rem}
+#confSlide h2,#envoiSlide h2,#tokenSlide h2,#relaisSlide h2{margin-bottom:.4rem}
+.conf-regle{font-size:1.05rem;background:var(--p-soft);border-radius:12px;padding:.45rem .9rem;margin:0 0 .6rem}
+.conf{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.conf-col{border-radius:var(--r);padding:.55rem .9rem;border:2px solid}
+.conf-col.oui{border-color:var(--ok);background:#F3FAF6}
+.conf-col.non{border-color:var(--bad);background:#FDF4EF}
+.conf-col h3{margin:0 0 .3rem;font-size:1.1rem}
+.conf-col.oui h3{color:var(--ok)}.conf-col.non h3{color:var(--bad)}
+.conf-col ul{margin:0;padding-left:1.1rem;font-size:.88rem}
+.conf-col li{margin:.22rem 0}
+.anon{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.6rem;font-size:.85rem}
+.anon-t{font-weight:800}
+.anon .avant{background:var(--bad-soft);border-radius:8px;padding:.2rem .6rem}
+.anon .apres{background:var(--ok-soft);border-radius:8px;padding:.2rem .6rem}
+.anon i{font-style:normal;color:var(--a);font-weight:900}
+.conf-loi{font-size:.85rem;color:var(--muted);margin-top:.5rem}
+/* Jeu : je l'envoie ou pas */
+.envoi{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.ev{background:#fff;border:2px solid var(--line);border-radius:14px;padding:.55rem .7rem;display:flex;flex-direction:column;gap:.4rem;transition:border-color .3s,background .3s}
+.ev p{margin:0;font-weight:700;font-size:.9rem;flex:1}
+.ev .bt{display:flex;gap:.35rem}
+.ev .bt button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:.25rem;font-size:.8rem;font-weight:800}
+.ev .bt button:hover{border-color:var(--p)}
+.ev small{display:none;font-size:.78rem;line-height:1.3}
+.ev.rep small{display:block}
+.ev.bon{border-color:var(--ok);background:#F3FAF6}
+.ev.mauv{border-color:var(--bad);background:#FDF4EF}
+.ev.rep .bt{display:none}
+.ev .verd{display:none;font-weight:900;font-size:.82rem}
+.ev.rep .verd{display:block}
+.envoi-score{font-weight:800;color:var(--p);margin-top:.5rem}
+/* Tokens */
+.tok-def{display:flex;gap:.8rem;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:var(--r);padding:.6rem 1rem;font-size:1.05rem;max-width:60rem}
+.tok-ico{font-size:2.4rem}
+.tok-demo{margin:.7rem 0}
+.tok-lab{margin:0 0 .3rem;font-size:.85rem;color:var(--muted);font-weight:700}
+.tok-phrase{display:flex;flex-wrap:wrap;gap:.25rem}
+.tok-phrase span{font-family:Consolas,monospace;font-size:1.15rem;border-radius:7px;padding:.15rem .35rem;white-space:pre;opacity:0;transform:translateY(8px)}
+.tok-demo.on .tok-phrase span{animation:tokIn .35s ease forwards}
+@keyframes tokIn{to{opacity:1;transform:none}}
+.tok-count{margin:.35rem 0 0;font-weight:800;color:var(--p)}
+.tok-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.tok-c{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:.5rem .8rem;display:flex;flex-direction:column;gap:.15rem}
+.tok-c span{font-size:.88rem;color:var(--muted)}
+/* Relais */
+.relais{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:1rem;align-items:center}
+.relais-anim{position:relative;height:9.5rem;display:flex;align-items:center;justify-content:space-between;padding:0 .5rem}
+.relais-anim .ia{width:8.5rem;height:6.5rem;border-radius:16px;background:#fff;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;font-size:.9rem;z-index:1}
+.relais-anim .stop{font-size:.75rem;font-weight:800;color:var(--bad);background:var(--bad-soft);border-radius:99px;padding:.1rem .5rem}
+.relais-anim .go{font-size:.75rem;font-weight:800;color:var(--ok);background:var(--ok-soft);border-radius:99px;padding:.1rem .5rem;opacity:0;animation:goOn 4s infinite}
+.relais-anim .ia1{animation:iaOff 4s infinite}
+.relais-anim .fichier{position:absolute;left:2.2rem;top:50%;background:var(--a);color:#3A2300;font-weight:800;font-size:.8rem;border-radius:8px;padding:.25rem .55rem;box-shadow:0 4px 12px rgba(0,0,0,.2);transform:translateY(-50%);animation:fichier 4s ease-in-out infinite;z-index:2}
+@keyframes fichier{0%,15%{left:2.2rem}55%,100%{left:calc(100% - 9.5rem)}}
+@keyframes iaOff{0%,10%{opacity:1}30%,100%{opacity:.45}}
+@keyframes goOn{0%,55%{opacity:0}70%,100%{opacity:1}}
+.relais-et{margin:0;padding-left:1.3rem;font-size:.95rem}
+.relais-et li{margin:.3rem 0}
+.relais-req{background:#fff;border:2px dashed var(--p);border-radius:14px;padding:.5rem .9rem;margin-top:.6rem;font-size:.9rem}
+.relais-req p{margin:0 0 .4rem}
+@media (max-width:900px){.conf,.relais{grid-template-columns:1fr}.envoi{grid-template-columns:1fr 1fr}.tok-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -809,7 +872,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
         <div style="margin-top:.5rem"><b>Suite à cette rencontre, je serai en mesure de :</b></div>
         <ol>
           <li class="frag left">comprendre pourquoi un HTML est un bon format pour soutenir l'apprentissage autonome des jeunes adultes et des adultes,</li>
-          <li class="frag left">rédiger une requête partielle et la bonifier par l'IA,</li>
+          <li class="frag left">rédiger une requête partielle et la bonifier par l'IA, <b>en protégeant les renseignements personnels de mes élèves</b>,</li>
           <li class="frag left">partir de ce que j'ai déjà (guide d'apprentissage, exercice, croquis, capture d'écran) pour obtenir un meilleur résultat,</li>
           <li class="frag left">découvrir des exemples d'activités dans ma matière, les partager et m'inspirer de mes collègues.</li>
         </ol>
@@ -1132,17 +1195,62 @@ button.open{border:0;cursor:pointer;font-family:inherit}
       <p class="gap frag"><button class="ghost" id="btnCopy" style="font-size:1rem">📋 Copier le modèle à remplir</button> <span id="copied" style="color:var(--ok);font-weight:700;margin-left:.6rem"></span></p>
     </section>
 
-    <!-- 15 ───────── Confidentialité / outils ───────── -->
-    <section class="slide" data-part="3" data-title="Outils et confidentialité" data-min="3"
-      data-notes="Trois réflexes : un compte distinct, jamais de renseignements sur les élèves (nom, résultats, plan d'intervention, situation personnelle), anonymiser au besoin. Nommer les outils populaires. Les comptes gratuits ont des limites : si on manque de crédit, on change d'IA.">
-      <p class="kicker">Un petit mot</p>
+    <!-- 15 ───────── Confidentialité ───────── -->
+    <section class="slide" id="confSlide" data-part="3" data-title="Confidentialité : ce que je peux envoyer… ou pas" data-min="4"
+      data-notes="Diapo importante : prendre le temps. Tout ce qu'on écrit ou joint dans une IA quitte notre ordinateur et est traité sur les serveurs d'une entreprise, souvent à l'extérieur du Québec. Les renseignements personnels de nos élèves sont protégés par la loi (Loi sur l'accès aux documents des organismes publics, renforcée par la Loi 25). Règle simple : on envoie du contenu pédagogique, jamais des personnes. En cas de doute, on n'envoie pas, ou on anonymise. Suivre aussi les directives de votre centre de services scolaire.">
+      <p class="kicker">⚠️ Le plus important</p>
+      <h2>Confidentialité : ce que je peux envoyer à l'IA… ou pas</h2>
+      <p class="conf-regle frag pop">🔑 La règle : <b>j'envoie du contenu pédagogique, jamais des personnes.</b> Tout ce que j'écris ou joins quitte mon ordinateur.</p>
+      <div class="conf">
+        <div class="conf-col oui">
+          <h3>✅ Je peux envoyer</h3>
+          <ul>
+            <li class="frag left">Mes notions, exercices et activités <b>que j'ai créés</b></li>
+            <li class="frag left">Les compétences et objectifs du <b>programme</b></li>
+            <li class="frag left">Un croquis, une capture d'écran <b>sans aucun nom</b></li>
+            <li class="frag left">Une description <b>générale et anonyme</b> : « des adultes qui ont de la difficulté en lecture »</li>
+            <li class="frag left">Le <b>fichier HTML</b> de mon activité</li>
+          </ul>
+        </div>
+        <div class="conf-col non">
+          <h3>⛔ Je n'envoie jamais</h3>
+          <ul>
+            <li class="frag right">Nom, photo, voix, <b>code permanent</b>, date de naissance, adresse, téléphone d'un élève</li>
+            <li class="frag right"><b>Résultats</b>, notes, bulletins, travaux d'élèves identifiables</li>
+            <li class="frag right"><b>Plan d'intervention</b>, diagnostic, santé, situation familiale, judiciaire ou d'immigration</li>
+            <li class="frag right">Captures d'écran de <b>Mozaïk</b>, de Teams ou de courriels avec des noms</li>
+            <li class="frag right"><b>Épreuves</b> et évaluations sécurisées, documents internes confidentiels, mots de passe</li>
+          </ul>
+        </div>
+      </div>
+      <div class="anon frag">
+        <span class="anon-t">🕶️ Anonymiser :</span>
+        <span class="avant">« <s>Kevin Tremblay</s>, 19 ans, TDAH, échoue en maths »</span><i>➜</i>
+        <span class="apres">« Un jeune adulte a de la difficulté à rester concentré pendant les problèmes de fonctions »</span>
+      </div>
+      <p class="conf-loi frag">⚖️ Les renseignements personnels des élèves sont protégés par la loi (Loi sur l'accès et Loi 25). <b>En cas de doute, je n'envoie pas.</b> Je suis aussi les directives de mon centre de services scolaire.</p>
+    </section>
+
+    <!-- 15a ───────── Je l'envoie ou pas ? ───────── -->
+    <section class="slide" id="envoiSlide" data-part="3" data-title="Jeu : je l'envoie ou pas ?" data-min="3"
+      data-notes="Faire voter le groupe à main levée avant de cliquer : ✅ j'envoie ou ⛔ je n'envoie pas. Chaque carte donne une explication. Insister sur les cas pièges : la capture d'écran de Mozaïk, le travail d'élève « juste pour corriger », la photo de classe.">
+      <p class="kicker">À vous de jouer</p>
+      <h2>Je l'envoie à l'IA… ou pas ?</h2>
+      <div class="envoi" id="envoi"></div>
+      <p class="envoi-score" id="envoiScore" role="status"></p>
+    </section>
+
+    <!-- 15c ───────── Outils ───────── -->
+    <section class="slide" data-part="3" data-title="Les outils et les bons réflexes" data-min="2"
+      data-notes="Un compte distinct, réservé à l'usage pédagogique (étapes à la page suivante). Dans les paramètres de l'IA, désactiver l'utilisation des conversations pour entraîner le modèle quand l'option existe. Nommer les outils populaires. Les comptes gratuits ont des limites : on verra plus loin comment continuer ailleurs sans rien perdre.">
+      <p class="kicker">Les outils</p>
       <h2>Quelques bons réflexes</h2>
       <div class="split" style="justify-content:flex-start;align-items:flex-start;gap:3rem">
         <div class="safe" style="flex:1;min-width:16rem">
           <ul>
-            <li class="frag left"><i>📧</i><span>Un compte Google (Gmail) distinct pour l'IA. <small style="color:var(--muted)">Étapes à la page suivante.</small></span></li>
-            <li class="frag left"><i>🔒</i><span>Aucun nom, résultat, plan d'intervention ou renseignement personnel d'élève.</span></li>
-            <li class="frag left"><i>🕶️</i><span>Anonymisez au besoin.</span></li>
+            <li class="frag left"><i>📧</i><span>Un compte Google (Gmail) <b>distinct</b>, réservé à l'IA pédagogique. <small style="color:var(--muted)">Étapes à la page suivante.</small></span></li>
+            <li class="frag left"><i>⚙️</i><span>Dans les paramètres : désactivez l'utilisation de vos conversations pour <b>entraîner le modèle</b>, quand l'option existe.</span></li>
+            <li class="frag left"><i>🔒</i><span>Jamais de renseignements sur les élèves. <b>En cas de doute, je n'envoie pas.</b></span></li>
           </ul>
         </div>
         <div style="flex:1;min-width:16rem">
@@ -1153,7 +1261,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
           </div>
         </div>
       </div>
-      <p class="limit frag pop">Les comptes gratuits ont des limites d'utilisation ; si vous manquez de crédit, changez d'IA.</p>
+      <p class="limit frag pop">Les comptes gratuits ont des limites d'utilisation. Bonne nouvelle : votre activité HTML peut <b>continuer dans une autre IA</b> (on voit comment plus loin).</p>
     </section>
 
     <!-- 15b ───────── Créer un compte Google ───────── -->
@@ -1182,6 +1290,52 @@ button.open{border:0;cursor:pointer;font-family:inherit}
       </div>
     </section>
 
+    <!-- 15d ───────── Les tokens ───────── -->
+    <section class="slide" id="tokenSlide" data-part="3" data-title="C'est quoi, un token ?" data-min="3"
+      data-notes="Un token (jeton), c'est un petit morceau de texte : un mot court, une partie de mot ou un signe. L'IA lit et écrit en tokens. Les comptes gratuits donnent un nombre limité de tokens par jour ou par période, et chaque conversation a une mémoire limitée. Un fichier HTML complet, c'est beaucoup de texte, donc beaucoup de tokens : c'est souvent là qu'on atteint la limite. Le découpage affiché est un exemple approximatif : chaque IA découpe un peu différemment.">
+      <p class="kicker">Comprendre les limites</p>
+      <h2>C'est quoi, un « token » ?</h2>
+      <div class="tok">
+        <div class="tok-def frag pop"><span class="tok-ico">🪙</span><div><b>Un token (ou jeton), c'est un petit morceau de texte</b> : un mot court, une partie de mot ou un signe de ponctuation. L'IA lit et écrit <b>token par token</b>.</div></div>
+        <div class="tok-demo frag">
+          <p class="tok-lab">Exemple (découpage approximatif) :</p>
+          <div class="tok-phrase" id="tokPhrase"></div>
+          <p class="tok-count" id="tokCount"></p>
+        </div>
+        <div class="tok-grid">
+          <div class="tok-c frag pop"><b>💬 Ma requête</b><span>quelques centaines de tokens</span></div>
+          <div class="tok-c frag pop"><b>📄 Une activité HTML complète</b><span>plusieurs milliers de tokens</span></div>
+          <div class="tok-c frag pop"><b>⛽ Un compte gratuit</b><span>un « réservoir » limité de tokens par jour ou par période</span></div>
+        </div>
+        <p class="limit frag pop" style="margin-top:.6rem">Quand le réservoir est vide, l'IA s'arrête : « Limite atteinte, revenez plus tard. » Votre travail, lui, n'est pas perdu !</p>
+      </div>
+    </section>
+
+    <!-- 15e ───────── Limite atteinte : continuer ailleurs ───────── -->
+    <section class="slide" id="relaisSlide" data-part="3" data-title="Limite atteinte ? On continue avec une autre IA" data-min="4"
+      data-notes="Message clé : le fichier HTML, c'est la mémoire du projet. Une IA a atteint sa limite ? On récupère le fichier, on l'ouvre dans une autre IA (ou une nouvelle conversation) avec une courte requête de relais, et on continue. Le bouton copie la requête de relais. Astuce pour économiser des tokens : demander seulement les modifications, une à la fois.">
+      <p class="kicker">Pas de panique</p>
+      <h2>Limite atteinte ? On continue dans une autre IA</h2>
+      <div class="relais">
+        <div class="relais-anim" aria-hidden="true">
+          <div class="ia ia1"><b>🤖 IA n° 1</b><span class="stop">⛔ Limite atteinte</span></div>
+          <div class="fichier">📄 activite.html</div>
+          <div class="ia ia2"><b>🤖 IA n° 2</b><span class="go">✅ On continue !</span></div>
+        </div>
+        <ol class="relais-et">
+          <li class="frag left"><b>Je récupère mon fichier</b> : bouton Télécharger, ou je copie le code dans le Bloc-notes et j'enregistre en <b>.html</b>.</li>
+          <li class="frag left"><b>J'ouvre une autre IA</b> (ou une nouvelle conversation demain).</li>
+          <li class="frag left"><b>Je joins le fichier .html</b> et j'écris une courte <b>requête de relais</b>.</li>
+          <li class="frag left"><b>Je teste</b> le nouveau fichier, puis je continue à bonifier.</li>
+        </ol>
+      </div>
+      <div class="relais-req frag">
+        <p><b>Requête de relais :</b> « Voici une activité HTML créée avec une autre IA, pour des élèves adultes de la formation générale des adultes. <b>Garde tout ce qui fonctionne</b> (contenu, personnage, points, badges, liens). Ajoute ou corrige seulement : [ma demande]. Donne-moi le fichier HTML complet. »</p>
+        <button class="ghost" id="btnRelais">📋 Copier la requête de relais</button> <span id="relaisCopied" style="color:var(--ok);font-weight:700"></span>
+      </div>
+      <p class="proof frag pop" style="margin-top:.5rem">💡 Le fichier HTML est la mémoire de votre projet. Pour économiser des tokens : une modification à la fois.</p>
+    </section>
+
     <!-- 16 ───────── Idées par matière ───────── -->
     <section class="slide" id="ideesSlide" data-part="4" data-title="Des idées pour votre matière" data-min="5"
       data-notes="Chaque enseignant repère sa matière. Les idées sont des points de départ de requête : le bouton 📋 copie une requête ACTIF déjà rédigée, à adapter à son cours. Le bouton ▶ ouvre un exemple complet, fait avec l'IA, que l'on retrouve dans la galerie à la fin. Laisser deux minutes pour que chacun choisisse l'idée qu'il essaiera cette semaine.">
@@ -1205,7 +1359,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
       <p class="big" style="font-size:1.5rem;margin:.3rem 0 .8rem">Suite à cette rencontre, je suis en mesure de :</p>
       <ul class="checks end-checks">
         <li class="frag">Comprendre pourquoi un HTML soutient l'apprentissage autonome des jeunes adultes et des adultes</li>
-        <li class="frag">Rédiger une requête partielle et la bonifier par l'IA</li>
+        <li class="frag">Rédiger une requête et la bonifier par l'IA, sans jamais envoyer de renseignements sur mes élèves</li>
         <li class="frag">Partir de ce que j'ai déjà pour obtenir un meilleur résultat</li>
         <li class="frag">Découvrir des exemples dans ma matière et m'inspirer de mes collègues</li>
       </ul>
@@ -6319,6 +6473,47 @@ $("#ggPrint").onclick = function(){
 };
 ggAller(0);
 
+/* ═══════ Jeu : je l'envoie ou pas ? ═══════ */
+var ENVOI = [
+  { t:"Mon exercice sur les fractions, que j'ai créé moi-même", ok:true, ex:"C'est votre contenu pédagogique : aucun renseignement personnel." },
+  { t:"Une capture d'écran de Mozaïk avec la liste de mon groupe", ok:false, ex:"Noms, codes, résultats : ce sont des renseignements personnels protégés." },
+  { t:"« Crée un quiz pour des adultes qui apprennent le français »", ok:true, ex:"Une description générale et anonyme : parfait." },
+  { t:"Le texte d'un élève, avec son nom, « juste pour le corriger »", ok:false, ex:"Un travail d'élève identifiable est un renseignement personnel. Ne l'envoyez pas." },
+  { t:"Les compétences du programme de mathématique", ok:true, ex:"Document public : aucun problème." },
+  { t:"Le plan d'intervention d'un élève, pour adapter l'activité", ok:false, ex:"Jamais. Décrivez plutôt le besoin en général : « une version avec plus d'indices visuels »." },
+  { t:"Mon croquis d'un graphique, fait à la main, sans nom", ok:true, ex:"Un excellent point de départ pour l'IA !" },
+  { t:"Une photo de la classe pendant l'activité", ok:false, ex:"Le visage est un renseignement personnel, même sans nom." },
+  { t:"Une épreuve ou une évaluation sécurisée, pour la reformuler", ok:false, ex:"Les épreuves sont des documents sécurisés : elles ne doivent jamais sortir du centre." }
+];
+var envoiRep = 0, envoiBons = 0;
+$("#envoi").innerHTML = ENVOI.map(function(e, k){
+  return '<div class="ev" data-k="' + k + '"><p>' + esc(e.t) + '</p><div class="bt"><button data-v="1">✅ J\'envoie</button><button data-v="0">⛔ Je n\'envoie pas</button></div>' +
+    '<span class="verd">' + (e.ok ? "✅ Oui, je peux l'envoyer" : "⛔ Non, je ne l'envoie pas") + '</span><small>' + esc(e.ex) + '</small></div>';
+}).join("");
+$$("#envoi .ev").forEach(function(c){
+  $$("button", c).forEach(function(b){
+    b.onclick = function(){
+      var e = ENVOI[+c.dataset.k], bon = (b.dataset.v === "1") === e.ok;
+      c.classList.add("rep", bon ? "bon" : "mauv"); envoiRep++; if (bon) envoiBons++;
+      $("#envoiScore").textContent = envoiBons + " bonne" + (envoiBons > 1 ? "s" : "") + " réponse" + (envoiBons > 1 ? "s" : "") + " sur " + envoiRep + (envoiRep === ENVOI.length ? (envoiBons === ENVOI.length ? " : parfait ! 🔒" : " : relisez les cartes en rouge.") : "");
+      if (envoiRep === ENVOI.length && envoiBons === ENVOI.length) confetti();
+    };
+  });
+});
+
+/* ═══════ Tokens : phrase découpée ═══════ */
+(function(){
+  var T = ["Cr", "ée", " une", " activité", " inter", "active", " sur", " la", " fonction", " aff", "ine", "."];
+  var cols = ["#E8EEFB", "#FDF0DA", "#E1F3EA", "#FBE7DC", "#EFE8FB"];
+  $("#tokPhrase").innerHTML = T.map(function(t, k){ return '<span style="background:' + cols[k % cols.length] + ';animation-delay:' + (k * .18) + 's">' + esc(t) + '</span>'; }).join("");
+  $("#tokCount").textContent = "8 mots ≈ " + T.length + " tokens";
+})();
+$("#btnRelais").onclick = function(){
+  copier("Voici une activité HTML créée avec une autre IA, pour des élèves adultes de la formation générale des adultes. Garde tout ce qui fonctionne (contenu, personnage, points, badges, liens). Ajoute ou corrige seulement : [ma demande]. Donne-moi le fichier HTML complet.",
+    function(ok){ $("#relaisCopied").textContent = ok ? "Copié !" : "Copie impossible"; setTimeout(function(){ $("#relaisCopied").textContent = ""; }, 2000); });
+  this.blur();
+};
+
 /* ═══════ Idées par matière ═══════ */
 (function(){
   var h = "";
@@ -6480,7 +6675,15 @@ var QUIZ = [
   { q:"Ma requête est incomplète. Quelle est la meilleure solution ?",
     o:["Tout recommencer à zéro","L'envoyer telle quelle sans la relire","Choisir un autre format de fichier","La faire compléter et bonifier par l'IA"], a:3,
     ok:"Oui ! Une requête partielle est un bon point de départ : l'IA la bonifie, vous gardez le jugement.",
-    ko:"Pas tout à fait. Une requête partielle est un bon point de départ : demandez à l'IA de la compléter et de la bonifier." }
+    ko:"Pas tout à fait. Une requête partielle est un bon point de départ : demandez à l'IA de la compléter et de la bonifier." },
+  { q:"Je veux adapter mon activité pour un élève qui a un plan d'intervention. Que puis-je écrire à l'IA ?",
+    o:["Son nom et son diagnostic, pour être précis","Une copie de son plan d'intervention","Une description générale du besoin, sans nom ni diagnostic","Rien : l'IA ne peut pas aider"], a:2,
+    ok:"Exact ! « Une version avec plus d'indices visuels et des consignes courtes » suffit. Aucun renseignement personnel.",
+    ko:"Non : le plan d'intervention et le diagnostic sont confidentiels. Décrivez le besoin de façon générale et anonyme." },
+  { q:"L'IA affiche « Limite atteinte » au milieu de la création de mon activité. Que faire ?",
+    o:["Tout recommencer à zéro demain","Récupérer mon fichier HTML et le joindre à une autre IA avec une requête de relais","Payer un abonnement : c'est la seule solution","Abandonner le projet"], a:1,
+    ok:"Bravo ! Le fichier HTML est la mémoire du projet : une autre IA peut continuer à partir de lui.",
+    ko:"Pas besoin de recommencer : récupérez le fichier HTML, joignez-le à une autre IA avec une requête de relais, et continuez." }
 ];
 var qi = 0, score = 0;
 function renderQuiz(){
@@ -6538,9 +6741,9 @@ var REQ = [
   { c:C_C, l:"Contexte", t:"Mes élèves sont des jeunes adultes et des adultes de la formation générale des adultes (Québec), en mathématique, 2e cycle du secondaire. Ils travaillent à leur rythme et trouvent la fonction affine abstraite. Appuie-toi sur les fichiers joints. Forfait A : 20 $ + 5 $ par Go ; forfait B : 35 $ + 2 $ par Go." },
   { c:C_T, l:"Ton",      t:"Clair, respectueux et encourageant, adapté à des jeunes adultes et à des adultes." },
   { c:C_I, l:"Identité", t:"Tu es un enseignant en mathématique expérimenté à l'éducation des adultes, soucieux de la différenciation pédagogique." },
-  { c:C_F, l:"Format",   t:"Un seul fichier HTML, sans connexion Internet, contenant : le cours visé et « Suite à cet exercice, je serai en mesure de… » ; le graphique des deux forfaits avec un curseur qui se déplace ; une table de valeurs ; des boutons pour changer de situation (cellulaire, location d'auto) et pour mettre en pause ; une rétroaction immédiate." }
+  { c:C_F, l:"Format",   t:"Un seul fichier HTML, sans connexion Internet, contenant : le cours visé et « Suite à cet exercice, je serai en mesure de… » ; le graphique des deux forfaits avec un curseur qui se déplace ; une table de valeurs ; des boutons pour changer de situation (cellulaire, location d'auto) et pour mettre en pause ; une rétroaction immédiate. Ludification : un personnage-guide qui parle, un bouton « Montre-moi comment » avec une démonstration pas à pas, des points, des séries et des badges, et des liens vers les fiches Alloprof." }
 ];
-var THINK = ["Lecture des fichiers joints", "Calcul des règles et du point d'intersection", "Écriture du code HTML", "Ajout du graphique animé et des boutons"];
+var THINK = ["Lecture des fichiers joints", "Calcul des règles et du point d'intersection", "Écriture du code HTML", "Ajout du graphique animé et des boutons", "Ludification : guide, démo, points et badges"];
 var CODE = [
   "<!DOCTYPE html>",
   "<html lang=\"fr\">",
@@ -6557,11 +6760,15 @@ var CODE = [
   "  <table> … table de valeurs … </table>",
   "  <button>Cellulaire</button> <button>Location d'auto</button>",
   "  <button>Pause</button>",
+  "  <div class=\"guide\"> … Max, le personnage qui parle … </div>",
+  "  <button>▶ Montre-moi comment</button>",
+  "  <span>⭐ XP</span> <span>🔥 série</span> <span>🏆 badges</span>",
+  "  <a href=\"https://www.alloprof.qc.ca/…\">Alloprof</a>",
   "  <script> … calculs et animation du curseur … <\/script>",
   "</body>",
   "</html>"
 ];
-var MN_TESTS = ["Bouton « Location d'auto »", "Bouton « Cellulaire »", "Règle : y = 5x + 20", "Bouton « Pause »", "Point d'intersection", "Table de valeurs"];
+var MN_TESTS = ["Bouton « Location d'auto »", "Bouton « Cellulaire »", "Règle : y = 5x + 20", "Bouton « Pause »", "Point d'intersection", "Guide et démo"];
 
 function DW(ms, tok){ return new Promise(function(res, rej){ setTimeout(function(){ tok === demoTok ? res() : rej("abort"); }, demoFast ? 1 : ms); }); }
 function msgsBottom(){ var m = $("#msgs"); m.scrollTop = m.scrollHeight; }
@@ -6619,7 +6826,7 @@ function miniHtml(){
   return '<div class="mn" id="mn">' +
     '<h3>Quel forfait choisir ?</h3>' +
     '<p class="mn-obj">Suite à cet exercice, je serai en mesure de comparer deux forfaits à l\'aide de la fonction affine.</p>' +
-    '<div class="mn-btns"><button class="mbtn sel" id="mnPre0">📱 Cellulaire</button><button class="mbtn" id="mnPre1">🚗 Location d\'auto</button><button class="mbtn" id="mnPause">⏸ Pause</button></div>' +
+    '<div class="mn-btns"><button class="mbtn sel" id="mnPre0">📱 Cellulaire</button><button class="mbtn" id="mnPre1">🚗 Location d\'auto</button><button class="mbtn" id="mnPause">⏸ Pause</button><button class="mbtn" id="mnDemo" style="background:var(--a);border-color:var(--a)">▶ Montre-moi comment</button><span class="mbtn" style="cursor:default">⭐ 40 XP · 🔥 2</span><span class="mbtn" style="cursor:default">🧑‍🏫 Max</span></div>' +
     '<div class="mn-main">' +
     '<svg id="mnSvg" viewBox="0 0 460 290" role="img" aria-label="Graphique des deux forfaits"></svg>' +
     '<div class="mn-side">' +
@@ -6761,7 +6968,7 @@ stg(5, "Tester chaque fonction", async function(tok){
   await DW(900, tok);
   await cible("#mnPause", function(){ miniPause(); }, 3);
   await cible("#mnSvg", null, 4);
-  await cible("#mnTab", null, 5);
+  await cible("#mnDemo", null, 5);
   $("#bTestsF").classList.add("on"); await DW(600, tok);
 });
 
