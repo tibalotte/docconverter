@@ -997,6 +997,9 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 .nr.parle .nr-ondes i:nth-child(2){animation-delay:.15s}
 .nr.parle .nr-ondes i:nth-child(3){animation-delay:.3s}
 @keyframes nrOnde{0%,100%{height:5px}50%{height:15px}}
+/* Diapo 8 : pastilles de largeur fixe (les valeurs ne font plus bouger la mise en page) */
+#animSlide .dirs{display:grid;grid-template-columns:7.2rem 7.2rem 1fr;gap:.4rem}
+#animSlide .dir{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1788,7 +1791,7 @@ function fxSvg(P, pfx, couches){
     $("#fxVx").setAttribute("x1", X); $("#fxVx").setAttribute("x2", X);
     $("#fxPa").setAttribute("cx", X); $("#fxPa").setAttribute("cy", FG.y0 - ca / P.ymax * FG.h);
     $("#fxPb").setAttribute("cx", X); $("#fxPb").setAttribute("cy", FG.y0 - cb / P.ymax * FG.h);
-    var xr = P.max > 50 ? Math.round(x) : Math.round(x * 10) / 10;
+    var xr = P.max > 50 ? Math.round(x / 10) * 10 : Math.round(x);   /* valeurs lisibles : par Go entier ou par tranche de 10 km */
     $("#fxA").textContent = "A : " + fxNum(fxCout(P.A, xr)) + " $";
     $("#fxB").textContent = "B : " + fxNum(fxCout(P.B, xr)) + " $";
     var d = fxCout(P.A, xr) - fxCout(P.B, xr);
