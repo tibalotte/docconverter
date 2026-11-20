@@ -857,11 +857,9 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 .rassure{display:flex;align-items:center;gap:.8rem;margin-top:.7rem;background:var(--ok-soft);border:2px solid var(--ok);border-radius:16px;padding:.6rem 1rem;max-width:52rem}
 .rassure .r-ico{font-size:2rem}
 .rassure p{margin:0;font-size:1.02rem;color:#10553a}
-#trucSlide{justify-content:flex-start;padding-top:1rem}
-#trucSlide .step{margin-bottom:.5rem}
-#trucSlide .step .bubble{font-size:1.05rem;padding:.55rem .95rem}
-#trucSlide .step .n{width:2.4rem;height:2.4rem;font-size:1.2rem}
-#trucSlide h2{margin-bottom:.5rem}
+#ingrSlide .citation{margin:.4rem auto .9rem;text-align:left}
+#ingrSlide .rassure{margin:1rem auto 0;text-align:left}
+#ingrSlide h2{margin-bottom:.3rem}
 </style>
 </head>
 <body>
@@ -963,18 +961,19 @@ button.open{border:0;cursor:pointer;font-family:inherit}
     </section>
 
     <!-- 5 ───────── Les 2 ingrédients ───────── -->
-    <section class="slide center" data-part="1" data-title="Les 2 ingrédients" data-min="2"
-      data-notes="C'est le titre de la présentation. Deux ingrédients seulement : l'IA écrit, le HTML se partage. Votre rôle : savoir ce que vos élèves doivent comprendre, et où ils bloquent. Ça, personne ne peut le faire à votre place.">
+    <section class="slide center" id="ingrSlide" data-part="1" data-title="Les 2 ingrédients" data-min="2"
+      data-notes="Partir de la citation : c'est souvent la première réaction des collègues. Puis la recette : c'est le titre de la présentation. Deux ingrédients seulement : l'IA écrit, le HTML se partage. Votre rôle : savoir ce que vos élèves doivent comprendre, et où ils bloquent. Ça, personne ne peut le faire à votre place.">
       <p class="kicker">La recette</p>
       <h2>Deux ingrédients, une activité interactive</h2>
-      <div class="eq gap">
+      <div class="citation frag pop"><span class="cit-av" aria-hidden="true">🧑‍🏫</span><blockquote>« Ça doit être long et compliqué à faire, ce genre d'activité… »<cite>Ce qu'on entend souvent en salle des enseignants</cite></blockquote></div>
+      <div class="eq">
         <div class="b b1 frag pop"><span class="ico">🤖</span>L'IA<small>écrit le code à votre place</small></div>
         <div class="op frag pop">+</div>
         <div class="b b2 frag pop"><span class="ico">📄</span>Le HTML<small>un fichier qui s'ouvre dans le navigateur</small></div>
         <div class="op frag pop">=</div>
         <div class="b b3 frag pop"><span class="ico">🎓</span>Une activité interactive<small>conçue avec votre expertise</small></div>
       </div>
-      <p class="gap frag big">Vous n'écrivez pas de code. <span class="hl">Vous savez ce que vos élèves doivent comprendre.</span></p>
+      <div class="rassure frag pop"><span class="r-ico" aria-hidden="true">💪</span><p><b>Pas du tout !</b> Vous n'écrivez pas de code : l'IA s'en charge. En suivant les quelques étapes de cette présentation, vous aussi pourrez créer de nouvelles activités interactives pour vos élèves. La compétence la plus importante, c'est de savoir <b>identifier le besoin de vos élèves</b>… et cette compétence, <b>vous l'avez déjà</b>.</p></div>
     </section>
 
     <!-- 6 ───────── Le HTML, c'est quoi ───────── -->
@@ -1192,16 +1191,15 @@ button.open{border:0;cursor:pointer;font-family:inherit}
     </section>
 
     <!-- 13 ───────── Truc ───────── -->
-    <section class="slide" id="trucSlide" data-part="3" data-title="Faire créer la requête par l'IA" data-min="2"
-      data-notes="Dans la démonstration, la requête était écrite à la main. Voici le truc pour aller plus vite : on décrit son besoin simplement, puis on demande à l'IA de fabriquer la requête complète. On la relit et on la modifie au besoin avant de la copier-coller. Une requête peut être longue : ce n'est pas un problème, l'IA l'écrit pour nous. Commencer par lire la citation : c'est souvent la première réaction des collègues. Terminer sur la réponse rassurante : l'expertise qui compte, identifier le besoin de l'élève, ils l'ont déjà.">
+    <section class="slide" data-part="3" data-title="Faire créer la requête par l'IA" data-min="2"
+      data-notes="Dans la démonstration, la requête était écrite à la main. Voici le truc pour aller plus vite : on décrit son besoin simplement, puis on demande à l'IA de fabriquer la requête complète. On la relit et on la modifie au besoin avant de la copier-coller. Une requête peut être longue : ce n'est pas un problème, l'IA l'écrit pour nous.">
       <div class="chat">
         <p class="kicker">Truc important</p>
         <h2>Faites créer la requête par l'IA</h2>
-        <div class="citation frag pop"><span class="cit-av" aria-hidden="true">🧑‍🏫</span><blockquote>« Ça doit être long et compliqué à faire, ce genre d'activité… »<cite>Ce qu'on entend souvent en salle des enseignants</cite></blockquote></div>
-        <div class="step frag left"><div class="n">1</div><div class="bubble user">Je décris mon besoin <em>simplement</em> : « Je veux un questionnaire sur les homophones a / à pour mes élèves. »</div></div>
+        <div class="step frag left gap"><div class="n">1</div><div class="bubble user">Je décris mon besoin <em>simplement</em> : « Je veux un questionnaire sur les homophones a / à pour mes élèves. »</div></div>
         <div class="step frag left"><div class="n">2</div><div class="bubble user">Je demande : <em>« Crée-moi une requête claire et complète (action, contexte, ton, identité, format html) pour ceci. »</em></div></div>
         <div class="step frag left"><div class="n">3</div><div class="bubble ai">Je <em>relis</em> la requête obtenue et je la <em>modifie</em> au besoin, puis je la copie-colle et je l'envoie.</div></div>
-        <div class="rassure frag pop"><span class="r-ico" aria-hidden="true">💪</span><p><b>Pas du tout !</b> En suivant ces quelques étapes, vous aussi pourrez créer de nouvelles activités interactives pour vos élèves. La compétence la plus importante, c'est de savoir <b>identifier le besoin de vos élèves</b>… et cette compétence, <b>vous l'avez déjà</b>.</p></div>
+        <p class="proof frag pop" style="margin-top:.4rem">Une requête peut être longue, détaillée, structurée : demandez à l'IA de la construire avec vous.</p>
       </div>
     </section>
 
