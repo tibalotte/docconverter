@@ -1023,7 +1023,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 
     <!-- 8b ───────── Papier ou HTML ───────── -->
     <section class="slide" id="papierSlide" data-part="2" data-title="Papier ou HTML ?" data-min="3"
-      data-notes="Le cœur du message : un fichier HTML peut faire ce qu'une feuille ne peut pas. Révéler chaque ligne. Puis ouvrir un exemple (bouton en bas) et cliquer sur « Montre-moi comment » : le personnage fait la tâche devant l'élève, étape par étape, avec une main qui clique et tape, puis lui laisse la place. Tout cela se demande à l'IA dans la requête.">
+      data-notes="Le cœur du message : un fichier HTML peut faire ce qu'une feuille ne peut pas. Révéler chaque ligne. À la dernière page, dans chaque exemple, le bouton « Montre-moi comment » fait faire la tâche par le personnage devant l'élève, étape par étape, avec une main qui clique et tape, puis lui laisse la place. Tout cela se demande à l'IA dans la requête.">
       <p class="kicker">Ce que le papier ne peut pas faire</p>
       <h2>Exercice papier ou activité HTML ?</h2>
       <div class="vs">
@@ -1035,7 +1035,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
         <div class="vs-r frag"><span>Peu de motivation à recommencer</span><i>➜</i><span><b>⭐ Points, séries 🔥 et badges 🏆</b> : on veut battre son record</span></div>
         <div class="vs-r frag"><span>« Va voir dans ton guide… »</span><i>➜</i><span><b>🔗 Liens Alloprof</b> vers la bonne fiche, en un clic</span></div>
       </div>
-      <p class="frag pop" style="margin-top:.7rem"><button class="btn-main" id="btnVoirDemo" style="font-size:1rem;padding:.5rem 1.2rem">▶ Essayer un exemple : les homophones avec Sophie</button></p>
+      <p class="frag pop proof" style="margin-top:.7rem">👉 Des exemples d'activités vous seront présentés à la dernière page de cette présentation.</p>
     </section>
 
     <!-- 9 ───────── Animation : fonction affine ───────── -->
@@ -1179,13 +1179,13 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 
     <!-- 13 ───────── Truc ───────── -->
     <section class="slide" data-part="3" data-title="Faire créer la requête par l'IA" data-min="2"
-      data-notes="Dans la démonstration, la requête était écrite à la main. Voici le truc pour aller plus vite : on décrit son besoin simplement, puis on demande à l'IA de fabriquer la requête complète. On copie-colle. Une requête peut être longue : ce n'est pas un problème, l'IA l'écrit pour nous.">
+      data-notes="Dans la démonstration, la requête était écrite à la main. Voici le truc pour aller plus vite : on décrit son besoin simplement, puis on demande à l'IA de fabriquer la requête complète. On la relit et on la modifie au besoin avant de la copier-coller. Une requête peut être longue : ce n'est pas un problème, l'IA l'écrit pour nous.">
       <div class="chat">
         <p class="kicker">Truc important</p>
         <h2>Faites créer la requête par l'IA</h2>
         <div class="step frag left gap"><div class="n">1</div><div class="bubble user">Je décris mon besoin <em>simplement</em> : « Je veux un questionnaire sur les homophones a / à pour mes élèves. »</div></div>
         <div class="step frag left"><div class="n">2</div><div class="bubble user">Je demande : <em>« Crée-moi une requête claire et complète (action, contexte, ton, identité, format html) pour ceci. »</em></div></div>
-        <div class="step frag left"><div class="n">3</div><div class="bubble ai">Je <em>copie-colle</em> la requête obtenue, puis je l'envoie.</div></div>
+        <div class="step frag left"><div class="n">3</div><div class="bubble ai">Je <em>relis</em> la requête obtenue et je la <em>modifie</em> au besoin, puis je la copie-colle et je l'envoie.</div></div>
         <p class="proof frag pop" style="margin-top:.4rem">Une requête peut être longue, détaillée, structurée : demandez à l'IA de la construire avec vous.</p>
       </div>
     </section>
@@ -1476,7 +1476,6 @@ var PROJETS = [
     desc:"Plan cartésien à 3 axes : déplacer cube, prisme, cylindre et pyramide aux bonnes coordonnées (x ; y ; z), puis calculer volume et aire.", embed:"solides3d", auteur:"" }
 ];
 
-$("#btnVoirDemo").onclick = function(){ ouvrirProjet("homophones", false); };
 
 /* ═══════ Idées par matière (diapositive « Des idées pour votre matière ») ═══════ */
 var IDEES = {
@@ -1764,7 +1763,6 @@ function fxSvg(P, pfx, couches){
   requestAnimationFrame(boucle);
 })();
 
-$("#btnVoirDemo").onclick = function(){ ouvrirProjet("homophones", false); };
 
 /* ═══════ Créer un compte Google (guide pas à pas) ═══════ */
 var GG_URL = "accounts.google.com/signup";
@@ -2603,11 +2601,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -2698,12 +2715,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -3129,11 +3146,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -3224,12 +3260,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -3668,11 +3704,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -3763,12 +3818,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -4241,11 +4296,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -4336,12 +4410,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -4808,11 +4882,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -4903,12 +4996,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -5332,11 +5425,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -5427,12 +5539,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -5870,11 +5982,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -5965,12 +6096,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -6461,11 +6592,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -6556,12 +6706,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
@@ -7019,11 +7169,30 @@ var G = (function(){
     for (var i = 0; pref && i < liste.length; i++) if (liste[i].name === pref) return liste[i];
     return liste[0] || null;
   }
+  /* Texte lu à voix haute : symboles et abréviations dits en mots (jamais « barre oblique ») */
+  function pourVoix(t, lang){
+    var en = /^en/i.test(lang || C.lang || "");
+    var r = nettoie(t);
+    var R = en ? [
+      [/(\d+)\s*\/\s*(\d+)/g, "$1 of $2"], [/×/g, " times "], [/÷/g, " divided by "], [/≈/g, " about "], [/→|➜/g, ", "],
+      [/\s[−-]\s/g, " minus "], [/\$(\d)/g, "$1 dollars "], [/\//g, " "], [/·/g, ", "]
+    ] : [
+      [/(\d+)\s*\/\s*(\d+)\b/g, "$1 sur $2"],
+      [/g\s*\/\s*cm³/g, " grammes par centimètre cube"], [/g\s*\/\s*mL/g, " grammes par millilitre"],
+      [/(\d)\s*cm³/g, "$1 centimètres cubes"], [/(\d)\s*cm²/g, "$1 centimètres carrés"], [/(\d)\s*cm\b/g, "$1 centimètres"],
+      [/(\d)\s*mL\b/g, "$1 millilitres"], [/(\d)\s*Go\b/g, "$1 gigaoctets"], [/(\d)\s*km\b/g, "$1 kilomètres"], [/(\d)\s*°C/g, "$1 degrés Celsius"],
+      [/ρ/g, "rô"], [/π/g, "pi"], [/×/g, " fois "], [/÷/g, " divisé par "], [/≈/g, " environ "], [/→|➜/g, ", donc "],
+      [/\s[−-]\s/g, " moins "], [/\(\s*(\d+)\s*;\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2, $3"], [/\(\s*(\d+)\s*;\s*(\d+)\s*\)/g, "$1, $2"],
+      [/\bTPS\b/g, "T P S"], [/\bTVQ\b/g, "T V Q"], [/\//g, " "], [/·/g, ", "]
+    ];
+    R.forEach(function(p){ r = r.replace(p[0], p[1]); });
+    return r.replace(/\s+/g, " ").trim();
+  }
   function parler(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
-      var u = new SpeechSynthesisUtterance(nettoie(t)), v = choisirVoix(lang);
+      var u = new SpeechSynthesisUtterance(pourVoix(t, lang)), v = choisirVoix(lang);
       u.lang = lang; u.rate = .98; u.pitch = C.pitch || 1;
       if (v){
         u.voice = v; u.lang = v.lang;
@@ -7114,12 +7283,12 @@ var G = (function(){
         var e = etapes[i];
         if (e.el) eclairer(e.el);
         var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
         if (saute) break;
         if (e.f) await e.f();
         if (saute) break;
         var der = i === etapes.length - 1;
-        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+        await dire('<b>' + ET + (i + 1) + (EN ? ' of ' : ' sur ') + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
       }
     } finally {
       saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
