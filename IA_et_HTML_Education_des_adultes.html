@@ -2573,8 +2573,18 @@ var NR = (function(){
       .replace(/…/g, "...").replace(/\s+/g, " ").trim();
   }
   /* Découpe en phrases (certaines voix coupent les longs textes) et lit à la suite */
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, montok){
-    return new Promise(function(res){
+    return voixPretes.then(function(){ return new Promise(function(res){
       var phrases = pourVoix(t).match(/[^.!?]+[.!?…]*\s*/g) || [t], i = 0, v = laVoix(), fini = false;
       function fin(){ if (fini) return; fini = true; boucheOff(); res(); }
       if (!voix || !("speechSynthesis" in window)){
@@ -2586,7 +2596,7 @@ var NR = (function(){
         if (i >= phrases.length) return fin();
         var u = new SpeechSynthesisUtterance(phrases[i++]);
         u.lang = "fr-CA"; u.rate = 1.05; u.pitch = 1.08;   /* 5 % plus rapide, ton un peu plus enjoué */
-        if (v){ u.voice = v; u.lang = v.lang; if (genre(v) === "f") u.pitch = .8; }
+        if (v){ u.voice = v; u.lang = v.lang; if (genre(v) !== "m") u.pitch = .8; } else u.pitch = .8;
         var debut = Date.now(), minimum = u.text.length * 46;   /* temps de lecture minimal, même sans voix installée */
         var garde = setTimeout(function(){ suivante(); }, Math.max(4000, u.text.length * 110));
         function apres(){ clearTimeout(garde); setTimeout(suivante, Math.max(0, minimum - (Date.now() - debut))); }
@@ -2595,7 +2605,7 @@ var NR = (function(){
         u.onerror = apres;
         speechSynthesis.speak(u);
       })();
-    });
+    }); });
   }
   function boucheOn(){ $("#nr").classList.add("parle"); }
   function boucheOff(){ $("#nr").classList.remove("parle"); }
@@ -2954,7 +2964,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -3509,7 +3536,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -4077,7 +4121,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -4679,7 +4740,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -5275,7 +5353,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -5828,7 +5923,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -6395,7 +6507,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -7015,7 +7144,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
@@ -7602,7 +7748,24 @@ var G = (function(){
     R.forEach(function(p){ r = r.replace(p[0], p[1]); });
     return r.replace(/\s+/g, " ").trim();
   }
+  /* Les voix du navigateur se chargent en différé : on attend qu'elles soient prêtes avant le premier mot
+     (sinon le navigateur prend sa voix par défaut, souvent féminine). Délai maximal : 2,5 s. */
+  var voixPretes = new Promise(function(res){
+    try{
+      if (speechSynthesis.getVoices().length) return res();
+      var fait = false, ok = function(){ if (!fait && speechSynthesis.getVoices().length){ fait = true; res(); } };
+      speechSynthesis.addEventListener("voiceschanged", ok);
+      var n = 0, t = setInterval(function(){ n++; ok(); if (fait || n > 25){ clearInterval(t); if (!fait){ fait = true; res(); } } }, 100);
+    }catch(e){ res(); }
+  });
   function parler(t, lang){
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if (!voix) return;
+    var mon = ++parleTok;
+    voixPretes.then(function(){ if (mon === parleTok) parlerMaintenant(t, lang); });
+  }
+  var parleTok = 0;
+  function parlerMaintenant(t, lang){
     try{
       speechSynthesis.cancel(); if (!voix) return;
       lang = lang || C.lang || "fr-CA";
