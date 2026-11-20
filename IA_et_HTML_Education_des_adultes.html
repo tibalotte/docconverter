@@ -2442,7 +2442,7 @@ $("#demoEnd").onclick = demoEnd;
    ════════════════════════════════════════════════════════════════════ */
 var NARR = {
   "Accueil":[
-    { t:"Salut ! Je suis ton présentateur, et je suis vraiment content que tu sois là ! J'aurais adoré te présenter tout ça en personne… Alors j'ai trouvé une autre façon : je t'accompagne ici, diapo par diapo." },
+    { t:"Bonjour ! Je suis ton présentateur, et je suis vraiment content que tu sois là ! J'aurais adoré te présenter tout ça en personne… Alors j'ai trouvé une autre façon : je t'accompagne ici, diapo par diapo." },
     { t:"Au programme : comment l'intelligence artificielle et une simple page web, le HTML, peuvent t'aider à créer des activités interactives pour tes élèves. Tu vas voir, c'est stimulant. Allons-y !" }],
   "Objectifs de cette présentation":[
     { t:"Voici ce que tu vas gagner avec cette présentation." },
@@ -2716,7 +2716,7 @@ var NR = (function(){
     $("#nrVoix").onclick = function(){ voix = !voix; try{ localStorage.setItem("nr_voix", voix ? "1" : "0"); if (!voix) speechSynthesis.cancel(); }catch(e){} controles(); };
     $("#nrStop").onclick = function(){ arreter(true); };
     try{ speechSynthesis.getVoices(); speechSynthesis.addEventListener("voiceschanged", function(){}); }catch(e){}
-    bulle("Salut ! Je suis ton présentateur. Je peux te guider à travers toute la présentation, en parlant, comme une courte vidéo. Tu préfères ?",
+    bulle("Bonjour ! Je suis ton présentateur. Je peux te guider à travers toute la présentation, en parlant, comme une courte vidéo. Tu préfères ?",
       [{ t:"▶ Démarrer la visite guidée", f:demarrer }, { t:"Je navigue seul", cl:"sec", f:function(){ mode = "libre"; bulle("Parfait ! Clique sur moi quand tu veux que je t'explique une diapo."); setTimeout(function(){ if (mode === "libre"){ el.classList.add("mini"); nav.classList.add("nr-mini"); } }, 4000); } }]);
     controles();
   }
