@@ -2103,6 +2103,8 @@ var QUIZ = [
     ko:"Pas besoin de recommencer : récupérez le fichier HTML, joignez-le à une autre IA avec une requête de relais, et continuez." }
 ];
 var qi = 0, score = 0;
+var Q_BRAVO = ["Bonne réponse !", "Exactement !", "Bien vu !", "Tout juste !", "Parfait !", "Dans le mille !", "Impeccable !", "C'est ça !", "Bravo !", "Chapeau !"], Q_OUPS = ["Presque.", "Pas tout à fait.", "Pas encore…", "Bonne tentative !", "Tu y es presque."], Q_SACS = {};
+function qAlea(t){ var k = t[0], s = Q_SACS[k]; if (!s || !s.length){ s = Q_SACS[k] = t.slice().sort(function(){ return Math.random() - .5; }); } return s.pop(); }
 function renderQuiz(){
   var box = $("#quiz");
   if (qi >= QUIZ.length){
@@ -2133,7 +2135,7 @@ function renderQuiz(){
       if (!good) b.classList.add("bad");
       if (good) score++;
       var fb = $("#fb"); fb.className = "fb on " + (good ? "good" : "bad");
-      fb.innerHTML = '<b>' + (good ? "Bonne réponse. " : "Presque. ") + '</b>' + esc(good ? Q.ok : Q.ko);
+      fb.innerHTML = '<b>' + (good ? qAlea(Q_BRAVO) : qAlea(Q_OUPS)) + ' </b>' + esc((good ? Q.ok : Q.ko).replace(/^(Exactement|Exact|Oui|Bravo|Non|Pas tout à fait)\s*[!.:]\s*/, ""));
       $("#qNextWrap").hidden = false;
       $("#qNext").onclick = function(){ qi++; renderQuiz(); };
       $("#qNext").focus();
@@ -3075,16 +3077,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -3152,7 +3164,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -3198,7 +3210,7 @@ function afficher(qd){
         if (!qd){ if (essais === 1) score++; else erreurs.push(q); }
         G.bon(b, essais === 1 ? 10 : 4);
         if (!qd && score >= 6) G.badge("truc");
-        fb.className = "fb on good"; fb.innerHTML = "<b>" + (essais === 1 ? "Bravo !" : "Voilà !") + "</b> " + q.t;
+        fb.className = "fb on good"; fb.innerHTML = "<b>" + (essais === 1 ? G.bravo() : ["Voilà !", "Tu l'as !", "Bien rattrapé !", "C'est ça, cette fois !", "Ah, voilà !", "Bonne correction !"][Math.floor(Math.random() * 6)]) + "</b> " + q.t;
         $("#suiteWrap").hidden = false; $("#suite").focus();
       } else {
         b.classList.add("bad"); b.disabled = true;
@@ -3620,16 +3632,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -3697,7 +3719,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -3742,7 +3764,7 @@ function choisir(el){
     var a = el.parentNode; a.appendChild(el);
     faits++; selQ = null;
     $("#bar").style.width = (faits / P.length * 100) + "%";
-    fb.className = "fb on good"; fb.innerHTML = "<b>Great match!</b> " + P[+el.dataset.k].a;
+    fb.className = "fb on good"; fb.innerHTML = "<b>" + G.bravo() + "</b> " + P[+el.dataset.k].a;
     parler(P[+el.dataset.k].a); G.bon(el, 10, false);
     if (faits === 4) G.badge("half");
     if (faits === P.length) fin();
@@ -4178,16 +4200,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -4255,7 +4287,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -4344,7 +4376,7 @@ function question(){
         if (tent === 1) sc++;
         G.bon(b, tent === 1 ? 10 : 4, false);
         b.classList.add("good"); document.querySelectorAll(".opt").forEach(function(o){ o.disabled = true; });
-        fb.className = "fb on good"; fb.innerHTML = "<b>Oui !</b> " + q.ex + ' <button class="btn sm" id="nx" style="margin-left:.5rem">Suivante →</button>';
+        fb.className = "fb on good"; fb.innerHTML = "<b>" + G.bravo() + "</b> " + q.ex + ' <button class="btn sm" id="nx" style="margin-left:.5rem">Suivante →</button>';
         $("#nx").onclick = function(){ qi++; question(); }; $("#nx").focus();
       } else {
         b.classList.add("bad"); b.disabled = true;
@@ -4770,16 +4802,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -4847,7 +4889,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -5356,16 +5398,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -5433,7 +5485,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -5899,16 +5951,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -5976,7 +6038,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -6456,16 +6518,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -6533,7 +6605,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -7066,16 +7138,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -7143,7 +7225,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
@@ -7643,16 +7725,26 @@ var G = (function(){
     q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
     if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
   }
-  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
-  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
-  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  /* Félicitations et encouragements variés : tirage sans répétition (chaque formule sort une fois avant de revenir) */
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Bien joué !", "Exactement !", "Tu as l'œil !", "Parfait !", "Impeccable !", "Chapeau !", "Génial !", "Tout juste !", "Dans le mille !", "Belle réussite !", "C'est ça !", "Bonne réponse !", "Très bien vu !", "Superbe !", "Formidable !", "Remarquable !", "Sans faute !", "Pile-poil !", "Magnifique !", "Bien trouvé !", "Quelle précision !", "Tu maîtrises !", "Solide !", "Fantastique !", "Voilà du beau travail !", "Tu progresses !", "Continue comme ça !", "Ça, c'est réussi !", "Bien raisonné !", "Admirable !"],
+    en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!", "Awesome!", "Spot on!", "Brilliant!", "You got it!", "Exactly!", "Fantastic!", "Superb!", "Way to go!", "Outstanding!", "Keep it up!", "Nailed it!", "Impressive!", "Right on!", "Terrific!", "Good thinking!", "Correct!", "Bravo!", "Wonderful!"] };
+  var SERIE = { fr:["Quelle série !", "Rien ne t'arrête !", "Tu es en feu !", "Tu enchaînes les bonnes réponses !", "Imbattable !", "Quelle lancée !"],
+    en:["What a streak!", "You're on fire!", "Unstoppable!", "On a roll!", "Keep the streak going!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver.", "Tu y es presque !", "Pas encore… essaie une autre piste.", "Bonne tentative ! Relis bien la question.", "Ce n'est pas grave, recommence.", "Pas cette fois. Courage !", "Respire, et réessaie.", "Tu chauffes ! Encore un petit effort.", "On apprend en essayant : vas-y !"],
+    en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it.", "So close!", "Not yet… try another way.", "Good try! Read the question again.", "No worries, try again.", "Keep going, you're getting there!"] };
+  var SACS = {};
+  function alea(t){
+    var k = t.join("|"), sac = SACS[k];
+    if (!sac || !sac.length){ sac = SACS[k] = t.slice(); for (var i = sac.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), x = sac[i]; sac[i] = sac[j]; sac[j] = x; } }
+    return sac.pop();
+  }
   function bon(cible, pts, msg){
     if (enDemo) return;
     serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
     flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
     if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
     if (serie === 5) badge("serie5");
-    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+    if (msg !== false) dire(msg || alea(serie >= 3 && Math.random() < .5 ? SERIE[C.langue] : BRAVO[C.langue]), { humeur:"joie" });
   }
   function oups(cible, msg){
     if (enDemo) return;
@@ -7720,7 +7812,7 @@ var G = (function(){
       dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:C.langue === "en" ? "Let's go!" : "D'accord !" }] });
     }, 400);
   }
-  return { init:init, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+  return { init:init, bravo:function(){ return alea(BRAVO[C.langue]); }, lire:function(t, l){ parler(t, l); }, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
     get enDemo(){ return enDemo; } };
 })();
 
