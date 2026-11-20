@@ -984,10 +984,19 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 /* Présentateur : image fournie, cadre ovale */
 .nr-av{position:relative;width:4.4rem;aspect-ratio:4/5;border-radius:50% / 46%;overflow:hidden;background:#fff;border:3px solid #00849C;box-sizing:border-box}
 .nr-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;user-select:none;-webkit-user-drag:none}
-.nr-av .nr-bouche{clip-path:ellipse(19% 15% at 50% 70%);transform-origin:50% 62%}
-.nr.parle .nr-av .nr-bouche{animation:nrMachoire .22s ease-in-out infinite alternate}
-@keyframes nrMachoire{from{transform:translateY(0) scaleY(1)}to{transform:translateY(2.5%) scaleY(1.05)}}
 #nav.nr-on .nr-av{width:4.2rem;margin:-2.8rem 0 -.2rem}
+/* Quand il parle : léger balancement + ondes sonores (remplace l'animation de la bouche) */
+.nr .nr-av{overflow:visible}
+.nr .nr-av img.nr-base{border-radius:50% / 46%}
+.nr.parle .nr-av{animation:nrParleImg 1.6s ease-in-out infinite}
+@keyframes nrParleImg{0%,100%{transform:rotate(0) translateY(0)}25%{transform:rotate(-2.5deg) translateY(-2px)}50%{transform:rotate(0) translateY(0)}75%{transform:rotate(2.5deg) translateY(-1px)}}
+.nr-ondes{position:absolute;right:-.85rem;top:38%;display:flex;gap:2px;align-items:center;opacity:0;transition:opacity .25s}
+.nr.parle .nr-ondes{opacity:1}
+.nr-ondes i{display:block;width:3px;height:6px;border-radius:2px;background:#00849C}
+.nr.parle .nr-ondes i{animation:nrOnde .7s ease-in-out infinite}
+.nr.parle .nr-ondes i:nth-child(2){animation-delay:.15s}
+.nr.parle .nr-ondes i:nth-child(3){animation-delay:.3s}
+@keyframes nrOnde{0%,100%{height:5px}50%{height:15px}}
 </style>
 </head>
 <body>
@@ -2428,97 +2437,97 @@ $("#demoEnd").onclick = demoEnd;
    ════════════════════════════════════════════════════════════════════ */
 var NARR = {
   "Accueil":[
-    { t:"Salut ! Je suis ton présentateur. J'aurais aimé te présenter tout ça en personne… Comme ce n'est pas possible, j'ai trouvé une autre façon : je t'accompagne ici, diapo par diapo." },
-    { t:"Le sujet : comment l'intelligence artificielle et une simple page web, le HTML, peuvent t'aider à créer des activités interactives pour tes élèves. Allons-y !" }],
+    { t:"Salut ! Je suis ton présentateur, et je suis vraiment content que tu sois là ! J'aurais adoré te présenter tout ça en personne… Alors j'ai trouvé une autre façon : je t'accompagne ici, diapo par diapo." },
+    { t:"Au programme : comment l'intelligence artificielle et une simple page web, le HTML, peuvent t'aider à créer des activités interactives pour tes élèves. Tu vas voir, c'est stimulant. Allons-y !" }],
   "Objectifs de cette présentation":[
-    { t:"Voici ce que tu vas retirer de cette présentation." },
-    { n:1, t:"D'abord, comprendre pourquoi un fichier HTML est un excellent format pour l'apprentissage autonome." },
-    { n:1, t:"Ensuite, rédiger une requête et la faire bonifier par l'IA, sans jamais exposer les renseignements de tes élèves." },
-    { n:1, t:"Partir de ce que tu as déjà : un guide, un exercice, un croquis." },
-    { n:1, t:"Et découvrir des exemples concrets dans ta matière." },
-    { n:2, t:"Ces objectifs touchent cinq dimensions du Cadre de référence de la compétence numérique, dont l'usage éthique et la production de contenu." }],
+    { t:"Voici ce que tu vas gagner avec cette présentation." },
+    { n:1, t:"Un : comprendre pourquoi un fichier HTML est un format génial pour l'apprentissage autonome." },
+    { n:1, t:"Deux : rédiger une requête et la faire bonifier par l'IA, en protégeant toujours les informations de tes élèves." },
+    { n:1, t:"Trois : partir de ce que tu as déjà. Ton guide, un exercice, un croquis : c'est ton point de départ !" },
+    { n:1, t:"Et quatre : découvrir des exemples concrets dans ta matière, prêts à essayer." },
+    { n:2, t:"Bonus : tu développes cinq dimensions de la compétence numérique, dont l'usage éthique et la création de contenu." }],
   "Notre réalité":[
-    { t:"Notre réalité, tu la connais mieux que quiconque." },
-    { n:4, t:"Entrée continue, plusieurs cours dans le même local, chacun à son rythme, des parcours très variés." },
-    { n:1, t:"C'est justement là qu'une activité interactive devient une alliée." },
-    { n:2, t:"L'élève reçoit une rétroaction immédiate pendant que tu aides quelqu'un d'autre, et il peut recommencer sans se sentir jugé." },
-    { n:2, t:"La voix et les indices font de la différenciation pour toi, et l'activité suit l'élève jusqu'à la maison." }],
+    { t:"Notre réalité, tu la connais mieux que personne." },
+    { n:4, t:"Entrée continue, plusieurs cours dans le même local, chacun à son rythme, des parcours tellement variés. C'est un vrai défi !" },
+    { n:1, t:"Et c'est exactement là qu'une activité interactive devient ta meilleure alliée." },
+    { n:2, t:"Ton élève reçoit une rétroaction immédiate pendant que tu aides quelqu'un d'autre. Et il peut recommencer, encore et encore, sans jamais se sentir jugé." },
+    { n:2, t:"La voix et les indices font de la différenciation pour toi. Et l'activité suit ton élève jusqu'à la maison !" }],
   "Papier ou HTML ?":[
-    { t:"Comparons un exercice papier et une activité HTML." },
-    { n:2, t:"Sur papier, la consigne se lit seul et l'exemple reste figé. En HTML, un personnage comme moi explique la tâche, puis la démontre étape par étape." },
-    { n:2, t:"La correction n'attend plus des jours : la rétroaction est immédiate. Et la voix, la traduction et les indices s'adaptent à chacun." },
-    { n:2, t:"Les points et les badges donnent envie de recommencer, et un lien Alloprof mène directement à la bonne fiche." },
-    { n:1, t:"Neuf exemples t'attendent à la toute fin. Clique sur une vignette quand tu voudras y aller." }],
+    { t:"Faisons le match : exercice papier contre activité HTML !" },
+    { n:2, t:"Sur papier, la consigne se lit seul et l'exemple reste figé. En HTML ? Un personnage, comme moi, explique la tâche et la démontre étape par étape !" },
+    { n:2, t:"Fini la correction qui attend des jours : la rétroaction est immédiate. Et la voix, la traduction et les indices s'adaptent à chaque élève." },
+    { n:2, t:"Les points et les badges donnent envie de recommencer. Et un lien Alloprof mène directement à la bonne fiche !" },
+    { n:1, t:"Neuf exemples t'attendent à la toute fin. Tu vas aimer ça ! Clique sur une vignette quand tu veux y aller." }],
   "Les 2 ingrédients":[
-    { n:1, t:"Je t'entends penser : ça doit être long et compliqué à faire…" },
-    { n:5, t:"En fait, la recette tient en deux ingrédients. L'IA écrit le code. Le HTML est un simple fichier qui s'ouvre dans ton navigateur. Résultat : une activité interactive, conçue avec ton expertise." },
-    { n:1, t:"Tu n'écris aucune ligne de code. La compétence la plus importante, c'est d'identifier le besoin de tes élèves… et celle-là, tu l'as déjà." }],
+    { n:1, t:"Je t'entends d'ici : ça doit être long et compliqué à faire…" },
+    { n:5, t:"Bonne nouvelle : la recette tient en deux ingrédients ! L'IA écrit le code. Le HTML, c'est un simple fichier qui s'ouvre dans ton navigateur. Résultat : une activité interactive, conçue avec ton expertise." },
+    { n:1, t:"Tu n'écris aucune ligne de code. La compétence la plus importante, c'est d'identifier le besoin de tes élèves… et celle-là, tu l'as déjà ! Alors oui, c'est possible." }],
   "Ingrédient 1 : le HTML, c'est quoi ?":[
-    { n:1, t:"Premier ingrédient : le HTML. À gauche, le code ; à droite, ce que ton navigateur affiche. Essaie de cliquer sur « a » ou « à » dans la page." },
-    { n:1, t:"HTML, ce sont des balises qui disent au navigateur quoi afficher. Rassure-toi : c'est l'IA qui les écrit." },
-    { n:1, t:"Et non, pas besoin de serveur ! Un double-clic suffit. Le fichier s'enregistre sur OneDrive comme un PDF et se partage par courriel, Teams ou Moodle. D'ailleurs, cette présentation est elle-même un seul fichier HTML." }],
+    { n:1, t:"Premier ingrédient : le HTML ! À gauche, le code. À droite, ce que ton navigateur affiche. Vas-y, clique sur « a » ou « à » dans la page !" },
+    { n:1, t:"Le HTML, ce sont des balises qui disent au navigateur quoi afficher. Et rassure-toi : c'est l'IA qui les écrit pour toi." },
+    { n:1, t:"Pas besoin de serveur ! Un double-clic suffit. Le fichier s'enregistre sur OneDrive comme un PDF et se partage par courriel, Teams ou Moodle. Et devine quoi : cette présentation est elle-même un seul fichier HTML !" }],
   "Le format HTML : pratique et polyvalent":[
-    { n:1, t:"Pour toi, ce format est pratique : un seul fichier, il s'ouvre partout, il est gratuit, et tu peux le redonner à l'IA pour l'améliorer autant que tu veux." },
-    { n:3, t:"Et on peut y mettre bien plus qu'un questionnaire : des animations, des objets en 3D à manipuler, des laboratoires virtuels…" },
-    { n:3, t:"… des activités où l'on glisse, trie et ordonne, des vidéos, et même une fiche à imprimer. Il suffit de le demander à l'IA." }],
+    { n:1, t:"Pour toi, ce format est super pratique : un seul fichier, il s'ouvre partout, il est gratuit, et tu peux le redonner à l'IA pour l'améliorer autant que tu veux !" },
+    { n:3, t:"Et on peut y mettre tellement plus qu'un questionnaire : des animations, des objets en 3D à manipuler, des laboratoires virtuels…" },
+    { n:3, t:"… des activités où l'on glisse, trie et ordonne, des vidéos, et même une fiche à imprimer. Ta seule limite : ton imagination. Il suffit de le demander à l'IA !" }],
   "Animation : quel forfait choisir ?":[
-    { t:"Voici un exemple d'animation en mathématique : quel forfait cellulaire choisir ?" },
+    { t:"Regarde ça : une animation en mathématique. Quel forfait cellulaire choisir ?" },
     { n:1, t:"Le forfait A coûte 20 dollars par mois, plus 5 dollars par gigaoctet." },
     { n:1, t:"Le forfait B coûte 35 dollars, plus 2 dollars par gigaoctet." },
-    { n:1, t:"Regarde le curseur : les deux droites se croisent à 5 gigaoctets, où les deux forfaits coûtent 45 dollars. Au-delà, B devient plus avantageux." },
-    { n:1, t:"Une notion abstraite devient visible. Pense à l'élève qui bloque sur la fonction affine." }],
+    { n:1, t:"Suis le curseur : les deux droites se croisent à 5 gigaoctets, là où les deux forfaits coûtent 45 dollars. Au-delà, B devient plus avantageux !" },
+    { n:1, t:"Une notion abstraite devient enfin visible. Pense à l'élève qui bloque sur la fonction affine : ça pourrait tout changer pour lui !" }],
   "Mon compte Gmail et mes outils":[
-    { gg:0, t:"Avant de commencer, il te faut un compte. Si tu as déjà un compte Gmail, tu peux passer cette page." },
-    { gg:1, t:"Sinon, ouvre la page de création de compte de Google et choisis : pour mon usage personnel." },
+    { gg:0, t:"Avant de te lancer, il te faut un compte. Tu as déjà un compte Gmail ? Parfait, tu peux passer cette page !" },
+    { gg:1, t:"Sinon, c'est rapide ! Ouvre la page de création de compte de Google et choisis : pour mon usage personnel." },
     { gg:2, t:"Entre ton prénom et ton nom," },
     { gg:3, t:"puis ta date de naissance." },
     { gg:4, t:"Choisis une adresse Gmail simple et professionnelle." },
-    { gg:5, t:"Crée un mot de passe solide : une phrase de passe, c'est l'idéal." },
+    { gg:5, t:"Crée un mot de passe solide. Une phrase de passe, c'est l'idéal !" },
     { gg:6, t:"Google peut t'envoyer un code par texto pour vérifier ton identité." },
     { gg:7, t:"Ajoute une adresse de récupération : très utile si tu oublies ton mot de passe." },
     { gg:8, t:"Vérifie le résumé et accepte les conditions." },
-    { gg:9, t:"Et voilà ! Ton compte t'ouvre Gemini, ainsi que le bouton « Continuer avec Google » de ChatGPT, Claude ou Copilot. Petit réflexe : dans les paramètres, désactive l'utilisation de tes conversations pour entraîner le modèle." }],
+    { gg:9, t:"Et voilà, c'est fait ! Ton compte t'ouvre Gemini, ainsi que le bouton « Continuer avec Google » de ChatGPT, Claude ou Copilot. Petit réflexe : dans les paramètres, désactive l'utilisation de tes conversations pour entraîner le modèle." }],
   "Confidentialité : ce que je peux envoyer… ou pas":[
-    { n:1, t:"Maintenant, le plus important : la confidentialité. La règle est simple : tu envoies du contenu pédagogique, pas des informations personnelles." },
+    { n:1, t:"Maintenant, le point le plus important : la confidentialité. Retiens bien cette règle : tu envoies du contenu pédagogique, pas des informations personnelles." },
     { n:5, t:"Tu peux envoyer tes notions et tes exercices, les compétences du programme, un croquis ou une capture sans nom, une description générale, et le fichier HTML de ton activité." },
     { n:5, t:"Par contre, jamais de nom, de photo ou de code permanent d'élève, ni de résultats, de plan d'intervention, de capture de Mozaïk ou d'épreuve sécurisée." },
     { n:1, t:"Au besoin, anonymise : décris le besoin, pas la personne." },
-    { n:1, t:"Et en cas de doute… tu n'envoies pas." }],
+    { n:1, t:"Et en cas de doute… tu n'envoies pas. Simple, non ?" }],
   "Jeu : je l'envoie ou pas ?":[
-    { t:"À toi de jouer ! Pour chaque carte, décide si tu l'envoies à l'IA ou non. Je t'attends : clique sur « Continuer » quand tu as terminé.", attendre:true }],
+    { t:"À toi de jouer ! Pour chaque carte, décide si tu l'envoies à l'IA ou non. Je suis certain que tu vas réussir ! Clique sur « Continuer » quand tu as terminé.", attendre:true }],
   "Je pars de ce que j'ai et je rédige ma requête":[
-    { t:"Deuxième ingrédient : l'IA. Elle ne remplace pas ton travail ; elle bonifie ce que tu as déjà." },
-    { n:2, t:"Joins à ta demande une page de ton guide, un exercice, un croquis ou une capture d'écran." },
-    { n:1, t:"Puis rédige ta requête avec ACTIF." },
+    { t:"Deuxième ingrédient : l'IA ! Elle ne remplace pas ton travail : elle le bonifie." },
+    { n:2, t:"Joins à ta demande une page de ton guide, un exercice, un croquis ou une capture d'écran. Tu pars de ce que tu as déjà !" },
+    { n:1, t:"Ensuite, rédige ta requête avec ACTIF." },
     { n:5, t:"Action : ce que l'IA doit faire. Contexte : pour qui et pour quel cours. Ton : comment elle doit parler. Identité : le rôle qu'elle joue. Et Format…" },
-    { n:1, t:"… c'est ici que tout se joue : tu demandes un fichier HTML." }],
+    { n:1, t:"… c'est là que la magie opère : tu demandes un fichier HTML !" }],
   "Démonstration : de la requête à l'activité":[
-    { t:"Regarde maintenant comment ça se passe, du début à la fin." },
+    { t:"C'est le moment de voir comment ça se passe, du début à la fin. Regarde bien !" },
     { demo:5, t:"J'écris ma requête ACTIF. Dans le format, je précise : un seul fichier HTML, avec un personnage, une démonstration et des points." },
     { demo:2, t:"Je joins mes fichiers : mon guide, mes exercices et un croquis." },
-    { demo:2, t:"J'envoie. L'IA réfléchit, puis écrit le code. Je n'ai qu'à télécharger le fichier." },
-    { demo:1, t:"Un double-clic, et l'activité s'ouvre dans le navigateur." },
-    { demo:1, t:"Dernière étape, la plus importante : je teste chaque bouton et je vérifie les calculs. S'il y a une erreur, je la décris à l'IA, et elle la corrige." }],
+    { demo:2, t:"J'envoie ! L'IA réfléchit, puis écrit le code. Je n'ai qu'à télécharger le fichier." },
+    { demo:1, t:"Un double-clic, et hop : l'activité s'ouvre dans le navigateur !" },
+    { demo:1, t:"Dernière étape, la plus importante : je teste chaque bouton et je vérifie les calculs. Une erreur ? Je la décris à l'IA, et elle la corrige. Pas plus compliqué que ça !" }],
   "Faire créer la requête par l'IA":[
-    { t:"Un truc pour aller plus vite : fais écrire la requête par l'IA elle-même." },
+    { t:"Voici mon truc préféré pour aller encore plus vite : fais écrire la requête par l'IA elle-même !" },
     { n:1, t:"Décris ton besoin simplement, en une phrase." },
     { n:1, t:"Demande-lui une requête complète : action, contexte, ton, identité et format HTML." },
-    { n:1, t:"Relis-la, ajuste-la au besoin, puis copie-colle-la." },
-    { n:1, t:"Et n'oublie jamais deux lignes : le cours visé, et « Suite à cet exercice, je serai en mesure de… ». Le bouton te donne un modèle à remplir." }],
+    { n:1, t:"Relis-la, ajuste-la à ta couleur, puis copie-colle-la." },
+    { n:1, t:"Et n'oublie jamais deux lignes : le cours visé, et « Suite à cet exercice, je serai en mesure de… ». Le bouton te donne un modèle tout prêt !" }],
   "Limite atteinte ? On continue dans une autre IA":[
-    { t:"Un jour, l'IA va te dire : limite atteinte. Pas de panique !" },
+    { t:"Un jour, l'IA va te dire : limite atteinte. Pas de panique, j'ai la solution !" },
     { n:1, t:"L'IA lit et écrit en jetons, de petits morceaux de texte. Un compte gratuit en offre une quantité limitée, et une activité complète en utilise beaucoup." },
-    { n:4, t:"La solution : récupère ton fichier HTML, ouvre une autre IA, joins-lui le fichier, puis teste." },
-    { n:1, t:"Copie la requête de relais : elle demande de garder tout ce qui fonctionne. Ton fichier, c'est la mémoire de ton projet." }],
+    { n:4, t:"La solution : récupère ton fichier HTML, ouvre une autre IA, joins-lui le fichier, puis teste. Et tu continues comme si de rien n'était !" },
+    { n:1, t:"Copie la requête de relais : elle demande de garder tout ce qui fonctionne. Ton fichier, c'est la mémoire de ton projet. Rien n'est perdu !" }],
   "Questionnaire autocorrectif":[
-    { t:"Petit questionnaire pour vérifier ce que tu as retenu. Il se corrige tout seul, comme les activités que tu vas créer. Clique sur « Continuer » quand tu as terminé.", attendre:true }],
+    { t:"Petit défi : un questionnaire pour voir ce que tu as retenu ! Il se corrige tout seul, comme les activités que tu vas créer. Clique sur « Continuer » quand tu as terminé.", attendre:true }],
   "Conclusion":[
-    { t:"On arrive à la fin." },
+    { t:"Bravo, tu es arrivé au bout !" },
     { n:4, t:"Tu sais maintenant pourquoi le HTML soutient l'apprentissage autonome, comment rédiger une requête en protégeant tes élèves, et comment partir de ce que tu as déjà." },
-    { n:1, t:"À la page suivante, des exemples en français, en anglais, en mathématique et en science t'attendent." },
-    { n:1, t:"Merci de m'avoir suivi ! Et rappelle-toi : oui, c'est possible." }],
+    { n:1, t:"À la page suivante, des exemples en français, en anglais, en mathématique et en science t'attendent. C'est la meilleure partie !" },
+    { n:1, t:"Merci de m'avoir suivi ! Et surtout, rappelle-toi : oui, c'est possible !" }],
   "Exemples d'activités":[
-    { t:"Voici les exemples. Ouvre-les, essaie-les comme un élève, puis copie la requête modèle pour créer ta propre version. Bonne création !", fin:true }]
+    { t:"Et voici les exemples ! Ouvre-les, essaie-les comme un élève, puis copie la requête modèle pour créer ta propre version. J'ai hâte de voir ce que tu vas inventer. Bonne création !", fin:true }]
 };
 
 var NR = (function(){
@@ -2526,12 +2535,11 @@ var NR = (function(){
   try{ voix = localStorage.getItem("nr_voix") !== "0"; }catch(e){}
 
   /* ─── Le personnage (dessin vectoriel, animé) ─── */
-  /* Image du présentateur (fournie), intégrée au fichier. La 2e copie, découpée autour
-     de la bouche et de la barbiche, bouge légèrement quand il parle. */
+  /* Image du présentateur (fournie), intégrée au fichier. Quand il parle : léger balancement et ondes sonores. */
   var IMG_PRES = "data:image/webp;base64,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";
   var AVATAR = '<div class="nr-av" role="img" aria-label="Le présentateur">' +
     '<img class="nr-base" src="' + IMG_PRES + '" alt="" draggable="false">' +
-    '<img class="nr-bouche" src="' + IMG_PRES + '" alt="" draggable="false" aria-hidden="true">' +
+    '<span class="nr-ondes" aria-hidden="true"><i></i><i></i><i></i></span>' +
     '</div>';
 
   /* ─── Voix d'homme, la plus naturelle disponible ─── */
@@ -2565,16 +2573,16 @@ var NR = (function(){
       var phrases = pourVoix(t).match(/[^.!?]+[.!?…]*\s*/g) || [t], i = 0, v = laVoix(), fini = false;
       function fin(){ if (fini) return; fini = true; boucheOff(); res(); }
       if (!voix || !("speechSynthesis" in window)){
-        setTimeout(function(){ fin(); }, Math.max(1800, pourVoix(t).length * 62)); return;
+        setTimeout(function(){ fin(); }, Math.max(1700, pourVoix(t).length * 59)); return;
       }
       try{ speechSynthesis.cancel(); }catch(e){}
       (function suivante(){
         if (montok !== tok) return fin();
         if (i >= phrases.length) return fin();
         var u = new SpeechSynthesisUtterance(phrases[i++]);
-        u.lang = "fr-CA"; u.rate = 1; u.pitch = 1;
-        if (v){ u.voice = v; u.lang = v.lang; if (genre(v) === "f") u.pitch = .75; }
-        var debut = Date.now(), minimum = u.text.length * 48;   /* temps de lecture minimal, même sans voix installée */
+        u.lang = "fr-CA"; u.rate = 1.05; u.pitch = 1.08;   /* 5 % plus rapide, ton un peu plus enjoué */
+        if (v){ u.voice = v; u.lang = v.lang; if (genre(v) === "f") u.pitch = .8; }
+        var debut = Date.now(), minimum = u.text.length * 46;   /* temps de lecture minimal, même sans voix installée */
         var garde = setTimeout(function(){ suivante(); }, Math.max(4000, u.text.length * 110));
         function apres(){ clearTimeout(garde); setTimeout(suivante, Math.max(0, minimum - (Date.now() - debut))); }
         u.onstart = boucheOn;
