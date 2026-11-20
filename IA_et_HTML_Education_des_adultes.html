@@ -1000,6 +1000,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 /* Diapo 8 : pastilles de largeur fixe (les valeurs ne font plus bouger la mise en page) */
 #animSlide .dirs{display:grid;grid-template-columns:7.2rem 7.2rem 1fr;gap:.4rem}
 #animSlide .dir{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+#nav.nr-on .nr-corps:has(.nr-btns:not(:empty)) #nrTxt{max-height:3.5rem}
 </style>
 </head>
 <body>
@@ -2442,7 +2443,7 @@ $("#demoEnd").onclick = demoEnd;
    ════════════════════════════════════════════════════════════════════ */
 var NARR = {
   "Accueil":[
-    { t:"Bonjour ! Je suis ton présentateur, et je suis vraiment content que tu sois là ! J'aurais adoré te présenter tout ça en personne… Alors j'ai trouvé une autre façon : je t'accompagne ici, diapo par diapo." },
+    { t:"Bonjour, collègue du Centre d'éducation des adultes ! Je suis le présentateur virtuel de Mathieu. Avec les récentes avancées en intelligence artificielle, Mathieu a créé cette présentation interactive… avec l'aide de l'IA elle-même ! Son but : te faire découvrir les nouvelles possibilités qu'offre cette technologie. Et c'est moi qui t'accompagne, diapo par diapo." },
     { t:"Au programme : comment l'intelligence artificielle et une simple page web, le HTML, peuvent t'aider à créer des activités interactives pour tes élèves. Tu vas voir, c'est stimulant. Allons-y !" }],
   "Objectifs de cette présentation":[
     { t:"Voici ce que tu vas gagner avec cette présentation." },
@@ -2716,7 +2717,7 @@ var NR = (function(){
     $("#nrVoix").onclick = function(){ voix = !voix; try{ localStorage.setItem("nr_voix", voix ? "1" : "0"); if (!voix) speechSynthesis.cancel(); }catch(e){} controles(); };
     $("#nrStop").onclick = function(){ arreter(true); };
     try{ speechSynthesis.getVoices(); speechSynthesis.addEventListener("voiceschanged", function(){}); }catch(e){}
-    bulle("Bonjour ! Je suis ton présentateur. Je peux te guider à travers toute la présentation, en parlant, comme une courte vidéo. Tu préfères ?",
+    bulle("<b>Bonjour, collègue du Centre d'éducation des adultes !</b> Mathieu a créé cette présentation interactive avec l'aide de l'IA pour te faire découvrir ses nouvelles possibilités. Si tu le souhaites, ma voix synthétique te guidera tout au long.",
       [{ t:"▶ Démarrer la visite guidée", f:demarrer }, { t:"Je navigue seul", cl:"sec", f:function(){ mode = "libre"; bulle("Parfait ! Clique sur moi quand tu veux que je t'explique une diapo."); setTimeout(function(){ if (mode === "libre"){ el.classList.add("mini"); nav.classList.add("nr-mini"); } }, 4000); } }]);
     controles();
   }
