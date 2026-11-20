@@ -685,7 +685,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 /* Idées par matière */
 #ideesSlide{justify-content:flex-start;padding-top:1rem}
 #ideesSlide h2{margin-bottom:.5rem}
-.idees{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem}
+.idees-old{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem}
 .mat{background:#fff;border:1.5px solid var(--line);border-top:6px solid var(--c);border-radius:var(--r);padding:.6rem .7rem;display:flex;flex-direction:column;gap:.35rem}
 .mat h3{margin:0;font-size:1.05rem;color:var(--c)}
 .idee{display:flex;gap:.4rem;align-items:flex-start;font-size:.8rem;border-top:1px dashed var(--line);padding-top:.35rem}
@@ -831,6 +831,23 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 .relais-req{background:#fff;border:2px dashed var(--p);border-radius:14px;padding:.5rem .9rem;margin-top:.6rem;font-size:.9rem}
 .relais-req p{margin:0 0 .4rem}
 @media (max-width:900px){.conf,.relais{grid-template-columns:1fr}.envoi{grid-template-columns:1fr 1fr}.tok-grid{grid-template-columns:1fr}}
+
+/* Avant-goût (vignettes) */
+.teaser{display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5rem,1fr));gap:.6rem;width:100%;max-width:64rem;margin-top:.8rem}
+.vign{background:#fff;border:1.5px solid var(--line);border-top:5px solid var(--c);border-radius:14px;padding:.6rem .5rem;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-size:.85rem;color:var(--ink);transition:transform .2s,box-shadow .2s;opacity:0;animation:vIn .5s ease forwards;animation-delay:var(--d)}
+.slide:not(.on) .vign{animation:none}
+.vign:hover{transform:translateY(-4px) rotate(-1deg);box-shadow:0 10px 24px rgba(20,35,60,.15)}
+.vign .vi{font-size:2rem;line-height:1}
+.vign small{color:var(--c);font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:.65rem}
+@keyframes vIn{from{opacity:0;transform:translateY(16px) scale(.9)}to{opacity:1;transform:none}}
+/* Galerie : requêtes */
+.proj .acts .req{width:auto;padding:.4rem .6rem;font-size:.8rem;white-space:nowrap}
+.gal-copied{min-height:1.2em;margin:.5rem 0 0;font-weight:700;color:var(--ok);font-size:.9rem}
+.gal-autres .ga-t{font-weight:800;margin:.3rem 0 .4rem}
+.gal-autres .ga-l{display:flex;flex-wrap:wrap;gap:.4rem}
+.autre{background:#fff;border:1.5px dashed var(--c);border-radius:12px;padding:.35rem .7rem;font-size:.85rem;font-weight:700;color:var(--ink);text-align:left;display:flex;flex-direction:column}
+.autre small{color:var(--c);font-size:.65rem;text-transform:uppercase;letter-spacing:.05em}
+.autre:hover{background:var(--p-soft)}
 </style>
 </head>
 <body>
@@ -1332,13 +1349,13 @@ button.open{border:0;cursor:pointer;font-family:inherit}
       <p class="proof frag pop" style="margin-top:.5rem">💡 Le fichier HTML est la mémoire de votre projet. Pour économiser des jetons : une modification à la fois.</p>
     </section>
 
-    <!-- 16 ───────── Idées par matière ───────── -->
-    <section class="slide" id="ideesSlide" data-part="4" data-title="Des idées pour votre matière" data-min="5"
-      data-notes="Chaque enseignant repère sa matière. Les idées sont des points de départ de requête : le bouton 📋 copie une requête ACTIF déjà rédigée, à adapter à son cours. Le bouton ▶ ouvre un exemple complet, fait avec l'IA, que l'on retrouve dans la galerie à la fin. Laisser deux minutes pour que chacun choisisse l'idée qu'il essaiera cette semaine.">
-      <p class="kicker">Pour vos élèves</p>
-      <h2>Des idées d'activités pour votre matière</h2>
-      <div class="idees" id="idees"></div>
-      <p class="idees-note">📋 copie une requête prête à adapter · ▶ ouvre un exemple complet <span id="ideeCopied" role="status"></span></p>
+    <!-- 16 ───────── Avant-goût des exemples ───────── -->
+    <section class="slide center" id="ideesSlide" data-part="4" data-title="Avant-goût : les exemples" data-min="1"
+      data-notes="Simple avant-goût : on ne s'y attarde pas. Les exemples et leurs requêtes modèles sont à la fin de la présentation. Cliquer sur une vignette mène directement à la galerie, filtrée par matière.">
+      <p class="kicker">À la fin de la présentation</p>
+      <h2>9 exemples vous attendent… avec leur requête prête à copier</h2>
+      <div class="teaser" id="teaser"></div>
+      <p class="gap"><button class="btn-main" id="btnTeaser" style="font-size:1rem;padding:.5rem 1.3rem">👀 Aller voir les exemples</button></p>
     </section>
 
     <!-- 17 ───────── Quiz ───────── -->
@@ -1369,17 +1386,19 @@ button.open{border:0;cursor:pointer;font-family:inherit}
     </section>
 
     <!-- 19 ───────── Galerie (après la conclusion) ───────── -->
-    <section class="slide" data-part="4" data-title="Exemples d'activités" data-min="20" id="galSlide" data-notes="Ouvrir deux ou trois exemples, idéalement un par matière présente dans le groupe. Dans chaque exemple, cliquer sur « Montre-moi comment » pour voir le personnage faire la démonstration, puis jouer : points, séries, badges, liens Alloprof. Les essayer ensemble, comme un élève, puis discuter : qu'est-ce que je garderais ? Qu'est-ce que je changerais pour mes élèves ? Le bouton + permet d'ajouter un projet de collègue pendant la rencontre (conservé dans le navigateur)." style="justify-content:flex-start;padding-top:.6rem">
+    <section class="slide" data-part="4" data-title="Exemples d'activités" data-min="20" id="galSlide" data-notes="Ouvrir deux ou trois exemples, idéalement un par matière présente dans le groupe. Le bouton 📋 Requête copie la requête modèle qui a servi à créer l'exemple : chacun peut la coller dans son IA et l'adapter à son cours. Sous la galerie, d'autres idées sans exemple, avec leur requête. Dans chaque exemple, cliquer sur « Montre-moi comment » pour voir le personnage faire la démonstration, puis jouer : points, séries, badges, liens Alloprof. Les essayer ensemble, comme un élève, puis discuter : qu'est-ce que je garderais ? Qu'est-ce que je changerais pour mes élèves ? Le bouton + permet d'ajouter un projet de collègue pendant la rencontre (conservé dans le navigateur)." style="justify-content:flex-start;padding-top:.6rem">
       <div class="gal-head">
         <div>
           <p class="kicker">Mise en commun</p>
           <h2>Exemples d'activités : ouvrez, essayez, discutez</h2>
         </div>
-        <p>Chaque exemple est une page HTML intégrée à ce fichier. « Ouvrir » (↗ : nouvel onglet).</p>
+        <p>Chaque exemple est une page HTML intégrée à ce fichier. « Ouvrir » (↗ : nouvel onglet) · 📋 copie la requête modèle qui l'a produit.</p>
       </div>
       <div class="gal-filt" id="galFilt" role="group" aria-label="Filtrer par matière"></div>
       <div class="scale" aria-hidden="true"><span>Plus simple</span><i></i><span>Plus complexe</span></div>
       <div class="gallery" id="gallery"></div>
+      <p class="gal-copied" id="galCopied" role="status"></p>
+      <div class="gal-autres" id="galAutres"></div>
     </section>
 
   </main>
@@ -6978,33 +6997,32 @@ $("#btnRelais").onclick = function(){
   this.blur();
 };
 
-/* ═══════ Idées par matière ═══════ */
+/* ═══════ Avant-goût : vignettes des exemples (mènent à la galerie) ═══════ */
+function allerGalerie(f){
+  var i = slides.findIndex(function(s){ return s.id === "galSlide"; });
+  if (f !== undefined){ filtre = f; $$("#galFilt button").forEach(function(x){ x.classList.toggle("sel", x.dataset.f === f); }); renderGallery(); }
+  if (i >= 0) go(i, "fwd");
+}
 (function(){
-  var h = "";
-  Object.keys(IDEES).forEach(function(m){
-    h += '<div class="mat" style="--c:' + MATIERES[m].c + '"><h3>' + MATIERES[m].nom + '</h3>' +
-      IDEES[m].items.map(function(it, k){
-        return '<div class="idee"><span>' + esc(it.t) + '</span><button data-copy="' + m + ':' + k + '" title="Copier une requête ACTIF prête à adapter" aria-label="Copier la requête : ' + esc(it.t) + '">📋</button>' +
-          (it.e ? '<button class="play" data-voir="' + it.e + '" title="Ouvrir l\'exemple" aria-label="Ouvrir l\'exemple : ' + esc(it.t) + '">▶</button>' : '') + '</div>';
-      }).join("") + '</div>';
-  });
-  $("#idees").innerHTML = h;
-  $$("#idees [data-copy]").forEach(function(b){
-    b.onclick = function(){
-      var p = b.dataset.copy.split(":"), it = IDEES[p[0]].items[+p[1]];
-      copier(requete(p[0], it), function(ok){ $("#ideeCopied").textContent = ok ? "Requête copiée : « " + it.t + " »" : "Copie impossible"; setTimeout(function(){ $("#ideeCopied").textContent = ""; }, 2500); });
-      b.blur();
-    };
-  });
-  $$("#idees [data-voir]").forEach(function(b){ b.onclick = function(){ ouvrirProjet(b.dataset.voir, false); }; });
+  $("#teaser").innerHTML = PROJETS.map(function(p, k){
+    var m = MATIERES[p.mat];
+    return '<button class="vign" style="--c:' + m.c + ';--d:' + (k * .08) + 's" data-m="' + p.mat + '" title="' + esc(p.titre) + '"><span class="vi">' + esc(p.icone) + '</span><b>' + esc(p.titre) + '</b><small>' + m.nom + '</small></button>';
+  }).join("");
+  $$("#teaser .vign").forEach(function(b){ b.onclick = function(){ allerGalerie(b.dataset.m); }; });
+  $("#btnTeaser").onclick = function(){ allerGalerie(""); };
 })();
 
 /* ═══════ Galerie de projets ═══════ */
 var ajoutes = [], filtre = "";
 try{ ajoutes = JSON.parse(load("projets_ajoutes_fga") || "[]"); }catch(e){ ajoutes = []; }
 
+function ideeDe(embed){
+  var r = null;
+  Object.keys(IDEES).forEach(function(m){ IDEES[m].items.forEach(function(it){ if (it.e === embed) r = [m, it]; }); });
+  return r;
+}
 function carte(p, idx, estAjout){
-  var m = MATIERES[p.mat];
+  var m = MATIERES[p.mat], idee = p.embed ? ideeDe(p.embed) : null;
   return '<article class="proj"' + (m ? ' style="--c:' + m.c + '"' : '') + '>' +
     (estAjout ? '<button class="del" data-del="' + idx + '" aria-label="Retirer ce projet" title="Retirer">✕</button>'
               : '<span class="rank" title="Niveau d\'ampleur">' + (idx + 1) + '</span>') +
@@ -7015,7 +7033,8 @@ function carte(p, idx, estAjout){
     '<p>' + esc(p.desc || "") + (p.lourd ? ' <span class="note-heavy">(fichier volumineux : patientez quelques secondes)</span>' : '') + '</p>' +
     '<div class="acts">' + (p.embed
       ? '<button type="button" class="open" data-open="' + esc(p.embed) + '">Ouvrir</button>' +
-        '<button type="button" class="open alt" data-tab="' + esc(p.embed) + '" title="Ouvrir dans un nouvel onglet" aria-label="Ouvrir ' + esc(p.titre) + ' dans un nouvel onglet">↗</button>'
+        '<button type="button" class="open alt" data-tab="' + esc(p.embed) + '" title="Ouvrir dans un nouvel onglet" aria-label="Ouvrir ' + esc(p.titre) + ' dans un nouvel onglet">↗</button>' +
+        (idee ? '<button type="button" class="open alt req" data-req="' + esc(p.embed) + '" title="Copier la requête modèle (ACTIF) de cet exemple">📋 Requête</button>' : '')
       : '<a class="open" href="' + esc(p.lien) + '" target="_blank" rel="noopener">Ouvrir ↗</a>') + '</div></article>';
 }
 function renderGallery(){
@@ -7023,6 +7042,12 @@ function renderGallery(){
   h += ajoutes.map(function(p, i){ return carte(p, i, true); }).join("");
   h += '<button class="proj add" id="btnAdd" type="button"><span class="ic">＋</span>Ajouter un projet</button>';
   $("#gallery").innerHTML = h;
+  var autres = [];
+  Object.keys(IDEES).forEach(function(m){ if (filtre && m !== filtre) return; IDEES[m].items.forEach(function(it, k){ if (!it.e) autres.push('<button class="autre" style="--c:' + MATIERES[m].c + '" data-copy="' + m + ':' + k + '" title="Copier la requête modèle"><small>' + MATIERES[m].nom + '</small>📋 ' + esc(it.t) + '</button>'); }); });
+  $("#galAutres").innerHTML = autres.length ? '<p class="ga-t">💡 D\'autres idées, sans exemple : copiez la requête modèle et essayez-la !</p><div class="ga-l">' + autres.join("") + '</div>' : "";
+  function copie(txt, titre){ copier(txt, function(ok){ $("#galCopied").textContent = ok ? "✅ Requête copiée : « " + titre + " ». Collez-la dans votre IA, puis adaptez-la à votre cours." : "Copie impossible"; clearTimeout(copie.t); copie.t = setTimeout(function(){ $("#galCopied").textContent = ""; }, 4000); }); }
+  $$("[data-req]", $("#gallery")).forEach(function(b){ b.onclick = function(){ var r = ideeDe(b.dataset.req); copie(requete(r[0], r[1]), r[1].t); b.blur(); }; });
+  $$("[data-copy]", $("#galAutres")).forEach(function(b){ b.onclick = function(){ var p = b.dataset.copy.split(":"), it = IDEES[p[0]].items[+p[1]]; copie(requete(p[0], it), it.t); b.blur(); }; });
   $$(".del", $("#gallery")).forEach(function(b){
     b.onclick = function(){ ajoutes.splice(+b.dataset.del, 1); save("projets_ajoutes_fga", JSON.stringify(ajoutes)); renderGallery(); };
   });
