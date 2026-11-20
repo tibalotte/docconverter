@@ -721,6 +721,53 @@ button.open{border:0;cursor:pointer;font-family:inherit}
 .vs-r>span:last-child{background:#fff;border:1.5px solid var(--p-soft);box-shadow:0 2px 8px rgba(37,72,168,.08)}
 .vs-r i{font-style:normal;text-align:center;color:var(--a);font-weight:900;font-size:1.3rem}
 @media (max-width:760px){.vs-h{display:none}.vs-r{grid-template-columns:1fr}.vs-r i{display:none}}
+
+/* Créer un compte Google */
+#googleSlide{justify-content:flex-start;padding-top:.8rem}
+.gg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:.6rem}
+.gg-tools{display:flex;gap:.4rem;flex-wrap:wrap}
+.gg-tools .ghost{font-size:.85rem;text-decoration:none;display:inline-block}
+.gg{display:grid;grid-template-columns:15rem 1fr;gap:1rem;align-items:start}
+.gg-list{list-style:none;margin:0;padding:0;counter-reset:g}
+.gg-list li button{display:flex;gap:.5rem;align-items:center;width:100%;text-align:left;border:0;background:transparent;border-radius:10px;padding:.28rem .5rem;font-size:.82rem;color:var(--muted)}
+.gg-list li button b{flex:none;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--line);color:var(--ink);display:grid;place-items:center;font-size:.75rem}
+.gg-list li button.cur{background:var(--p-soft);color:var(--p);font-weight:700}
+.gg-list li button.cur b{background:var(--p);color:#fff}
+.gg-list li button.done b{background:var(--ok);color:#fff}
+.gg-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:1rem;align-items:start}
+.gg-screen{background:#fff;border:1px solid #C9D2DE;border-radius:12px;box-shadow:0 10px 30px rgba(20,35,60,.14);overflow:hidden}
+.gg-bar{display:flex;align-items:center;gap:.3rem;background:#E9EEF5;padding:.4rem .6rem}
+.gg-bar i{width:.6rem;height:.6rem;border-radius:50%;background:#C9D2DE}
+.gg-bar span{flex:1;margin-left:.4rem;background:#fff;border-radius:99px;padding:.15rem .7rem;font-size:.72rem;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gg-body{padding:1rem 1.1rem 1.2rem;min-height:15rem;font-family:Roboto,"Segoe UI",Arial,sans-serif;animation:ggIn .4s ease}
+@keyframes ggIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.gg-body .ttl{font-size:1.15rem;margin:0 0 .2rem;color:#202124}
+.gg-body .sub{font-size:.8rem;color:#5f6368;margin:0 0 .8rem}
+.gg-body .fld{border:1.5px solid #C4C7C5;border-radius:6px;padding:.45rem .6rem;font-size:.82rem;color:#5f6368;margin:.4rem 0;position:relative;background:#fff}
+.gg-body .fld b{color:#202124;font-weight:500}
+.gg-body .fld.on{border-color:#1A73E8;box-shadow:0 0 0 3px rgba(26,115,232,.25);animation:ggPulse 1.4s infinite}
+@keyframes ggPulse{50%{box-shadow:0 0 0 6px rgba(26,115,232,.12)}}
+.gg-body .row2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.gg-body .gbtn{display:inline-block;background:#1A73E8;color:#fff;border-radius:99px;padding:.35rem 1rem;font-size:.8rem;font-weight:600;margin-top:.6rem}
+.gg-body .gbtn.sec{background:transparent;color:#1A73E8}
+.gg-body .gbtn.on{animation:ggPulse 1.4s infinite;box-shadow:0 0 0 3px rgba(26,115,232,.35)}
+.gg-body .radio{display:flex;gap:.5rem;align-items:center;font-size:.82rem;margin:.35rem 0;color:#202124}
+.gg-body .radio i{width:.9rem;height:.9rem;border-radius:50%;border:2px solid #5f6368}
+.gg-body .radio.on i{border-color:#1A73E8;background:radial-gradient(#1A73E8 45%,transparent 50%)}
+.gg-body .menu{border:1px solid #DADCE0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.12);width:fit-content;margin-top:.3rem}
+.gg-body .menu div{padding:.35rem .9rem;font-size:.8rem}
+.gg-body .menu div.on{background:#E8F0FE;color:#1A73E8;font-weight:600}
+.gg-body .ok{font-size:2.6rem;text-align:center;margin:.4rem 0}
+.gg-body .note{font-size:.72rem;color:#5f6368;margin-top:.6rem;font-style:italic}
+.gg-n{margin:0;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--a)}
+.gg-txt h3{margin:.1rem 0 .4rem;font-size:1.3rem}
+.gg-txt ul{margin:.2rem 0;padding-left:1.1rem;font-size:.95rem}
+.gg-txt li{margin:.25rem 0}
+.gg-txt p{font-size:.95rem}
+.gg-tip{background:var(--a-soft);border-left:4px solid var(--a);border-radius:8px;padding:.4rem .7rem;font-size:.88rem!important}
+.gg-tip:empty{display:none}
+.gg-nav{display:flex;gap:.5rem;justify-content:space-between;margin-top:.6rem}
+@media (max-width:1000px){.gg{grid-template-columns:1fr}.gg-list{display:flex;flex-wrap:wrap;gap:.2rem}.gg-list li button span{display:none}.gg-main{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1093,7 +1140,7 @@ button.open{border:0;cursor:pointer;font-family:inherit}
       <div class="split" style="justify-content:flex-start;align-items:flex-start;gap:3rem">
         <div class="safe" style="flex:1;min-width:16rem">
           <ul>
-            <li class="frag left"><i>📧</i><span>Un compte Gmail distinct pour l'IA.</span></li>
+            <li class="frag left"><i>📧</i><span>Un compte Google (Gmail) distinct pour l'IA. <small style="color:var(--muted)">Étapes à la page suivante.</small></span></li>
             <li class="frag left"><i>🔒</i><span>Aucun nom, résultat, plan d'intervention ou renseignement personnel d'élève.</span></li>
             <li class="frag left"><i>🕶️</i><span>Anonymisez au besoin.</span></li>
           </ul>
@@ -1107,6 +1154,32 @@ button.open{border:0;cursor:pointer;font-family:inherit}
         </div>
       </div>
       <p class="limit frag pop">Les comptes gratuits ont des limites d'utilisation ; si vous manquez de crédit, changez d'IA.</p>
+    </section>
+
+    <!-- 15b ───────── Créer un compte Google ───────── -->
+    <section class="slide" id="googleSlide" data-part="3" data-title="Créer un compte Google, étape par étape" data-min="5"
+      data-notes="Pour plusieurs IA (Gemini, et la connexion « Continuer avec Google » de ChatGPT, Claude, etc.), un compte Google est la porte d'entrée. Rappel : un compte distinct de votre compte personnel, réservé à vos usages pédagogiques. Les flèches ou le bouton Suivant avancent d'une étape à la fois. Le bouton « Imprimer le guide » ouvre une version à imprimer ou à envoyer aux collègues. Les écrans de Google peuvent changer légèrement : suivre les instructions à l'écran.">
+      <div class="gg-head">
+        <div><p class="kicker" style="margin-bottom:.1rem">Avant de commencer avec l'IA</p>
+        <h2 style="margin:0">Créer son compte Google, étape par étape</h2></div>
+        <div class="gg-tools"><button class="ghost" id="ggPrint">🖨️ Imprimer le guide</button><a class="ghost" href="https://support.google.com/accounts/answer/27441?hl=fr" target="_blank" rel="noopener">Aide officielle de Google ↗</a></div>
+      </div>
+      <div class="gg">
+        <ol class="gg-list" id="ggList"></ol>
+        <div class="gg-main">
+          <div class="gg-screen" aria-hidden="true">
+            <div class="gg-bar"><i></i><i></i><i></i><span id="ggUrl"></span></div>
+            <div class="gg-body" id="ggBody"></div>
+          </div>
+          <div class="gg-txt">
+            <p class="gg-n" id="ggN"></p>
+            <h3 id="ggT"></h3>
+            <div id="ggD"></div>
+            <p class="gg-tip" id="ggTip"></p>
+            <div class="gg-nav"><button class="ghost" id="ggPrev">← Étape précédente</button><button class="btn-main" id="ggNext" style="font-size:.95rem;padding:.45rem 1.1rem">Étape suivante →</button></div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- 16 ───────── Idées par matière ───────── -->
@@ -5154,6 +5227,703 @@ G.init({ nom:"Dr Nova", couleur:"#C77A10", peau:"#E8B48A", cheveux:"#3B2A20", ac
 </body>
 </html>
 </script>
+<script type="text/plain" data-act="solides3d"><!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission 3D : volume et aire des solides</title>
+<style>
+:root{--bg:#FBF8F3;--ink:#16243B;--muted:#58677D;--p:#2548A8;--p-soft:#E8EEFB;--a:#F0A23A;--a-soft:#FDF0DA;--ok:#1E8A5A;--ok-soft:#E1F3EA;--bad:#B8430E;--bad-soft:#FBE7DC;--card:#fff;--line:#E3DDD2;--r:16px;color-scheme:light}
+*{box-sizing:border-box}
+html{font-size:clamp(15px,1.2vw,20px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;line-height:1.45}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px;border-radius:6px}
+.wrap{max-width:62rem;margin:0 auto;padding:1rem 1rem 3rem}
+.top{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin-bottom:1rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--p);background:var(--p-soft);border-radius:99px;padding:.2rem .7rem}
+h1{margin:.4rem 0 .3rem;font-size:1.7rem;line-height:1.15}
+h2{font-size:1.25rem;margin:0 0 .5rem}
+.obj{font-size:.92rem;color:var(--muted);border-left:4px solid var(--a);padding:.2rem .8rem;margin-top:.5rem}
+.obj b{color:var(--ink)}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem;margin-bottom:1rem}
+.btn{background:var(--p);color:#fff;border:0;border-radius:10px;padding:.55rem 1.1rem;font-weight:700}
+.btn:hover{filter:brightness(1.1)}
+.btn:disabled{opacity:.45;cursor:default;filter:none}
+.btn.sec{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn.sm{padding:.3rem .7rem;font-size:.85rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.fb{margin-top:.7rem;border-radius:10px;padding:.6rem .9rem;font-size:.95rem;display:none}
+.fb.on{display:block}
+.fb.good{background:var(--ok-soft);color:#10553a}
+.fb.bad{background:var(--bad-soft);color:#7a2a07}
+.fb.info{background:var(--a-soft);color:#6b4500}
+.prog{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:.3rem 0 .8rem}
+.prog i{display:block;height:100%;background:var(--p);width:0;transition:width .4s}
+.muted{color:var(--muted)}
+.score{font-size:2.6rem;font-weight:900;color:var(--p);margin:.2rem 0}
+.speak{background:var(--a-soft);border:1.5px solid var(--a);color:#6b4500;border-radius:99px;padding:.2rem .7rem;font-size:.85rem;font-weight:700}
+.stars{font-size:1.6rem;letter-spacing:.2rem}
+input[type=number],input[type=text]{border:1.5px solid var(--line);border-radius:8px;padding:.35rem .55rem;background:#fff;color:var(--ink)}
+input.good{border-color:var(--ok);background:var(--ok-soft)}
+input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.foot{font-size:.8rem;color:var(--muted);text-align:center;margin-top:1.5rem}
+@media (max-width:640px){h1{font-size:1.35rem}.wrap{padding:.7rem .7rem 2rem}}
+[hidden]{display:none!important}
+/* ═══ Trousse de ludification : guide qui parle, démo pas à pas, points, badges ═══ */
+body{padding-bottom:9rem}
+.hud{position:sticky;top:0;z-index:40;display:flex;gap:.5rem;align-items:center;justify-content:flex-end;flex-wrap:wrap;padding:.45rem 1rem;background:rgba(251,248,243,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.hud .chipx{display:flex;align-items:center;gap:.3rem;background:#fff;border:1.5px solid var(--line);border-radius:99px;padding:.2rem .7rem;font-weight:800;font-size:.9rem}
+.hud .xp b{color:var(--p)}
+.hud .combo{transition:transform .2s}
+.hud .combo.hot{border-color:var(--bad);color:var(--bad);transform:scale(1.08)}
+.hud .lvl{min-width:9rem}
+.hud .lvl i{display:block;height:6px;border-radius:99px;background:var(--line);overflow:hidden;flex:1;min-width:4rem}
+.hud .lvl i s{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--bad));transition:width .5s;text-decoration:none}
+.hud button{background:#fff;border:1.5px solid var(--line);border-radius:99px;padding:.2rem .7rem;font-weight:700;font-size:.85rem;color:var(--ink)}
+.hud button:hover{border-color:var(--p)}
+.hud .demo-btn{background:var(--a);border-color:var(--a);color:#3A2300}
+.hud .badges{display:flex;gap:.15rem;font-size:1.1rem}
+.hud .badges span{filter:grayscale(1);opacity:.3;transition:all .4s}
+.hud .badges span.on{filter:none;opacity:1;transform:scale(1.15)}
+/* Guide */
+.guide{position:fixed;left:1rem;bottom:1rem;z-index:60;display:flex;align-items:flex-end;gap:.6rem;max-width:min(36rem,calc(100vw - 2rem));pointer-events:none}
+.guide>*{pointer-events:auto}
+.guide .av{flex:none;width:6.2rem;height:6.2rem;filter:drop-shadow(0 6px 12px rgba(20,35,60,.25));cursor:pointer;transition:transform .3s}
+.guide .av:hover{transform:scale(1.05)}
+.guide.mini .bulle{display:none}
+.guide .av .bouche{transform-origin:50px 71px;transition:transform .1s}
+.guide.parle .av .bouche{animation:parle .22s infinite alternate}
+.guide .av .yeux{animation:cligne 4s infinite;transform-origin:50px 50px}
+.guide.joie .av{animation:saute .5s 2}
+.guide.oups .av{animation:secoue .45s}
+.guide.pense .av .main{animation:gratte 1s infinite alternate;transform-origin:72px 80px}
+@keyframes parle{from{transform:scaleY(.3)}to{transform:scaleY(1.25)}}
+@keyframes cligne{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes saute{50%{transform:translateY(-16px) rotate(-4deg)}}
+@keyframes secoue{25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@keyframes gratte{to{transform:rotate(-12deg)}}
+.bulle{position:relative;background:#fff;border:2px solid var(--ink);border-radius:18px 18px 18px 4px;padding:.65rem .9rem .55rem;box-shadow:0 8px 24px rgba(20,35,60,.18);font-size:.98rem;margin-bottom:2.2rem;animation:bulleIn .3s ease}
+.bulle::before{content:"";position:absolute;left:-12px;bottom:10px;border:6px solid transparent;border-right:8px solid var(--ink)}
+.bulle .nom{display:block;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--gc,var(--p));margin-bottom:.1rem}
+.bulle .txt{min-height:1.4em}
+.bulle .acts{display:flex;gap:.4rem;justify-content:flex-end;margin-top:.45rem;flex-wrap:wrap}
+.bulle .acts:empty{display:none}
+.bulle .acts button{border:0;border-radius:99px;padding:.25rem .8rem;font-weight:800;font-size:.85rem;background:var(--p);color:#fff}
+.bulle .acts button.sec{background:#fff;color:var(--muted);border:1.5px solid var(--line)}
+.bulle .x{position:absolute;top:.2rem;right:.45rem;border:0;background:none;color:var(--muted);font-size:.9rem}
+@keyframes bulleIn{from{opacity:0;transform:translateY(10px) scale(.95)}to{opacity:1;transform:none}}
+/* Démo pas à pas */
+.spot{position:relative;z-index:30;box-shadow:0 0 0 4px var(--a),0 0 0 9999px rgba(15,27,48,.38)!important;border-radius:10px;transition:box-shadow .3s}
+.demo-on .spot{animation:spotpulse 1.2s infinite alternate}
+@keyframes spotpulse{to{box-shadow:0 0 0 7px var(--a),0 0 0 9999px rgba(15,27,48,.38)}}
+.main-demo{position:fixed;z-index:70;left:0;top:0;width:2.4rem;height:2.4rem;pointer-events:none;transition:transform .9s cubic-bezier(.45,0,.2,1),opacity .3s;opacity:0;font-size:2.1rem;line-height:1;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+.main-demo.on{opacity:1}
+.main-demo .rip{position:absolute;left:.2rem;top:.1rem;width:1.4rem;height:1.4rem;border-radius:50%;border:3px solid var(--a);opacity:0}
+.main-demo .rip.go{animation:rip .5s ease-out}
+@keyframes rip{from{transform:scale(.3);opacity:1}to{transform:scale(2.4);opacity:0}}
+.demo-band{position:fixed;top:0;left:0;right:0;z-index:65;background:var(--a);color:#3A2300;text-align:center;font-weight:800;padding:.35rem;font-size:.9rem;display:none}
+.demo-on .demo-band{display:block}
+/* Récompenses */
+.flot{position:fixed;z-index:80;font-weight:900;font-size:1.4rem;color:var(--ok);pointer-events:none;animation:flot 1.1s ease-out forwards;text-shadow:0 2px 0 #fff}
+.flot.neg{color:var(--bad)}
+@keyframes flot{to{transform:translateY(-60px);opacity:0}}
+.toastb{position:fixed;z-index:85;top:3.4rem;right:1rem;background:var(--ink);color:#fff;border-radius:14px;padding:.6rem 1rem;display:flex;gap:.7rem;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:toastIn .5s cubic-bezier(.34,1.56,.64,1)}
+.toastb b{display:block;color:var(--a);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}
+.toastb .ico{font-size:2rem}
+@keyframes toastIn{from{transform:translateX(120%)}to{transform:none}}
+.conf{position:fixed;top:-12px;width:10px;height:14px;z-index:90;pointer-events:none;animation:tombe var(--t,2s) linear forwards}
+@keyframes tombe{to{transform:translate(var(--x,0),105vh) rotate(var(--r,540deg))}}
+/* Alloprof */
+.allo{background:#fff;border:2px solid #00A9C5;border-radius:var(--r);padding:.8rem 1.1rem;margin:1rem 0}
+.allo h2{display:flex;align-items:center;gap:.5rem;font-size:1.05rem;margin:0 0 .4rem;color:#007C91}
+.allo h2 span{background:#00A9C5;color:#fff;border-radius:8px;padding:.05rem .45rem;font-size:.8rem}
+.allo ul{margin:0;padding-left:1.1rem}
+.allo li{margin:.2rem 0}
+.allo a{color:#007C91;font-weight:700}
+.allo small{color:var(--muted)}
+@media (max-width:640px){.guide .av{width:4.4rem;height:4.4rem}.bulle{font-size:.9rem}.hud .lvl{display:none}}
+@media (prefers-reduced-motion:reduce){.guide .av,.guide .av *{animation:none!important}}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(16rem,1fr);gap:1rem;align-items:start}
+.scene{position:relative;background:#0F1B30;border-radius:16px;overflow:hidden;touch-action:none}
+.scene canvas{display:block;width:100%;height:auto;cursor:grab}
+.scene canvas.drag{cursor:grabbing}
+.scene .views{position:absolute;top:.5rem;left:.5rem;display:flex;gap:.3rem;flex-wrap:wrap}
+.scene .views button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:.15rem .6rem;font-size:.78rem;font-weight:700}
+.scene .views button:hover{background:rgba(255,255,255,.25)}
+.scene .hint{position:absolute;bottom:.4rem;left:.6rem;right:.6rem;color:#B9C7DD;font-size:.75rem;text-align:center;pointer-events:none}
+.pos{display:flex;align-items:center;justify-content:center;gap:.4rem;font-size:1.25rem;font-weight:900;margin:.3rem 0 .6rem;font-family:Consolas,monospace}
+.pos .x{color:#D9480F}.pos .y{color:#2F9E44}.pos .z{color:#1C7ED6}
+.pos.ok{background:var(--ok-soft);border-radius:10px}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;margin-bottom:.4rem}
+.pad button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:.35rem .2rem;font-weight:800;font-size:.9rem}
+.pad button:hover{border-color:var(--p)}
+.pad .bx{color:#D9480F}.pad .by{color:#2F9E44}.pad .bz{color:#1C7ED6}
+.mis h2{margin:.1rem 0 .3rem;font-size:1.15rem}
+.mis .dims{background:var(--bg);border-radius:10px;padding:.4rem .7rem;font-size:.92rem;margin:.3rem 0}
+.mis .cible{font-weight:800;color:var(--bad)}
+.steps{display:flex;gap:.3rem;margin:.2rem 0 .5rem}
+.steps span{flex:1;height:6px;border-radius:99px;background:var(--line)}
+.steps span.on{background:var(--ok)}
+.calc{border-top:1px solid var(--line);margin-top:.5rem;padding-top:.5rem}
+.calc.lock{opacity:.4;pointer-events:none}
+.calc .q{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin:.35rem 0}
+.calc label{font-weight:700;min-width:8.5rem}
+.calc input{width:6.5rem;text-align:right}
+.formule{font-size:.85rem;color:var(--muted);margin:.1rem 0 .3rem}
+.mlist{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.6rem}
+.mlist button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:.15rem .65rem;font-weight:800;font-size:.82rem}
+.mlist button.cur{border-color:var(--p);background:var(--p);color:#fff}
+.mlist button.done{border-color:var(--ok);color:var(--ok)}
+.mlist button.done.cur{background:var(--ok);color:#fff}
+@media (max-width:820px){.lab{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" style="max-width:72rem">
+  <header class="top">
+    <span class="tag">Mathématique · secondaire</span>
+    <h1>Mission 3D : volume et aire des solides</h1>
+    <div class="obj"><b>Concepts visés :</b> le repérage dans l'espace (x ; y ; z), le volume et l'aire totale des solides.<br>
+    <b>Suite à cet exercice, je serai en mesure de</b> situer un point dans un plan cartésien à 3 axes, de déplacer un solide à des coordonnées données, puis de calculer son volume et son aire totale.</div>
+  </header>
+  <div class="mlist" id="mlist" aria-label="Missions"></div>
+  <div class="lab">
+    <div>
+      <div class="scene" id="scene">
+        <canvas id="cv" width="900" height="620" aria-label="Plan cartésien à 3 axes avec un solide à déplacer"></canvas>
+        <div class="views"><button data-v="3d">🧊 Vue 3D</button><button data-v="dessus">⬇ Vue de dessus</button><button data-v="face">👁 Vue de face</button><button data-v="cote">↔ Vue de côté</button></div>
+      </div>
+      <p class="muted" style="font-size:.85rem;text-align:center;margin:.4rem 0">🖱️ Glisse le solide pour le déplacer (Maj + glisser : en hauteur) · glisse ailleurs pour tourner la vue</p>
+    </div>
+    <div class="card mis" id="mis" style="margin:0">
+      <div class="steps"><span id="st1"></span><span id="st2"></span><span id="st3"></span></div>
+      <h2 id="mTitre"></h2>
+      <p id="mTexte" style="margin:.2rem 0"></p>
+      <div class="dims" id="mDims"></div>
+      <p style="margin:.4rem 0 0;font-weight:700">Position du point repère :</p>
+      <div class="pos" id="pos" aria-live="polite"></div>
+      <div class="pad" id="pad">
+        <button class="bx" data-d="x" data-s="-1">← x − 1</button><button class="by" data-d="y" data-s="1">↑ y + 1</button><button class="bx" data-d="x" data-s="1">x + 1 →</button>
+        <button class="bz" data-d="z" data-s="1">⤒ z + 1</button><button class="by" data-d="y" data-s="-1">↓ y − 1</button><button class="bz" data-d="z" data-s="-1">⤓ z − 1</button>
+      </div>
+      <small class="muted">Clavier : flèches pour x et y, Page préc. / Page suiv. pour z.</small>
+      <div class="calc lock" id="calc"></div>
+      <div class="fb" id="fb" role="status"></div>
+    </div>
+  </div>
+  <p class="foot">Les dimensions sont en centimètres. Chaque carré de la grille mesure 1 cm × 1 cm.</p>
+</div>
+<script>
+/* ═══ Trousse de ludification (commune à toutes les activités) ═══
+   G.init({...}) · G.dire(texte, options) · G.demo(étapes) · G.bon(el, pts) · G.oups(el)
+   G.badge(id) · G.fin(score, total) · G.clic(el) · G.taper(champ, valeur) · G.pause(ms) */
+var G = (function(){
+  var C = {}, xp = 0, serie = 0, niveau = 1, voix = true, enDemo = false, saute = false, gagnes = {}, ctxA = null, tok = 0;
+  function q(s, r){ return (r || document).querySelector(s); }
+  function el(h){ var d = document.createElement("div"); d.innerHTML = h.trim(); return d.firstChild; }
+  function nettoie(t){ return String(t).replace(/<[^>]+>/g, "").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2705}\u{274C}]/gu, "").replace(/\s+/g, " ").trim(); }
+  function pause(ms){ return new Promise(function(r){ setTimeout(r, saute ? 0 : ms); }); }
+
+  /* ─── Personnage SVG ─── */
+  function avatar(o){
+    var acc = "";
+    if (o.acc === "lunettes") acc = '<g fill="none" stroke="#16243B" stroke-width="2.4"><circle cx="40" cy="52" r="7.5"/><circle cx="60" cy="52" r="7.5"/><path d="M47.5 52h5"/></g>';
+    if (o.acc === "blouse") acc = '<path d="M22 108c2-18 12-26 28-26s26 8 28 26z" fill="#fff" stroke="#C9D2DE" stroke-width="2"/><path d="M50 82v26" stroke="#C9D2DE" stroke-width="2"/><g fill="none" stroke="#16243B" stroke-width="2.4"><circle cx="40" cy="52" r="7.5"/><circle cx="60" cy="52" r="7.5"/><path d="M47.5 52h5"/></g>';
+    if (o.acc === "casquette") acc = '<path d="M27 38c2-14 12-20 23-20s21 6 23 20z" fill="' + o.couleur + '"/><path d="M60 37c10 0 19 1 24 4l-2 3c-6-2-14-3-22-3z" fill="' + o.couleur + '"/>';
+    if (o.acc === "noeud") acc = '<path d="M42 88l8 4 8-4-2 8-6-3-6 3z" fill="' + o.couleur + '" stroke="#16243B" stroke-width="1"/>';
+    return '<svg class="av" viewBox="0 0 100 110" role="img" aria-label="' + o.nom + ', ton guide">' +
+      '<circle cx="50" cy="58" r="48" fill="' + (o.fond || "#fff") + '" stroke="' + o.couleur + '" stroke-width="3"/>' +
+      '<path d="M18 108c3-20 15-28 32-28s29 8 32 28z" fill="' + o.couleur + '"/>' +
+      '<rect x="44" y="70" width="12" height="12" rx="4" fill="' + o.peau + '"/>' +
+      '<circle cx="50" cy="52" r="23" fill="' + o.peau + '"/>' +
+      '<path d="' + (o.coupe || "M27 50c0-17 10-27 23-27s23 10 23 27c-4-9-12-14-23-14s-19 5-23 14z") + '" fill="' + o.cheveux + '"/>' +
+      '<g class="yeux" fill="#16243B"><circle cx="41" cy="52" r="2.8"/><circle cx="59" cy="52" r="2.8"/></g>' +
+      '<g fill="#F4A3A3" opacity=".55"><circle cx="35" cy="61" r="3.5"/><circle cx="65" cy="61" r="3.5"/></g>' +
+      '<path class="sourcil" d="M37 45q4-3 8 0M55 45q4-3 8 0" stroke="#16243B" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
+      '<ellipse class="bouche" cx="50" cy="66" rx="5.5" ry="3" fill="#7A2E2E"/>' + acc +
+      '<g class="main"><circle cx="76" cy="84" r="6" fill="' + o.peau + '"/></g></svg>';
+  }
+
+  /* ─── Sons (Web Audio, aucun fichier) ─── */
+  function son(type){
+    if (!voix) return;
+    try{
+      ctxA = ctxA || new (window.AudioContext || window.webkitAudioContext)();
+      var notes = type === "bon" ? [660, 880] : type === "oups" ? [300, 220] : type === "badge" ? [523, 659, 784, 1047] : [440];
+      notes.forEach(function(f, i){
+        var o = ctxA.createOscillator(), g = ctxA.createGain(), t = ctxA.currentTime + i * .11;
+        o.type = type === "oups" ? "sawtooth" : "triangle"; o.frequency.value = f;
+        g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.12, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + .18);
+        o.connect(g); g.connect(ctxA.destination); o.start(t); o.stop(t + .2);
+      });
+    }catch(e){}
+  }
+  function parler(t, lang){
+    try{
+      speechSynthesis.cancel(); if (!voix) return;
+      var u = new SpeechSynthesisUtterance(nettoie(t)); u.lang = lang || C.lang || "fr-CA"; u.rate = .98; u.pitch = C.pitch || 1;
+      u.onend = function(){ C.g.classList.remove("parle"); };
+      C.g.classList.add("parle"); speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
+  /* ─── Le guide parle ─── */
+  function dire(txt, o){
+    o = o || {}; var mon = ++tok;
+    var g = C.g, b = q(".bulle", g);
+    g.classList.remove("mini", "joie", "oups", "pense");
+    if (o.humeur){ void g.offsetWidth; g.classList.add(o.humeur); }
+    b.style.animation = "none"; void b.offsetWidth; b.style.animation = "";
+    var zone = q(".txt", b), acts = q(".acts", b); acts.innerHTML = "";
+    var brut = nettoie(txt), i = 0;
+    if (!o.instant){ g.classList.add("parle"); parler(txt, o.lang); }
+    return new Promise(function(res){
+      function fin(){
+        zone.innerHTML = txt;
+        if (!voix) g.classList.remove("parle"); else setTimeout(function(){ if (mon === tok && !speechSynthesis.speaking) g.classList.remove("parle"); }, 300);
+        if (!o.boutons || !o.boutons.length) return res();
+        o.boutons.forEach(function(bt){
+          var x = document.createElement("button"); x.textContent = bt.t; if (bt.sec) x.className = "sec";
+          x.onclick = function(){ acts.innerHTML = ""; if (bt.f) bt.f(); res(bt.v); };
+          acts.appendChild(x);
+        });
+        var p = acts.querySelector("button:not(.sec)"); if (p) p.focus({ preventScroll:true });
+      }
+      (function tape(){
+        if (mon !== tok) return res();
+        if (saute || o.instant || i >= brut.length) return fin();
+        i += 2; zone.textContent = brut.slice(0, i); setTimeout(tape, 18);
+      })();
+    });
+  }
+
+  /* ─── Main animée et actions de démonstration ─── */
+  function viser(cible, dx, dy){
+    var m = C.main, r = cible.getBoundingClientRect();
+    m.classList.add("on");
+    m.style.transform = "translate(" + (r.left + r.width / 2 - 8 + (dx || 0)) + "px," + (r.top + r.height / 2 - 4 + (dy || 0)) + "px)";
+    return pause(950);
+  }
+  async function clic(cible, dx, dy){
+    if (typeof cible === "string") cible = q(cible);
+    if (!cible) return;
+    cible.scrollIntoView({ block:"center", behavior:saute ? "auto" : "smooth" }); await pause(350);
+    await viser(cible, dx, dy);
+    var r = q(".rip", C.main); r.classList.remove("go"); void r.offsetWidth; r.classList.add("go");
+    cible.click(); await pause(450);
+  }
+  async function taper(champ, val){
+    if (typeof champ === "string") champ = q(champ);
+    champ.scrollIntoView({ block:"center", behavior:saute ? "auto" : "smooth" }); await pause(300);
+    await viser(champ); champ.focus({ preventScroll:true }); champ.value = "";
+    for (var k = 0; k < String(val).length; k++){ champ.value += String(val)[k]; champ.dispatchEvent(new Event("input", { bubbles:true })); await pause(110); }
+    champ.dispatchEvent(new Event("change", { bubbles:true }));
+    await pause(300);
+  }
+  function eclairer(cible){
+    document.querySelectorAll(".spot").forEach(function(x){ x.classList.remove("spot"); });
+    if (typeof cible === "string") cible = q(cible);
+    if (cible){ cible.classList.add("spot"); cible.scrollIntoView({ block:"center", behavior:saute ? "auto" : "smooth" }); }
+  }
+  /* Étapes : { t:"texte du guide", el:"#cible" (éclairée), f: async function (action), humeur } */
+  async function demo(etapes){
+    if (enDemo) return;
+    enDemo = true; saute = false; document.body.classList.add("demo-on");
+    try{
+      for (var i = 0; i < etapes.length; i++){
+        if (saute) break;
+        var e = etapes[i];
+        if (e.el) eclairer(e.el);
+        var EN = C.langue === "en", ET = EN ? "Step " : "Étape ";
+        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { humeur:e.humeur || "pense" });
+        if (saute) break;
+        if (e.f) await e.f();
+        if (saute) break;
+        var der = i === etapes.length - 1;
+        await dire('<b>' + ET + (i + 1) + ' / ' + etapes.length + '</b> · ' + e.t, { instant:true, boutons: der ? [{ t:EN ? "My turn! 🚀" : "À moi de jouer ! 🚀" }] : [{ t:EN ? "Skip demo" : "Passer la démo", sec:true, f:function(){ saute = true; } }, { t:EN ? "Next step ▶" : "Étape suivante ▶" }] });
+      }
+    } finally {
+      saute = false; enDemo = false; document.body.classList.remove("demo-on"); eclairer(null); C.main.classList.remove("on");
+      if (C.apresDemo) await C.apresDemo();
+      dire(C.langue === "en" ? "Your turn now! Good luck. 💪" : "À toi de jouer maintenant ! Bonne chance. 💪", { humeur:"joie" });
+    }
+  }
+
+  /* ─── Points, séries, badges ─── */
+  function flot(cible, txt, neg){
+    var r = cible ? cible.getBoundingClientRect() : { left:innerWidth / 2, top:innerHeight / 2, width:0 };
+    var f = document.createElement("div"); f.className = "flot" + (neg ? " neg" : ""); f.textContent = txt;
+    f.style.left = (r.left + r.width / 2 - 20) + "px"; f.style.top = (r.top - 10) + "px";
+    document.body.appendChild(f); setTimeout(function(){ f.parentNode && f.parentNode.removeChild(f); }, 1200);
+  }
+  function majHud(){
+    q("#gXp").textContent = xp; q("#gSerie").textContent = serie;
+    q(".combo", C.hud).classList.toggle("hot", serie >= 3);
+    var n = Math.floor(xp / C.parNiveau) + 1;
+    q("#gNiv").textContent = n; q(".lvl s", C.hud).style.width = (xp % C.parNiveau) / C.parNiveau * 100 + "%";
+    if (n > niveau){ niveau = n; toast("⬆️", "Niveau " + n, "Tu progresses !"); }
+  }
+  var BRAVO = { fr:["Bravo !", "Excellent !", "Super, c'est ça !", "Bien joué !", "Exactement !", "Tu as l'œil !"], en:["Great job!", "Excellent!", "That's right!", "Well done!", "Perfect!", "Nice work!"] };
+  var OUPS = { fr:["Pas tout à fait. On réessaie ?", "Presque ! Regarde l'indice.", "Une erreur, c'est pour apprendre.", "Prends ton temps, tu vas trouver."], en:["Not quite. Try again!", "Almost! Read the hint.", "Mistakes help us learn.", "Take your time, you can do it."] };
+  function alea(t){ return t[Math.floor(Math.random() * t.length)]; }
+  function bon(cible, pts, msg){
+    if (enDemo) return;
+    serie++; var gain = (pts || 10) * (serie >= 3 ? 2 : 1); xp += gain;
+    flot(cible, "+" + gain + (serie >= 3 ? " 🔥" : "")); son("bon"); majHud();
+    if (serie === 3) toast("🔥", "Série de 3 !", "Points doublés tant que tu ne te trompes pas.");
+    if (serie === 5) badge("serie5");
+    if (msg !== false) dire(msg || alea(BRAVO[C.langue]), { humeur:"joie" });
+  }
+  function oups(cible, msg){
+    if (enDemo) return;
+    serie = 0; flot(cible, "✗", true); son("oups"); majHud();
+    if (msg !== false) dire(msg || alea(OUPS[C.langue]), { humeur:"oups" });
+  }
+  function toast(ico, titre, txt){
+    var t = el('<div class="toastb" role="status"><span class="ico">' + ico + '</span><div><b>' + titre + '</b>' + txt + '</div></div>');
+    document.body.appendChild(t); son("badge"); setTimeout(function(){ t.parentNode && t.parentNode.removeChild(t); }, 3200);
+  }
+  function badge(id){
+    if (gagnes[id]) return; var b = C.badges.filter(function(x){ return x.id === id; })[0]; if (!b) return;
+    gagnes[id] = true; toast(b.ico, "Badge : " + b.nom, b.d || "");
+    var s = q('[data-b="' + id + '"]', C.hud); if (s){ s.classList.add("on"); s.title = b.nom + " (obtenu)"; }
+  }
+  function confettis(){
+    var cols = ["#2548A8", "#F0A23A", "#1E8A5A", "#B8430E", "#7A4FD0", "#00A9C5"];
+    for (var i = 0; i < 70; i++){
+      var d = document.createElement("i"); d.className = "conf";
+      d.style.left = Math.random() * 100 + "vw"; d.style.background = cols[i % cols.length];
+      d.style.setProperty("--x", (Math.random() * 200 - 100) + "px"); d.style.setProperty("--r", Math.random() * 900 + "deg");
+      d.style.setProperty("--t", (1.6 + Math.random() * 1.4) + "s"); d.style.animationDelay = Math.random() * .4 + "s";
+      document.body.appendChild(d); (function(n){ setTimeout(function(){ n.parentNode && n.parentNode.removeChild(n); }, 3500); })(d);
+    }
+  }
+  function fin(score, total, msg){
+    var r = total ? score / total : 1;
+    if (r >= .8) confettis();
+    if (r === 1) badge("parfait");
+    badge("fini");
+    dire(msg || (C.langue === "en" ? (r === 1 ? "Perfect score! Amazing work." : "You finished! Look at the questions to review, then try again.") : (r === 1 ? "Score parfait ! Chapeau, c'est du beau travail." : "Tu as terminé ! Revois les points difficiles, puis recommence pour battre ton score.")), { humeur:"joie" });
+  }
+
+  /* ─── Mise en place ─── */
+  function init(o){
+    C = o; C.lang = o.lang || "fr-CA"; C.langue = C.lang.slice(0, 2) === "en" ? "en" : "fr"; C.parNiveau = o.parNiveau || 100;
+    C.badges = (o.badges || []).concat([{ id:"serie5", ico:"🔥", nom:C.langue === "en" ? "On fire" : "En feu", d:C.langue === "en" ? "5 in a row" : "5 bonnes réponses de suite" }, { id:"fini", ico:"🏁", nom:C.langue === "en" ? "Finisher" : "Persévérance", d:C.langue === "en" ? "Activity completed" : "Activité terminée" }, { id:"parfait", ico:"🏆", nom:C.langue === "en" ? "Perfect" : "Sans faute", d:C.langue === "en" ? "Perfect score" : "Score parfait" }]);
+    try{ voix = localStorage.getItem("g_voix") !== "0"; }catch(e){}
+    C.hud = el('<div class="hud" role="region" aria-label="Progression">' +
+      '<span class="chipx xp">⭐ <b id="gXp">0</b> XP</span>' +
+      '<span class="chipx combo" title="Bonnes réponses de suite">🔥 <b id="gSerie">0</b></span>' +
+      '<span class="chipx lvl">Niv. <b id="gNiv">1</b> <i><s></s></i></span>' +
+      '<span class="chipx badges">' + C.badges.map(function(b){ return '<span data-b="' + b.id + '" title="' + b.nom + ' : ' + (b.d || "") + '">' + b.ico + '</span>'; }).join("") + '</span>' +
+      (o.demo ? '<button class="demo-btn" id="gDemo">▶ ' + (C.langue === "en" ? "Show me how" : "Montre-moi comment") + '</button>' : '') +
+      '<button id="gVoix" aria-pressed="' + voix + '">' + (voix ? "🔊" : "🔇") + ' ' + (C.langue === "en" ? "Voice" : "Voix") + '</button></div>');
+    document.body.insertBefore(C.hud, document.body.firstChild);
+    document.body.appendChild(el('<div class="demo-band">🎬 ' + (C.langue === "en" ? "Demo: watch, then it's your turn" : "Démonstration : observe, ensuite c'est ton tour") + '</div>'));
+    C.g = el('<div class="guide" style="--gc:' + o.couleur + '">' + avatar(o) + '<div class="bulle" role="status" aria-live="polite"><button class="x" aria-label="Réduire">✕</button><span class="nom">' + o.nom + '</span><div class="txt"></div><div class="acts"></div></div></div>');
+    document.body.appendChild(C.g);
+    q(".x", C.g).onclick = function(){ C.g.classList.add("mini"); try{ speechSynthesis.cancel(); }catch(e){} };
+    q(".av", C.g).onclick = function(){ if (C.g.classList.contains("mini")) C.g.classList.remove("mini"); else if (o.astuce) dire(alea(o.astuce), { humeur:"pense" }); };
+    C.main = el('<div class="main-demo" aria-hidden="true">👆<span class="rip"></span></div>'); document.body.appendChild(C.main);
+    q("#gVoix").onclick = function(){ voix = !voix; this.textContent = (voix ? "🔊" : "🔇") + " " + (C.langue === "en" ? "Voice" : "Voix"); this.setAttribute("aria-pressed", voix); try{ localStorage.setItem("g_voix", voix ? "1" : "0"); speechSynthesis.cancel(); }catch(e){} };
+    if (o.demo) q("#gDemo").onclick = function(){ demo(o.demo()); };
+    if (o.alloprof){
+      var a = el('<section class="allo"><h2><span>Alloprof</span> ' + (C.langue === "en" ? "Need a reminder? / Besoin d'un rappel ?" : "Besoin d'un rappel ?") + '</h2><ul>' +
+        o.alloprof.map(function(l){ return '<li><a href="' + l.u + '" target="_blank" rel="noopener">' + l.t + ' ↗</a>' + (l.d ? ' <small>· ' + l.d + '</small>' : '') + '</li>'; }).join("") +
+        '</ul><small>Fiches gratuites d\'Alloprof (s\'ouvrent dans un nouvel onglet, Internet requis).</small></section>');
+      var w = q(".wrap"), f = q(".foot", w); w.insertBefore(a, f || null);
+    }
+    if (o.intro) setTimeout(function(){
+      dire(o.intro, { boutons: o.demo ? [{ t:C.langue === "en" ? "I'll try on my own" : "Je me lance seul", sec:true }, { t:C.langue === "en" ? "▶ Show me how" : "▶ Montre-moi comment", f:function(){ setTimeout(function(){ demo(o.demo()); }, 50); } }] : [{ t:"OK !" }] });
+    }, 400);
+  }
+  return { init:init, dire:dire, demo:demo, bon:bon, oups:oups, badge:badge, fin:fin, clic:clic, taper:taper, pause:pause, eclairer:eclairer, confettis:confettis, viser:viser,
+    get enDemo(){ return enDemo; } };
+})();
+
+</scr§§ipt>
+<script>
+function $(s){ return document.querySelector(s); }
+function nf(v, d){ return (d === undefined ? (Math.round(v * 100) / 100).toString() : v.toFixed(d)).replace(".", ","); }
+function lire(v){ return parseFloat(String(v).replace(/\s/g, "").replace(",", ".")); }
+var PI = Math.PI, AX = { x:"#D9480F", y:"#2F9E44", z:"#1C7ED6" }, TAILLE = 8;
+
+/* ─── Missions ─── */
+var M = [
+  { titre:"Mission 1 · Le cube", forme:"prisme", d:[2, 2, 2], depart:[0, 0, 0], cible:[3, 2, 0], ref:"le coin avant gauche, en bas",
+    texte:"Déplace le cube pour que son <b>coin repère</b> (point blanc) soit sur la cible.",
+    dims:"Cube d'arête <b>2 cm</b>",
+    q:[ { n:"Volume", u:"cm³", v:8, f:"V = a × a × a (arête au cube)" }, { n:"Aire totale", u:"cm²", v:24, f:"A = 6 × (a × a) : 6 faces carrées" } ] },
+  { titre:"Mission 2 · La boîte", forme:"prisme", d:[4, 2, 3], depart:[0, 0, 0], cible:[1, 4, 0], ref:"le coin avant gauche, en bas",
+    texte:"Range la boîte (prisme rectangulaire) sur la tablette : place son coin repère sur la cible.",
+    dims:"Prisme rectangulaire : longueur <b>4 cm</b> (x), largeur <b>2 cm</b> (y), hauteur <b>3 cm</b> (z)",
+    q:[ { n:"Volume", u:"cm³", v:24, f:"V = L × l × h" }, { n:"Aire totale", u:"cm²", v:52, f:"A = 2 × (L×l + L×h + l×h)" } ] },
+  { titre:"Mission 3 · L'empilement", forme:"prisme", d:[2, 2, 2], depart:[5, 0, 0], cible:[2, 4, 3], ref:"le coin avant gauche, en bas",
+    fixes:[ { forme:"prisme", d:[4, 2, 3], p:[1, 4, 0] } ],
+    texte:"Pose le cube <b>sur</b> la boîte : il faut aussi le monter en hauteur (axe des z) !",
+    dims:"Cube d'arête <b>2 cm</b> · boîte de <b>4 × 2 × 3 cm</b>",
+    q:[ { n:"Volume total", u:"cm³", v:32, f:"V = volume de la boîte + volume du cube" }, { n:"Hauteur totale", u:"cm", v:5, f:"h = hauteur de la boîte + arête du cube" } ] },
+  { titre:"Mission 4 · Le cylindre", forme:"cylindre", d:[1, 4], depart:[1, 1, 0], cible:[5, 5, 0], ref:"le centre de la base",
+    texte:"Place le <b>centre de la base</b> du cylindre (point blanc) sur la cible.",
+    dims:"Cylindre : rayon <b>1 cm</b>, hauteur <b>4 cm</b>. Utilise π ≈ 3,14.",
+    q:[ { n:"Volume", u:"cm³", v:4 * PI, f:"V = π × r² × h", tol:.02 }, { n:"Aire totale", u:"cm²", v:10 * PI, f:"A = 2 × π × r² + 2 × π × r × h", tol:.02 } ] },
+  { titre:"Mission 5 · La pyramide", forme:"pyramide", d:[4, 3], depart:[2, 2, 0], cible:[4, 5, 0], ref:"le centre de la base",
+    texte:"Place le <b>centre de la base</b> de la pyramide sur la cible.",
+    dims:"Pyramide à base carrée : côté <b>4 cm</b>, hauteur <b>3 cm</b>, apothème <b>3,61 cm</b>",
+    q:[ { n:"Volume", u:"cm³", v:16, f:"V = (aire de la base × h) ÷ 3" }, { n:"Aire totale", u:"cm²", v:16 + 4 * (4 * Math.sqrt(13) / 2), f:"A = aire de la base + 4 × (côté × apothème ÷ 2)", tol:.02 } ] }
+];
+var mi = 0, pos = [0, 0, 0], etape = 1, faites = {}, erreurs = 0, tent = {};
+
+/* ─── Caméra et projection ─── */
+var cv = $("#cv"), cx = cv.getContext("2d"), W = cv.width, H = cv.height;
+var cam = { yaw:-.62, pitch:.5, S:44, D:24 }, camCible = null, CENTRE = [4.2, 4.2, 2.2];
+function proj(p){
+  var x = p[0] - CENTRE[0], y = p[1] - CENTRE[1], z = p[2] - CENTRE[2];
+  var cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+  var xr = x * cy - y * sy, yr = x * sy + y * cy;
+  var sx = xr, sv = z * cp + yr * sp, prof = yr * cp - z * sp;
+  var k = cam.D / (cam.D + prof);
+  return [W / 2 + sx * cam.S * k, H / 2 + 5 - sv * cam.S * k, prof];
+}
+var VUES = { "3d":[-.62, .5], dessus:[0, 1.5], face:[0, .06], cote:[-PI / 2, .06] };
+function vue(n){ camCible = VUES[n].slice(); }
+
+/* ─── Solides : liste de faces ─── */
+function prisme(p, d){
+  var x0 = p[0], y0 = p[1], z0 = p[2], x1 = x0 + d[0], y1 = y0 + d[1], z1 = z0 + d[2];
+  var v = [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
+  return [[0,1,2,3],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]].map(function(f){ return f.map(function(i){ return v[i]; }); });
+}
+function cylindre(p, d){
+  var r = d[0], h = d[1], n = 28, bas = [], haut = [], f = [];
+  for (var i = 0; i < n; i++){ var a = 2 * PI * i / n; bas.push([p[0] + r * Math.cos(a), p[1] + r * Math.sin(a), p[2]]); haut.push([p[0] + r * Math.cos(a), p[1] + r * Math.sin(a), p[2] + h]); }
+  for (i = 0; i < n; i++){ var j = (i + 1) % n; f.push([bas[i], bas[j], haut[j], haut[i]]); }
+  f.push(bas.slice().reverse()); f.push(haut); f.lisse = true; return f;
+}
+function pyramide(p, d){
+  var c = d[0] / 2, s = [p[0], p[1], p[2] + d[1]];
+  var b = [[p[0]-c,p[1]-c,p[2]],[p[0]+c,p[1]-c,p[2]],[p[0]+c,p[1]+c,p[2]],[p[0]-c,p[1]+c,p[2]]];
+  return [b, [b[0], b[1], s], [b[1], b[2], s], [b[2], b[3], s], [b[3], b[0], s]];
+}
+function faces(forme, p, d){ return forme === "prisme" ? prisme(p, d) : forme === "cylindre" ? cylindre(p, d) : pyramide(p, d); }
+function ombre(f){
+  var a = f[0], b = f[1], c = f[2], u = [b[0]-a[0], b[1]-a[1], b[2]-a[2]], v = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+  var n = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]], l = Math.hypot(n[0], n[1], n[2]) || 1;
+  return .55 + .45 * Math.abs((n[0] * .4 + n[1] * -.5 + n[2] * .77) / l);
+}
+function teinte(hex, k){ var n = parseInt(hex.slice(1), 16); return "rgb(" + [n >> 16, (n >> 8) & 255, n & 255].map(function(c){ return Math.round(c * k); }).join(",") + ")"; }
+
+/* ─── Dessin ─── */
+function ligne(a, b, col, lw, tirets){
+  var A = proj(a), B = proj(b); cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]);
+  cx.strokeStyle = col; cx.lineWidth = lw || 1; cx.setLineDash(tirets || []); cx.stroke(); cx.setLineDash([]);
+}
+function texte(p, t, col, taille, gras){ var P = proj(p); cx.fillStyle = col; cx.font = (gras ? "800 " : "600 ") + (taille || 14) + "px Segoe UI, system-ui, sans-serif"; cx.textAlign = "center"; cx.textBaseline = "middle"; cx.fillText(t, P[0], P[1]); }
+function dessiner(t){
+  var m = M[mi];
+  cx.fillStyle = "#0F1B30"; cx.fillRect(0, 0, W, H);
+  /* murs et plancher quadrillés */
+  for (var i = 0; i <= TAILLE; i++){
+    ligne([i, 0, 0], [i, TAILLE, 0], "rgba(160,190,230,.32)");
+    ligne([0, i, 0], [TAILLE, i, 0], "rgba(160,190,230,.32)");
+    if (i <= 6){ ligne([0, 0, i], [TAILLE, 0, i], "rgba(160,190,230,.08)"); ligne([0, 0, i], [0, TAILLE, i], "rgba(160,190,230,.08)"); }
+    ligne([i, 0, 0], [i, 0, 6], "rgba(160,190,230,.08)"); ligne([0, i, 0], [0, i, 6], "rgba(160,190,230,.08)");
+  }
+  /* axes */
+  [["x", [TAILLE + 1, 0, 0]], ["y", [0, TAILLE + 1, 0]], ["z", [0, 0, 7]]].forEach(function(a){
+    ligne([0, 0, 0], a[1], AX[a[0]], 3.5);
+    texte([a[1][0] * 1.06 + (a[0] === "z" ? 0 : 0), a[1][1] * 1.06, a[1][2] * 1.06 + .1], a[0], AX[a[0]], 22, true);
+  });
+  for (i = 1; i <= TAILLE; i++){ texte([i, -.45, 0], String(i), "#F5A78A", 12); texte([-.45, i, 0], String(i), "#8CD99B", 12); if (i <= 6) texte([-.35, -.35, i], String(i), "#8EC5F5", 12); }
+  texte([-.35, -.35, -.25], "0", "#B9C7DD", 12);
+  /* solides (peintre : du plus loin au plus proche) */
+  var tout = [];
+  (m.fixes || []).forEach(function(s){ faces(s.forme, s.p, s.d).forEach(function(f){ tout.push({ f:f, col:"#8A94A6", a:.85 }); }); });
+  var fs = faces(m.forme, pos, m.d), lisse = fs.lisse;
+  fs.forEach(function(f){ tout.push({ f:f, col:"#F0A23A", a:.9, lisse:lisse && f.length === 4 }); });
+  tout.forEach(function(o){ var s = 0; o.f.forEach(function(p){ s += proj(p)[2]; }); o.z = s / o.f.length; });
+  tout.sort(function(a, b){ return b.z - a.z; });
+  tout.forEach(function(o){
+    cx.beginPath(); o.f.forEach(function(p, k){ var P = proj(p); if (k) cx.lineTo(P[0], P[1]); else cx.moveTo(P[0], P[1]); }); cx.closePath();
+    cx.globalAlpha = o.a; cx.fillStyle = teinte(o.col, ombre(o.f)); cx.fill(); cx.globalAlpha = 1;
+    if (!o.lisse){ cx.strokeStyle = "rgba(22,36,59,.8)"; cx.lineWidth = 1.2; cx.stroke(); }
+  });
+  /* cible */
+  var pulse = .5 + .5 * Math.sin(t / 250), c = m.cible;
+  var C = proj(c); cx.beginPath(); cx.arc(C[0], C[1], 9 + 5 * pulse, 0, 2 * PI); cx.strokeStyle = "rgba(255,99,71," + (.5 + .5 * pulse) + ")"; cx.lineWidth = 3; cx.stroke();
+  cx.beginPath(); cx.arc(C[0], C[1], 4, 0, 2 * PI); cx.fillStyle = "#FF6347"; cx.fill();
+  if (c[2] > 0) ligne([c[0], c[1], 0], c, "rgba(255,99,71,.6)", 1.5, [4, 4]);
+  texte([c[0], c[1], c[2] + .55], "Cible (" + c.join(" ; ") + ")", "#FF8A70", 13, true);
+  /* point repère et lignes de rappel */
+  var r = pos;
+  ligne([r[0], r[1], 0], r, "rgba(255,255,255,.7)", 1.5, [4, 4]);
+  ligne([r[0], r[1], 0], [r[0], 0, 0], AX.x, 1.5, [4, 4]);
+  ligne([r[0], r[1], 0], [0, r[1], 0], AX.y, 1.5, [4, 4]);
+  var R = proj(r); cx.beginPath(); cx.arc(R[0], R[1], 6, 0, 2 * PI); cx.fillStyle = "#fff"; cx.fill(); cx.strokeStyle = "#16243B"; cx.lineWidth = 2; cx.stroke();
+  /* mesures */
+  var d = m.d;
+  if (m.forme === "prisme"){
+    texte([r[0] + d[0] / 2, r[1] - .35, r[2]], d[0] + " cm", "#FFE3B3", 13, true);
+    texte([r[0] + d[0] + .35, r[1] + d[1] / 2, r[2]], d[1] + " cm", "#FFE3B3", 13, true);
+    texte([r[0] - .35, r[1], r[2] + d[2] / 2], d[2] + " cm", "#FFE3B3", 13, true);
+  } else {
+    ligne([r[0], r[1], r[2] + .01], [r[0] + (m.forme === "cylindre" ? d[0] : d[0] / 2), r[1], r[2] + .01], "#FFE3B3", 2);
+    texte([r[0] + (m.forme === "cylindre" ? d[0] : d[0] / 2) / 2, r[1] - .35, r[2]], m.forme === "cylindre" ? "r = " + d[0] : "c ÷ 2 = " + d[0] / 2, "#FFE3B3", 13, true);
+    texte([r[0] + .4, r[1] + .4, r[2] + d[1] / 2], "h = " + d[1], "#FFE3B3", 13, true);
+  }
+}
+function boucle(t){
+  if (camCible){
+    cam.yaw += (camCible[0] - cam.yaw) * .12; cam.pitch += (camCible[1] - cam.pitch) * .12;
+    if (Math.abs(camCible[0] - cam.yaw) < .002 && Math.abs(camCible[1] - cam.pitch) < .002) camCible = null;
+  }
+  dessiner(t); requestAnimationFrame(boucle);
+}
+
+/* ─── Déplacement ─── */
+function limites(){
+  var m = M[mi], d = m.d, ext = m.forme === "prisme" ? [d[0], d[1], d[2]] : null, rr = m.forme === "prisme" ? 0 : (m.forme === "cylindre" ? d[0] : d[0] / 2);
+  var hz = m.forme === "prisme" ? d[2] : d[1];
+  return { x:[rr, TAILLE - (ext ? ext[0] : rr)], y:[rr, TAILLE - (ext ? ext[1] : rr)], z:[0, 6 - hz] };
+}
+function placer(p){
+  var L = limites();
+  pos = [Math.max(L.x[0], Math.min(L.x[1], p[0])), Math.max(L.y[0], Math.min(L.y[1], p[1])), Math.max(L.z[0], Math.min(L.z[1], p[2]))];
+  majPos();
+}
+function majPos(){
+  var r = pos.map(function(v){ return Math.round(v); });
+  $("#pos").innerHTML = '(<span class="x">' + r[0] + '</span> ; <span class="y">' + r[1] + '</span> ; <span class="z">' + r[2] + '</span>)';
+  var ok = r[0] === M[mi].cible[0] && r[1] === M[mi].cible[1] && r[2] === M[mi].cible[2] && pos.every(function(v){ return v === Math.round(v); });
+  $("#pos").classList.toggle("ok", ok);
+  if (ok && etape === 1) atteint();
+}
+function bouger(axe, s){
+  if (etape !== 1) return;
+  var p = pos.slice(), k = "xyz".indexOf(axe); p[k] = Math.round(p[k]) + s; placer(p);
+}
+document.querySelectorAll("#pad button").forEach(function(b){ b.onclick = function(){ bouger(b.dataset.d, +b.dataset.s); }; });
+document.addEventListener("keydown", function(e){
+  if (/input|select|textarea/i.test(e.target.tagName)) return;
+  var k = { ArrowLeft:["x", -1], ArrowRight:["x", 1], ArrowUp:["y", 1], ArrowDown:["y", -1], PageUp:["z", 1], PageDown:["z", -1] }[e.key];
+  if (k){ e.preventDefault(); bouger(k[0], k[1]); }
+});
+/* glisser : sur le solide = déplacer ; ailleurs = tourner la vue */
+function dansSolide(mx, my){
+  var fs = faces(M[mi].forme, pos, M[mi].d);
+  return fs.some(function(f){
+    var P = f.map(proj), dedans = false;
+    for (var i = 0, j = P.length - 1; i < P.length; j = i++){
+      if (((P[i][1] > my) !== (P[j][1] > my)) && (mx < (P[j][0] - P[i][0]) * (my - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0])) dedans = !dedans;
+    }
+    return dedans;
+  });
+}
+var gl = null;
+function coords(e){ var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
+cv.addEventListener("pointerdown", function(e){
+  var c = coords(e); cv.setPointerCapture(e.pointerId); cv.classList.add("drag");
+  gl = { x:c[0], y:c[1], mode:(etape === 1 && dansSolide(c[0], c[1])) ? (e.shiftKey ? "z" : "xy") : "cam", p0:pos.slice() };
+});
+cv.addEventListener("pointermove", function(e){
+  if (!gl) return; var c = coords(e), dx = c[0] - gl.x, dy = c[1] - gl.y;
+  if (gl.mode === "cam"){ camCible = null; cam.yaw += dx * .008; cam.pitch = Math.max(.04, Math.min(1.53, cam.pitch + dy * .006)); gl.x = c[0]; gl.y = c[1]; return; }
+  var o = proj(gl.p0);
+  if (gl.mode === "z"){
+    var ez = proj([gl.p0[0], gl.p0[1], gl.p0[2] + 1]), vz = [ez[0] - o[0], ez[1] - o[1]], t = (dx * vz[0] + dy * vz[1]) / (vz[0] * vz[0] + vz[1] * vz[1]);
+    placer([gl.p0[0], gl.p0[1], Math.round(gl.p0[2] + t)]); return;
+  }
+  var ex = proj([gl.p0[0] + 1, gl.p0[1], gl.p0[2]]), ey = proj([gl.p0[0], gl.p0[1] + 1, gl.p0[2]]);
+  var a = ex[0] - o[0], b = ey[0] - o[0], c2 = ex[1] - o[1], d = ey[1] - o[1], det = a * d - b * c2;
+  if (Math.abs(det) < 1e-6) return;
+  var u = (dx * d - b * dy) / det, v = (a * dy - c2 * dx) / det;
+  placer([Math.round(gl.p0[0] + u), Math.round(gl.p0[1] + v), gl.p0[2]]);
+});
+function finGlisse(){ gl = null; cv.classList.remove("drag"); }
+cv.addEventListener("pointerup", finGlisse); cv.addEventListener("pointercancel", finGlisse);
+document.querySelectorAll(".views button").forEach(function(b){ b.onclick = function(){ vue(b.dataset.v); }; });
+
+/* ─── Missions : déroulement ─── */
+function etapes(){ for (var k = 1; k <= 3; k++) $("#st" + k).classList.toggle("on", etape > k || (k === 3 && etape > 3)); }
+function charger(i){
+  mi = i; etape = 1; tent = {}; var m = M[i];
+  $("#mTitre").textContent = m.titre; $("#mTexte").innerHTML = m.texte + ' <span class="cible">Cible : (' + m.cible.join(" ; ") + ')</span>';
+  $("#mDims").innerHTML = m.dims + '<br><small class="muted">Point repère : ' + m.ref + '</small>';
+  $("#calc").className = "calc lock"; $("#fb").className = "fb";
+  $("#calc").innerHTML = '<p style="margin:0;font-weight:800">Calcule :</p>' + m.q.map(function(q, k){
+    return '<div class="q"><label for="c' + k + '">' + q.n + '</label><input id="c' + k + '" inputmode="decimal" autocomplete="off"> ' + q.u + ' <button class="btn sm" data-k="' + k + '">OK</button></div>' +
+      '<p class="formule" id="fo' + k + '" hidden>💡 ' + q.f + '</p>';
+  }).join("");
+  document.querySelectorAll("#calc .btn").forEach(function(b){ b.onclick = function(){ verifier(+b.dataset.k); }; });
+  document.querySelectorAll("#calc input").forEach(function(inp, k){ inp.onkeydown = function(e){ if (e.key === "Enter") verifier(k); }; });
+  pos = m.depart.slice(); majPos(); etapes(); liste();
+}
+function atteint(){
+  etape = 2; etapes(); $("#calc").className = "calc";
+  var f = $("#fb"); f.className = "fb on good"; f.innerHTML = "🎯 <b>Cible atteinte !</b> Maintenant, calcule.";
+  G.bon($("#pos"), 15, "Bien placé ! Tu as trouvé le point (" + M[mi].cible.join(" ; ") + ") dans l'espace. Maintenant, on calcule !");
+  if (M[mi].cible[2] > 0) G.badge("hauteur");
+}
+function verifier(k){
+  var q = M[mi].q[k], inp = $("#c" + k), v = lire(inp.value), tol = q.tol || .005;
+  tent[k] = (tent[k] || 0) + 1;
+  if (!isNaN(v) && Math.abs(v - q.v) <= Math.max(tol * q.v, .01)){
+    inp.className = "good"; inp.disabled = true; $("#calc .btn[data-k='" + k + "']").disabled = true;
+    G.bon(inp, tent[k] === 1 ? 20 : 8, q.n + " : <b>" + nf(q.v, q.tol ? 2 : undefined) + " " + q.u + "</b>. " + (tent[k] === 1 ? "Du premier coup !" : "Bravo, tu as persévéré !"));
+    if (M[mi].q.every(function(_, j){ return $("#c" + j).disabled; })) mission();
+  } else {
+    erreurs++; inp.className = "bad"; $("#fo" + k).hidden = false;
+    G.oups(inp, "Regarde la formule 💡 sous la case, et vérifie les mesures du solide." + (q.tol ? " Garde 2 décimales." : ""));
+  }
+}
+function mission(){
+  etape = 4; etapes(); faites[mi] = true; liste();
+  var n = Object.keys(faites).length, f = $("#fb");
+  f.className = "fb on good";
+  f.innerHTML = "<b>Mission réussie !</b> " + (n < M.length ? '<button class="btn sm" id="suiv">Mission suivante →</button>' : "Tu as terminé toutes les missions ! 🏆");
+  if (M[mi].forme === "cylindre") G.badge("pi");
+  if (n === M.length){ G.badge("archi"); G.fin(Math.max(0, M.length * 2 - erreurs), M.length * 2, "Les 5 missions sont réussies ! Tu te repères dans l'espace et tu maîtrises le volume et l'aire. 🏗️"); }
+  var s = $("#suiv"); if (s) s.onclick = function(){ var p = M.findIndex(function(_, j){ return !faites[j]; }); charger(p < 0 ? 0 : p); };
+}
+function liste(){
+  $("#mlist").innerHTML = M.map(function(m, k){ return '<button class="' + (k === mi ? "cur " : "") + (faites[k] ? "done" : "") + '" data-m="' + k + '">' + (faites[k] ? "✓ " : "") + (k + 1) + '. ' + m.titre.split("· ")[1] + '</button>'; }).join("");
+  document.querySelectorAll("#mlist button").forEach(function(b){ b.onclick = function(){ charger(+b.dataset.m); }; });
+}
+charger(0); requestAnimationFrame(boucle);
+
+/* ─── Guide et démonstration ─── */
+function tourner(de, a, ms){ return new Promise(function(res){ var t0 = performance.now(); camCible = null; (function f(t){ var k = Math.min(1, (t - t0) / ms); cam.yaw = de + (a - de) * k; if (k < 1) requestAnimationFrame(f); else res(); })(t0); }); }
+G.init({ nom:"Max", couleur:"#1E8A5A", peau:"#C98E62", cheveux:"#2B1B12", acc:"lunettes", lang:"fr-CA",
+  intro:"Salut, c'est Max ! Bienvenue dans mon <b>atelier 3D</b>. 🧊 Ici, il y a <b>3 axes</b> : x, y et z (la hauteur). Ta mission : déplacer des solides au bon endroit, puis calculer leur volume et leur aire. Je te montre comment ?",
+  astuce:["Astuce : on lit toujours les coordonnées dans l'ordre (x ; y ; z).", "Astuce : z, c'est la hauteur. Pour monter un solide, utilise z + 1.", "Astuce : tourne la vue ou passe en vue de dessus si tu ne vois pas bien.", "Astuce : le volume est en cm³, l'aire en cm²."],
+  badges:[{ id:"hauteur", ico:"🪜", nom:"Vers le haut", d:"Placer un solide en hauteur (z)" }, { id:"pi", ico:"🥫", nom:"Ami de π", d:"Réussir le cylindre" }, { id:"archi", ico:"🏗️", nom:"Architecte 3D", d:"Les 5 missions réussies" }],
+  alloprof:[{ t:"Le plan cartésien", u:"https://www.alloprof.qc.ca/bv/mathematiques/le-plan-cartesien-m1309", d:"lire les coordonnées d'un point" },
+    { t:"Le volume des prismes", u:"https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/le-volume-des-prismes-m1594" },
+    { t:"L'aire des prismes", u:"https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/l-aire-des-prismes-m1484" },
+    { t:"L'aire des cylindres", u:"https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/l-aire-des-cylindres-m1487" },
+    { t:"Le volume des pyramides", u:"https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/le-volume-des-pyramides-m1595" },
+    { t:"L'aire et le volume des solides (secondaire 3)", u:"https://www.alloprof.qc.ca/fr/eleves/bv/mathematiques/l-aire-et-le-volume-des-solides-secondaire-3-m1243s3", d:"tableau des formules" }],
+  demo:function(){
+    charger(0); vue("3d");
+    return [
+      { el:"#scene", t:"Voici un plan cartésien à <b>3 axes</b> : <b style='color:#D9480F'>x</b>, <b style='color:#2F9E44'>y</b> et <b style='color:#1C7ED6'>z</b> (la hauteur). Je peux tourner la vue pour mieux voir.", f:async function(){ await tourner(cam.yaw, cam.yaw + 1.1, 1600); await tourner(cam.yaw, -.62, 1200); } },
+      { el:"#mis", t:"La cible est <b>(3 ; 2 ; 0)</b> : 3 sur l'axe des x, 2 sur l'axe des y, 0 en hauteur. Le point blanc, c'est le coin repère du cube." },
+      { el:"#pad", t:"J'avance de <b>3</b> sur l'axe des x…", f:async function(){ for (var k = 0; k < 3; k++) await G.clic('#pad button[data-d="x"][data-s="1"]'); } },
+      { el:"#pad", t:"… puis de <b>2</b> sur l'axe des y. Je pourrais aussi glisser le cube avec la souris.", f:async function(){ for (var k = 0; k < 2; k++) await G.clic('#pad button[data-d="y"][data-s="1"]'); } },
+      { el:"#calc", t:"Le cube est sur la cible ! Volume d'un cube : <b>2 × 2 × 2 = 8 cm³</b>.", f:async function(){ await G.taper("#c0", "8"); await G.clic("#calc .btn[data-k='0']"); } },
+      { el:"#calc", t:"Aire totale : un cube a <b>6 faces</b> de 2 × 2 = 4 cm². Donc <b>6 × 4 = 24 cm²</b>.", f:async function(){ await G.taper("#c1", "24"); await G.clic("#calc .btn[data-k='1']"); } }
+    ];
+  },
+  apresDemo:function(){ faites = {}; erreurs = 0; charger(0); vue("3d"); window.scrollTo(0, 0); }
+});
+</scr§§ipt>
+</body>
+</html>
+</script>
 
 <script>
 /* ════════════════════════════════════════════════════════════════════
@@ -5183,7 +5953,9 @@ var PROJETS = [
   { icone:"📱", titre:"Quel forfait choisir ?", mat:"ma", prog:"Mathématique · 2e cycle",
     desc:"Max compare deux forfaits : graphique animé, règle y = ax + b et point d'intersection.", embed:"forfaits", auteur:"" },
   { icone:"⚖️", titre:"Labo virtuel : masse volumique", mat:"sc", prog:"Science · secondaire",
-    desc:"Dr Nova fait la première analyse avec toi : peser, mesurer, calculer ρ et identifier 5 métaux.", embed:"masse", auteur:"" }
+    desc:"Dr Nova fait la première analyse avec toi : peser, mesurer, calculer ρ et identifier 5 métaux.", embed:"masse", auteur:"" },
+  { icone:"🧊", titre:"Mission 3D : volume et aire", mat:"ma", prog:"Mathématique · secondaire",
+    desc:"Plan cartésien à 3 axes : déplacer cube, prisme, cylindre et pyramide aux bonnes coordonnées (x ; y ; z), puis calculer volume et aire.", embed:"solides3d", auteur:"" }
 ];
 
 $("#btnVoirDemo").onclick = function(){ ouvrirProjet("homophones", false); };
@@ -5203,6 +5975,7 @@ var IDEES = {
   ma:{ niv:"mathématique, secondaire", items:[
     { t:"Rabais et taxes, étape par étape", a:"un problème de magasinage où l'élève calcule le rabais, la TPS, la TVQ et le total, étape par étape, avec un nouvel article à chaque essai", e:"taxes" },
     { t:"Comparer deux forfaits (fonction affine)", a:"une comparaison de deux forfaits avec un graphique interactif, une table de valeurs, la règle y = ax + b et le point d'intersection", e:"forfaits" },
+    { t:"Solides en 3D : déplacer et calculer", a:"un plan cartésien à 3 axes (x, y, z) en 3D où l'élève déplace des solides (cube, prisme, cylindre, pyramide) jusqu'à des coordonnées données, en tournant la vue avec la souris, puis calcule leur volume et leur aire totale", e:"solides3d" },
     { t:"Pythagore : l'échelle contre le mur", a:"un schéma animé d'une échelle appuyée contre un mur où l'élève calcule la longueur manquante avec la relation de Pythagore" }
   ]},
   sc:{ niv:"science et technologie, secondaire", items:[
@@ -5286,6 +6059,7 @@ function go(i, dir){
 }
 function next(){
   if (typeof demoActive === "function" && demoActive()){ demoAdvance(); return; }
+  if (slides[cur].id === "googleSlide" && typeof ggI === "number" && ggI < GG.length - 1){ ggAller(ggI + 1); return; }
   var fr = fragsOf(cur), n = fr.length;
   if (shown[cur] < n){
     shown[cur]++; applyFrags(cur); update();
@@ -5294,6 +6068,7 @@ function next(){
   else if (cur < slides.length - 1) go(cur + 1, "fwd");
 }
 function prev(){
+  if (slides[cur].id === "googleSlide" && typeof ggI === "number" && ggI > 0){ ggAller(ggI - 1); return; }
   if (cur > 0) go(cur - 1, "back");
 }
 function update(){
@@ -5472,6 +6247,77 @@ function fxSvg(P, pfx, couches){
 })();
 
 $("#btnVoirDemo").onclick = function(){ ouvrirProjet("homophones", false); };
+
+/* ═══════ Créer un compte Google (guide pas à pas) ═══════ */
+var GG_URL = "accounts.google.com/signup";
+function ggF(lbl, val, on){ return '<div class="fld' + (on ? " on" : "") + '">' + lbl + (val ? ' : <b>' + val + '</b>' : '') + '</div>'; }
+var GG = [
+  { t:"Avant de commencer", titre:"Avant de commencer", url:"Préparation",
+    d:"<ul><li>Prévoyez <b>10 minutes</b> et votre <b>cellulaire</b> : Google peut envoyer un code par texto pour vérifier votre identité.</li><li>Pensez à un <b>mot de passe solide</b> (une phrase de passe, c'est idéal).</li><li>Vous avez déjà un compte Google personnel ? Ouvrez une <b>fenêtre InPrivate</b> dans Edge (<kbd>Ctrl</kbd> + <kbd>Maj</kbd> + <kbd>N</kbd>) ou déconnectez-vous d'abord.</li></ul>",
+    tip:"💡 Créez un compte <b>distinct</b>, réservé à vos usages pédagogiques avec l'IA. Il ne doit contenir aucun renseignement sur vos élèves.",
+    ecran:'<p class="ttl">✅ Ma liste</p><p class="sub">Ce qu\'il me faut :</p>' + ggF("📱 Mon cellulaire", "", true) + ggF("🔑 Une phrase de passe", "") + ggF("🕶️ Une fenêtre InPrivate", "") },
+  { t:"Ouvrir la page", titre:"Ouvrir la page de création", url:GG_URL,
+    d:"<ul><li>Dans le navigateur, allez à <b>accounts.google.com/signup</b>.</li><li>Ou : allez sur <b>google.ca</b>, cliquez sur <b>Connexion</b>, puis sur <b>Créer un compte</b>.</li><li>Choisissez <b>Pour mon usage personnel</b>.</li></ul>",
+    tip:"💡 Le choix « Pour mon usage personnel » est le bon, même si vous l'utilisez pour votre travail en classe.",
+    ecran:'<p class="ttl">Connexion</p><p class="sub">Utiliser votre compte Google</p>' + ggF("Adresse e-mail ou téléphone", "") + '<span class="gbtn sec on">Créer un compte ▾</span><div class="menu"><div class="on">Pour mon usage personnel</div><div>Pour mon enfant</div><div>Pour le travail ou mon entreprise</div></div>' },
+  { t:"Nom", titre:"Écrire son prénom et son nom", url:GG_URL,
+    d:"<ul><li>Entrez votre <b>prénom</b> et votre <b>nom</b>.</li><li>Cliquez sur <b>Suivant</b>.</li></ul>",
+    tip:"💡 Ce nom apparaîtra quand vous partagerez un fichier. Votre vrai nom est donc préférable pour vos collègues.",
+    ecran:'<p class="ttl">Créer un compte Google</p><p class="sub">Saisissez votre nom</p>' + ggF("Prénom", "Marie", true) + ggF("Nom", "Tremblay", true) + '<span class="gbtn on">Suivant</span>' },
+  { t:"Date de naissance", titre:"Date de naissance et genre", url:GG_URL,
+    d:"<ul><li>Choisissez votre <b>jour</b>, votre <b>mois</b> et votre <b>année</b> de naissance.</li><li>Indiquez votre <b>genre</b> : vous pouvez choisir de ne pas le préciser.</li><li>Cliquez sur <b>Suivant</b>.</li></ul>",
+    tip:"",
+    ecran:'<p class="ttl">Informations générales</p><p class="sub">Date de naissance et genre</p><div class="row2">' + ggF("Jour", "14", true) + ggF("Mois", "mars", true) + '</div>' + ggF("Année", "1984", true) + ggF("Genre", "Je préfère ne pas répondre") + '<span class="gbtn on">Suivant</span>' },
+  { t:"Adresse Gmail", titre:"Choisir son adresse Gmail", url:GG_URL,
+    d:"<ul><li>Choisissez une <b>adresse suggérée</b> ou cliquez sur <b>Créer votre propre adresse Gmail</b>.</li><li>Une adresse simple et professionnelle, par exemple : <b>marie.tremblay.classe@gmail.com</b>.</li><li>Si l'adresse est déjà prise, essayez une variante (un chiffre, un mot de plus).</li></ul>",
+    tip:"💡 Notez votre nouvelle adresse tout de suite : c'est votre identifiant pour vous connecter.",
+    ecran:'<p class="ttl">Choisissez votre adresse Gmail</p><p class="sub">Sélectionnez une adresse ou créez la vôtre</p><div class="radio"><i></i>marietremblay847@gmail.com</div><div class="radio on"><i></i>Créer votre propre adresse Gmail</div>' + ggF("Adresse Gmail", "marie.tremblay.classe@gmail.com", true) + '<span class="gbtn on">Suivant</span>' },
+  { t:"Mot de passe", titre:"Créer un mot de passe solide", url:GG_URL,
+    d:"<ul><li>Au moins <b>8 caractères</b> : mélangez lettres, chiffres et symboles.</li><li>Le plus simple : une <b>phrase de passe</b>, par exemple <i>MonChat!Mange3Tartes</i> (n'utilisez pas cet exemple).</li><li>Écrivez-le une 2<sup>e</sup> fois pour le <b>confirmer</b>, puis cliquez sur <b>Suivant</b>.</li></ul>",
+    tip:"🔒 N'utilisez pas le même mot de passe que pour votre courriel du centre de services scolaire.",
+    ecran:'<p class="ttl">Créez un mot de passe sécurisé</p><p class="sub">Utilisez au moins 8 caractères</p>' + ggF("Mot de passe", "••••••••••••", true) + ggF("Confirmer", "••••••••••••", true) + '<div class="radio"><i></i>Afficher le mot de passe</div><span class="gbtn on">Suivant</span>' },
+  { t:"Vérification", titre:"Vérifier son numéro de téléphone", url:GG_URL,
+    d:"<ul><li>Google peut demander un <b>numéro de cellulaire</b> pour prouver que vous n'êtes pas un robot.</li><li>Entrez votre numéro, puis le <b>code à 6 chiffres</b> reçu par texto.</li><li>Cliquez sur <b>Suivant</b>.</li></ul>",
+    tip:"💡 Le code n'arrive pas ? Attendez une minute, puis demandez un nouveau code. Vérifiez l'indicatif +1 (Canada).",
+    ecran:'<p class="ttl">Validez votre numéro</p><p class="sub">Google enverra un code par SMS</p>' + ggF("🇨🇦 +1 Numéro de téléphone", "418 555-0123", true) + ggF("Saisissez le code", "G- ● ● ● ● ● ●", true) + '<span class="gbtn on">Suivant</span>' },
+  { t:"Récupération", titre:"Ajouter une adresse de récupération", url:GG_URL,
+    d:"<ul><li>Entrez une <b>autre adresse courriel</b> qui vous appartient (votre courriel personnel, par exemple).</li><li>Elle servira si vous oubliez votre mot de passe.</li><li>Vous pouvez aussi cliquer sur <b>Ignorer</b> et l'ajouter plus tard.</li></ul>",
+    tip:"💡 Fortement recommandé : sans adresse ni téléphone de récupération, un mot de passe oublié peut bloquer l'accès au compte.",
+    ecran:'<p class="ttl">Ajouter une adresse de récupération</p><p class="sub">Pour récupérer votre compte au besoin</p>' + ggF("Adresse e-mail de récupération", "marie.perso@exemple.com", true) + '<span class="gbtn sec">Ignorer</span> <span class="gbtn on">Suivant</span>' },
+  { t:"Conditions", titre:"Vérifier et accepter", url:GG_URL,
+    d:"<ul><li>Vérifiez le <b>résumé</b> de votre compte (nom, adresse).</li><li>Lisez les <b>règles de confidentialité</b> et les <b>conditions d'utilisation</b>.</li><li>Cliquez sur <b>J'accepte</b>.</li></ul>",
+    tip:"",
+    ecran:'<p class="ttl">Confidentialité et conditions</p><p class="sub">Vérifiez les informations de votre compte</p>' + ggF("Nom", "Marie Tremblay") + ggF("Adresse", "marie.tremblay.classe@gmail.com") + '<p class="note">Règles de confidentialité · Conditions d\'utilisation</p><span class="gbtn on">J\'accepte</span>' },
+  { t:"C'est prêt !", titre:"C'est prêt : utiliser son compte avec l'IA", url:"gemini.google.com",
+    d:"<ul><li><b>Gemini</b> : allez sur <b>gemini.google.com</b>, vous êtes déjà connecté.</li><li><b>ChatGPT, Claude, Copilot, etc.</b> : cliquez sur <b>Continuer avec Google</b> et choisissez votre nouveau compte.</li><li>Recommandé : activez la <b>validation en deux étapes</b> (myaccount.google.com → Sécurité).</li></ul>",
+    tip:"🎉 Vous avez tout ce qu'il faut pour créer votre première activité HTML avec l'IA !",
+    ecran:'<div class="ok">🎉</div><p class="ttl" style="text-align:center">Bienvenue, Marie !</p><p class="sub" style="text-align:center">Votre compte est prêt</p><span class="gbtn on" style="display:block;text-align:center">Continuer avec Google</span><p class="note" style="text-align:center">Illustrations simplifiées : les écrans réels peuvent varier légèrement.</p>' }
+];
+var ggI = 0;
+function ggAller(i){
+  ggI = Math.max(0, Math.min(GG.length - 1, i)); var e = GG[ggI];
+  $("#ggN").textContent = "Étape " + ggI + " sur " + (GG.length - 1);
+  if (ggI === 0) $("#ggN").textContent = "Préparation";
+  $("#ggT").textContent = e.titre; $("#ggD").innerHTML = e.d; $("#ggTip").innerHTML = e.tip;
+  $("#ggUrl").textContent = "🔒 " + e.url;
+  var b = $("#ggBody"); b.style.animation = "none"; void b.offsetWidth; b.style.animation = ""; b.innerHTML = e.ecran;
+  $$("#ggList button").forEach(function(x, k){ x.classList.toggle("cur", k === ggI); x.classList.toggle("done", k < ggI); });
+  $("#ggPrev").disabled = ggI === 0; $("#ggNext").textContent = ggI === GG.length - 1 ? "Terminé ✓" : "Étape suivante →"; $("#ggNext").disabled = ggI === GG.length - 1;
+}
+$("#ggList").innerHTML = GG.map(function(e, k){ return '<li><button data-g="' + k + '"><b>' + (k ? k : "✓") + '</b><span>' + esc(e.t) + '</span></button></li>'; }).join("");
+$$("#ggList button").forEach(function(b){ b.onclick = function(){ ggAller(+b.dataset.g); b.blur(); }; });
+$("#ggPrev").onclick = function(){ ggAller(ggI - 1); this.blur(); };
+$("#ggNext").onclick = function(){ ggAller(ggI + 1); this.blur(); };
+$("#ggPrint").onclick = function(){
+  var h = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Créer son compte Google, étape par étape</title><style>body{font-family:"Segoe UI",Arial,sans-serif;max-width:46rem;margin:1.5rem auto;padding:0 1rem;color:#16243B;line-height:1.45}h1{color:#2548A8;margin-bottom:.2rem}.e{border:1.5px solid #E3DDD2;border-radius:12px;padding:.6rem 1rem;margin:.7rem 0;page-break-inside:avoid}.e h2{font-size:1.05rem;margin:.1rem 0 .3rem}.e h2 span{display:inline-block;background:#2548A8;color:#fff;border-radius:50%;width:1.6rem;height:1.6rem;text-align:center;line-height:1.6rem;margin-right:.4rem;font-size:.85rem}.t{background:#FDF0DA;border-left:4px solid #F0A23A;padding:.3rem .6rem;border-radius:6px;font-size:.9rem}ul{margin:.2rem 0}.c{width:1rem;height:1rem;border:2px solid #16243B;display:inline-block;border-radius:3px;vertical-align:middle;margin-right:.4rem}@media print{button{display:none}}</style></head><body>' +
+    '<button onclick="print()" style="float:right;padding:.4rem 1rem;font-weight:700">🖨️ Imprimer</button><h1>Créer son compte Google, étape par étape</h1><p>Un compte Google permet d\'utiliser Gemini et de se connecter à plusieurs IA (ChatGPT, Claude, Copilot…) avec le bouton « Continuer avec Google ». Créez un compte <b>distinct</b>, réservé à vos usages pédagogiques. Cochez chaque étape une fois terminée.</p>' +
+    GG.map(function(e, k){ return '<div class="e"><h2><span>' + (k ? k : "✓") + '</span><i class="c"></i>' + e.titre + '</h2>' + e.d + (e.tip ? '<p class="t">' + e.tip + '</p>' : '') + '</div>'; }).join("") +
+    '<p style="font-size:.85rem;color:#58677D">Aide officielle : support.google.com/accounts/answer/27441?hl=fr · Les écrans de Google peuvent changer légèrement : suivez les instructions à l\'écran.</p></body></html>';
+  var w = window.open("", "_blank");
+  if (w){ w.document.open(); w.document.write(h); w.document.close(); }
+  else alert("La fenêtre a été bloquée. Autorisez les fenêtres surgissantes pour imprimer le guide.");
+};
+ggAller(0);
 
 /* ═══════ Idées par matière ═══════ */
 (function(){
