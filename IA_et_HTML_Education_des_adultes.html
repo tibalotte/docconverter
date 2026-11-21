@@ -1034,6 +1034,29 @@ body{display:flex;flex-direction:column;justify-content:center}
 /* Affichage dans un navigateur : la taille du texte suit la largeur ET la hauteur de la fenêtre
    (la zone visible d'un navigateur est plus basse que l'écran : onglets, barre d'adresse, favoris) */
 html{font-size:clamp(12px,min(1.45vw,2.5vh),23px)}
+
+/* Page d'instructions (fond noir) */
+#nrIntro{position:fixed;inset:0;z-index:5000;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;transition:opacity .5s}
+#nrIntro.ni-sortie{opacity:0}
+#nrIntro[hidden]{display:none}
+.ni-boite{max-width:40rem;text-align:center}
+.ni-av{width:6.5rem;aspect-ratio:4/5;object-fit:cover;object-position:50% 30%;border-radius:50% / 46%;border:3px solid #00A9C5;background:#fff}
+#nrIntro h1{font-size:2.6rem;margin:.5rem 0 0;font-weight:900;letter-spacing:-.01em}
+.ni-sous{margin:.2rem 0 1.2rem;color:#B9C7DD;font-size:1rem}
+.ni-reco{font-weight:800;color:#F0A23A;text-transform:uppercase;letter-spacing:.1em;font-size:.85rem;margin:0 0 .5rem}
+.ni-liste{list-style:none;margin:0 auto 1.3rem;padding:0;text-align:left;display:grid;gap:.55rem;max-width:34rem}
+.ni-liste li{display:flex;gap:.8rem;align-items:center;background:#111;border:1px solid #2A2A2A;border-radius:12px;padding:.6rem .9rem;font-size:1.02rem;line-height:1.35}
+.ni-liste li>span{flex:none;width:2.6rem;text-align:center;font-size:1.5rem}
+.ni-liste kbd{display:inline-block;font:800 .85rem Consolas,monospace;border:2px solid #fff;border-bottom-width:4px;border-radius:7px;padding:.1rem .35rem;color:#fff}
+.ni-go{border:0;border-radius:99px;background:#F0A23A;color:#2A1A00;font:inherit;font-size:1.3rem;font-weight:900;padding:.8rem 2.2rem;cursor:pointer;box-shadow:0 0 0 0 rgba(240,162,58,.6);animation:niPulse 1.8s infinite}
+.ni-go:hover{filter:brightness(1.08)}
+@keyframes niPulse{0%{box-shadow:0 0 0 0 rgba(240,162,58,.55)}70%{box-shadow:0 0 0 18px rgba(240,162,58,0)}100%{box-shadow:0 0 0 0 rgba(240,162,58,0)}}
+.ni-note{color:#B9C7DD;font-size:.9rem;margin:1rem auto .6rem;max-width:32rem}
+.ni-seul{background:none;border:0;color:#8A97AB;text-decoration:underline;font:inherit;font-size:.85rem;cursor:pointer}
+.ni-seul:hover{color:#fff}
+/* Fin de la visite : le présentateur s'efface */
+.nr.nr-sortie{transition:opacity .8s,transform .8s;opacity:0;transform:translateY(20px)}
+.nr[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -1561,7 +1584,7 @@ var PROJETS = [
   { icone:"🤝", titre:"Job Interview Match", mat:"en", prog:"Anglais · secondaire",
     desc:"Mike te fait passer une entrevue : associer questions et réponses, écoute 🔊, traduction, badges.", embed:"interview", auteur:"" },
   { icone:"🧊", titre:"Les changements d'état de l'eau", mat:"sc", prog:"Science · secondaire",
-    desc:"Dr Nova chauffe la glace en direct : particules animées, puis six situations à nommer.", embed:"etats", auteur:"" },
+    desc:"Dre Nova chauffe la glace en direct : particules animées, puis six situations à nommer.", embed:"etats", auteur:"" },
   { icone:"✉️", titre:"Remets la lettre en ordre", mat:"fr", prog:"Français · secondaire",
     desc:"Gaston le facteur a échappé une lettre ! La remettre en ordre, puis nommer chaque partie.", embed:"lettre", auteur:"" },
   { icone:"📰", titre:"Read the Job Ad", mat:"en", prog:"Anglais · secondaire",
@@ -1571,7 +1594,7 @@ var PROJETS = [
   { icone:"📱", titre:"Quel forfait choisir ?", mat:"ma", prog:"Mathématique · 2e cycle",
     desc:"Max compare deux forfaits : graphique animé, règle y = ax + b et point d'intersection.", embed:"forfaits", auteur:"" },
   { icone:"⚖️", titre:"Labo virtuel : masse volumique", mat:"sc", prog:"Science · secondaire",
-    desc:"Dr Nova fait la première analyse avec toi : peser, mesurer, calculer ρ et identifier 5 métaux.", embed:"masse", auteur:"" },
+    desc:"Dre Nova fait la première analyse avec toi : peser, mesurer, calculer ρ et identifier 5 métaux.", embed:"masse", auteur:"" },
   { icone:"🧊", titre:"Mission 3D : volume et aire", mat:"ma", prog:"Mathématique · secondaire",
     desc:"Plan cartésien à 3 axes : déplacer cube, prisme, cylindre et pyramide aux bonnes coordonnées (x ; y ; z), puis calculer volume et aire.", embed:"solides3d", auteur:"" }
 ];
@@ -2702,7 +2725,7 @@ var NR = (function(){
         await pause(450, montok);
       }
       montrer(99);
-      if (L.length && L[L.length - 1].fin){ joue = false; mode = "libre"; controles(); bulle(L[L.length - 1].t + " <br><small>Clique sur moi si tu veux que je t'explique une diapo à nouveau.</small>"); return; }
+      if (L.length && L[L.length - 1].fin){ joue = false; mode = "fini"; controles(); await pause(1500, montok); disparaitre(); return; }
       await pause(900, montok);
       if (i < slides.length - 1) allerA(i + 1);
       lireDiapo(i + 1);
@@ -2714,6 +2737,11 @@ var NR = (function(){
     var texte = L.map(function(s){ return s.t; }).join(" ");
     bulle(texte, [{ t:"▶ Visite guidée à partir d'ici", f:function(){ demarrer(); } }]);
     try{ await parler(texte, montok); }catch(e){}
+  }
+  /* À la fin de la visite : le présentateur salue et s'efface ; la barre du bas reprend sa forme habituelle */
+  function disparaitre(){
+    var el = $("#nr"); el.classList.add("nr-sortie");
+    setTimeout(function(){ el.hidden = true; $("#nav").classList.remove("nr-on", "nr-mini"); }, 900);
   }
   function demarrer(){
     mode = "guide"; joue = true; controles(); $("#nr").classList.add("guide");
@@ -2761,8 +2789,28 @@ var NR = (function(){
     $("#nrVoix").onclick = function(){ voix = !voix; try{ localStorage.setItem("nr_voix", voix ? "1" : "0"); if (!voix) speechSynthesis.cancel(); }catch(e){} controles(); };
     $("#nrStop").onclick = function(){ arreter(true); };
     try{ speechSynthesis.getVoices(); speechSynthesis.addEventListener("voiceschanged", function(){}); }catch(e){}
-    bulle("<b>Bonjour, collègue du Centre d'éducation des adultes !</b> Mathieu a créé cette présentation interactive avec l'aide de l'IA pour te faire découvrir ses nouvelles possibilités. Si tu le souhaites, ma voix synthétique te guidera tout au long.",
-      [{ t:"▶ Démarrer la visite guidée", f:demarrer }, { t:"Je navigue seul", cl:"sec", f:function(){ mode = "libre"; bulle("Parfait ! Clique sur moi quand tu veux que je t'explique une diapo."); setTimeout(function(){ if (mode === "libre"){ el.classList.add("mini"); nav.classList.add("nr-mini"); } }, 4000); } }]);
+    var intro = document.createElement("div"); intro.id = "nrIntro"; intro.setAttribute("role", "dialog"); intro.setAttribute("aria-modal", "true"); intro.setAttribute("aria-labelledby", "nrIntroT");
+    intro.innerHTML = '<div class="ni-boite">' +
+      '<img class="ni-av" src="' + IMG_PRES + '" alt="Le présentateur virtuel">' +
+      '<h1 id="nrIntroT">L\'IA + HTML</h1>' +
+      '<p class="ni-sous">Présentation interactive · Centre d\'éducation des adultes</p>' +
+      '<p class="ni-reco">Pour une meilleure expérience :</p>' +
+      '<ol class="ni-liste">' +
+        '<li><span>🔊</span><div><b>Ouvre le volume</b> de ton ordinateur : un présentateur virtuel va te parler.</div></li>' +
+        '<li><span><kbd>F11</kbd></span><div>Appuie sur <b>F11</b> pour passer en <b>plein écran</b> (F11 à nouveau pour en sortir).</div></li>' +
+        '<li><span>▶</span><div><b>Clique sur le bouton</b> ci-dessous pour lancer la présentation.</div></li>' +
+      '</ol>' +
+      '<button class="ni-go" id="nrGo">▶ Lancer la présentation</button>' +
+      '<p class="ni-note">Le présentateur débute automatiquement avec son mot d\'accueil, puis te guide diapo par diapo. Tu peux le mettre en pause à tout moment.</p>' +
+      '<button class="ni-seul" id="nrSeul">Naviguer sans le présentateur</button>' +
+      '</div>';
+    document.body.appendChild(intro);
+    function fermerIntro(){ intro.classList.add("ni-sortie"); setTimeout(function(){ intro.hidden = true; }, 500); }
+    $("#nrGo").onclick = function(){ fermerIntro(); demarrer(); };
+    $("#nrSeul").onclick = function(){ fermerIntro(); mode = "libre"; bulle("D'accord ! Tu navigues à ton rythme. Clique sur moi quand tu veux que je t'explique une diapo.", [{ t:"▶ Démarrer la visite guidée", f:demarrer }]); };
+    intro.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); $("#nrGo").click(); } e.stopPropagation(); });
+    setTimeout(function(){ try{ $("#nrGo").focus(); }catch(e){} }, 50);
+    bulle("");
     controles();
   }
   return { init:init, surGo:surGo, texte:function(i){ return (NARR[slides[i].dataset.title] || []).map(function(s){ return s.t; }).join(" "); } };
