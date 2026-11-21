@@ -1057,6 +1057,12 @@ html{font-size:clamp(12px,min(1.45vw,2.5vh),23px)}
 /* Fin de la visite : le présentateur s'efface */
 .nr.nr-sortie{transition:opacity .8s,transform .8s;opacity:0;transform:translateY(20px)}
 .nr[hidden]{display:none}
+
+/* Diapo 4 : « + » au lieu de flèches, colonne de gauche valorisée */
+.vs.vs-ajout .vs-r i{font-size:1.6rem;color:var(--ok);font-weight:900}
+.vs.vs-ajout .vs-r>span:first-child{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.vs.vs-ajout .vs-r>span:last-child{background:#F3FAF6;border-color:#BFE3D0}
+.vs.vs-ajout .vs-h span:last-child{color:var(--ok)}
 </style>
 </head>
 <body>
@@ -1152,19 +1158,19 @@ html{font-size:clamp(12px,min(1.45vw,2.5vh),23px)}
       </div>
     </section>
 
-    <!-- 4 ───────── Papier ou HTML (+ avant-goût des exemples) ───────── -->
-    <section class="slide" id="papierSlide" data-part="1" data-title="Papier ou HTML ?" data-min="3"
-      data-notes="Le cœur du message : un fichier HTML peut faire ce qu'une feuille ne peut pas. Pour l'enseignant, corriger et donner une rétroaction prend beaucoup de temps : l'activité HTML le fait automatiquement, ce qui libère du temps pour accompagner les élèves. Révéler chaque ligne. En bas, les vignettes des exemples : un clic mène directement à la galerie de la dernière page. À la dernière page, dans chaque exemple, le bouton « Montre-moi comment » fait faire la tâche par le personnage devant l'élève, étape par étape, avec une main qui clique et tape, puis lui laisse la place. Tout cela se demande à l'IA dans la requête.">
-      <p class="kicker">Ce que le papier ne peut pas faire</p>
-      <h2>Exercice papier ou activité HTML ?</h2>
-      <div class="vs">
-        <div class="vs-h"><span>📄 Exercice papier</span><span></span><span>💻 Activité HTML</span></div>
-        <div class="vs-r frag"><span>Consigne écrite, à lire seul</span><i>➜</i><span><b>🧑‍🏫 Un personnage qui parle</b> et explique la tâche (voix et texte)</span></div>
-        <div class="vs-r frag"><span>Un exemple figé dans le guide</span><i>➜</i><span><b>🎬 Une démonstration pas à pas</b> : une main clique, tape et montre la démarche</span></div>
-        <div class="vs-r frag"><span>Correction et rétroaction à la main, copie par copie : long pour l'enseignant, et l'élève attend</span><i>➜</i><span><b>✅ Correction et rétroaction automatiques</b> : l'élève a sa réponse tout de suite, et <b>vous gagnez du temps</b> ⏱️</span></div>
-        <div class="vs-r frag"><span>Le même exercice pour tous</span><i>➜</i><span><b>🔊 Voix, traduction, indices</b> : de la différenciation intégrée</span></div>
-        <div class="vs-r frag"><span>Peu de motivation à recommencer</span><i>➜</i><span><b>⭐ Points, séries 🔥 et badges 🏆</b> : on veut battre son record</span></div>
-        <div class="vs-r frag"><span>« Va voir dans ton guide… »</span><i>➜</i><span><b>🔗 Liens Alloprof</b> vers la bonne fiche, en un clic</span></div>
+    <!-- 4 ───────── Ce que le HTML ajoute (+ avant-goût des exemples) ───────── -->
+    <section class="slide" id="papierSlide" data-part="1" data-title="Ce que le HTML ajoute" data-min="3"
+      data-notes="Le papier reste une bonne base : on ne le remplace pas, on le prolonge. Le HTML ajoute ce qu'une feuille ne peut pas faire : un personnage qui explique, une démonstration animée, une correction et une rétroaction automatiques (un gain de temps réel pour l'enseignant), de la différenciation, de la motivation et des liens directs vers les bonnes ressources. Révéler chaque ligne. En bas, les vignettes des exemples : un clic mène directement à la galerie de la dernière page.">
+      <p class="kicker">Le papier, et en plus…</p>
+      <h2>Ce que le HTML ajoute à vos exercices</h2>
+      <div class="vs vs-ajout">
+        <div class="vs-h"><span>📄 Votre exercice</span><span></span><span>💻 Ce que le HTML ajoute</span></div>
+        <div class="vs-r frag"><span>Une consigne écrite</span><i>+</i><span><b>🧑‍🏫 Un personnage qui l'explique</b> de vive voix</span></div>
+        <div class="vs-r frag"><span>Un exemple dans le guide</span><i>+</i><span><b>🎬 Une démonstration animée</b>, pas à pas</span></div>
+        <div class="vs-r frag"><span>Une correction faite par l'enseignant</span><i>+</i><span><b>✅ Correction et rétroaction automatiques</b> : l'élève a sa réponse tout de suite, et <b>vous gagnez du temps</b> ⏱️</span></div>
+        <div class="vs-r frag"><span>Un exercice pour tout le groupe</span><i>+</i><span><b>🔊 Voix, traduction et indices</b> : une aide adaptée à chacun</span></div>
+        <div class="vs-r frag"><span>La satisfaction d'avoir terminé</span><i>+</i><span><b>⭐ Points, séries 🔥 et badges 🏆</b> qui donnent envie de recommencer</span></div>
+        <div class="vs-r frag"><span>Un renvoi au guide d'apprentissage</span><i>+</i><span><b>🔗 Un lien direct</b> vers la bonne fiche Alloprof</span></div>
       </div>
       <div class="teaser-mini frag"><p>👉 À la dernière page : <b>9 exemples à essayer</b>, avec leur requête prête à copier.</p><div class="teaser mini" id="teaser"></div></div>
     </section>
@@ -1219,7 +1225,7 @@ html{font-size:clamp(12px,min(1.45vw,2.5vh),23px)}
 
     <!-- 7 ───────── Le format HTML : pratique et polyvalent ───────── -->
     <section class="slide" id="tilesSlide" data-part="2" data-title="Le format HTML : pratique et polyvalent" data-min="3"
-      data-notes="La diapo « Papier ou HTML ? » montrait ce que l'activité change pour l'élève (personnage, démonstration, rétroaction, voix, points, liens). Ici, on regarde le format lui-même : pourquoi il est pratique pour l'enseignant, et quels autres types d'interactions il permet. Chaque tuile se demande à l'IA, en français. On les retrouve dans les exemples de la dernière page : graphique animé, solides en 3D, laboratoire virtuel, lettre à remettre en ordre. Limite honnête : sur iPhone et iPad, privilégier un ordinateur.">
+      data-notes="La diapo « Ce que le HTML ajoute » montrait ce que l'activité apporte à l'élève (personnage, démonstration, rétroaction, voix, points, liens). Ici, on regarde le format lui-même : pourquoi il est pratique pour l'enseignant, et quels autres types d'interactions il permet. Chaque tuile se demande à l'IA, en français. On les retrouve dans les exemples de la dernière page : graphique animé, solides en 3D, laboratoire virtuel, lettre à remettre en ordre. Limite honnête : sur iPhone et iPad, privilégier un ordinateur.">
       <p class="kicker">Pour vous, l'enseignant</p>
       <h2>Le format HTML : pratique et polyvalent</h2>
       <div class="adv-row frag">
@@ -2524,11 +2530,12 @@ var NARR = {
     { n:1, t:"Et c'est exactement là qu'une activité interactive devient ta meilleure alliée." },
     { n:2, t:"Ton élève reçoit une rétroaction immédiate pendant que tu aides quelqu'un d'autre. Et il peut recommencer, encore et encore, sans jamais se sentir jugé." },
     { n:2, t:"La voix et les indices font de la différenciation pour toi. Et l'activité suit ton élève jusqu'à la maison !" }],
-  "Papier ou HTML ?":[
-    { t:"Faisons le match : exercice papier contre activité HTML !" },
-    { n:2, t:"Sur papier, la consigne se lit seul et l'exemple reste figé. En HTML ? Un personnage, comme moi, explique la tâche et la démontre étape par étape !" },
-    { n:2, t:"Et toi, combien d'heures passes-tu à corriger et à écrire des rétroactions ? Ici, l'activité le fait automatiquement : ton élève a sa réponse tout de suite, et toi, tu gagnes un temps précieux pour l'accompagner. Sans oublier la voix, la traduction et les indices, qui s'adaptent à chaque élève !" },
-    { n:2, t:"Les points et les badges donnent envie de recommencer. Et un lien Alloprof mène directement à la bonne fiche !" },
+  "Ce que le HTML ajoute":[
+    { t:"Tes exercices papier sont une excellente base. L'idée, ce n'est pas de les remplacer, mais de leur donner des super-pouvoirs !" },
+    { n:2, t:"À ta consigne écrite, le HTML ajoute un personnage, comme moi, qui l'explique de vive voix. Et à ton exemple, une démonstration animée, étape par étape !" },
+    { n:1, t:"Et toi, combien d'heures passes-tu à corriger et à écrire des rétroactions ? Ici, l'activité le fait automatiquement : ton élève a sa réponse tout de suite, et toi, tu gagnes un temps précieux pour l'accompagner." },
+    { n:1, t:"La voix, la traduction et les indices offrent une aide adaptée à chaque élève." },
+    { n:2, t:"Les points et les badges donnent envie de recommencer, et un lien Alloprof mène directement à la bonne fiche !" },
     { n:1, t:"Neuf exemples t'attendent à la toute fin. Tu vas aimer ça ! Clique sur une vignette quand tu veux y aller." }],
   "Les 2 ingrédients":[
     { n:1, t:"Je t'entends d'ici : ça doit être long et compliqué à faire…" },
