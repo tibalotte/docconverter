@@ -1035,25 +1035,42 @@ body{display:flex;flex-direction:column;justify-content:center}
    (la zone visible d'un navigateur est plus basse que l'écran : onglets, barre d'adresse, favoris) */
 html{font-size:clamp(12px,min(1.45vw,2.5vh),23px)}
 
-/* Page d'instructions (fond noir) */
-#nrIntro{position:fixed;inset:0;z-index:5000;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;transition:opacity .5s}
+/* Page d'accueil (instructions visuelles, teinte des diapositives) */
+#nrIntro{position:fixed;inset:0;z-index:5000;background:var(--bg);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:1rem;overflow:hidden;transition:opacity .5s}
 #nrIntro.ni-sortie{opacity:0}
 #nrIntro[hidden]{display:none}
-.ni-boite{max-width:40rem;text-align:center}
-.ni-av{width:6.5rem;aspect-ratio:4/5;object-fit:cover;object-position:50% 30%;border-radius:50% / 46%;border:3px solid #00A9C5;background:#fff}
-#nrIntro h1{font-size:2.6rem;margin:.5rem 0 0;font-weight:900;letter-spacing:-.01em}
-.ni-sous{margin:.2rem 0 1.2rem;color:#B9C7DD;font-size:1rem}
-.ni-reco{font-weight:800;color:#F0A23A;text-transform:uppercase;letter-spacing:.1em;font-size:.85rem;margin:0 0 .5rem}
-.ni-liste{list-style:none;margin:0 auto 1.3rem;padding:0;text-align:left;display:grid;gap:.55rem;max-width:34rem}
-.ni-liste li{display:flex;gap:.8rem;align-items:center;background:#111;border:1px solid #2A2A2A;border-radius:12px;padding:.6rem .9rem;font-size:1.02rem;line-height:1.35}
-.ni-liste li>span{flex:none;width:2.6rem;text-align:center;font-size:1.5rem}
-.ni-liste kbd{display:inline-block;font:800 .85rem Consolas,monospace;border:2px solid #fff;border-bottom-width:4px;border-radius:7px;padding:.1rem .35rem;color:#fff}
-.ni-go{border:0;border-radius:99px;background:#F0A23A;color:#2A1A00;font:inherit;font-size:1.3rem;font-weight:900;padding:.8rem 2.2rem;cursor:pointer;box-shadow:0 0 0 0 rgba(240,162,58,.6);animation:niPulse 1.8s infinite}
-.ni-go:hover{filter:brightness(1.08)}
+#nrIntro .blobs{position:absolute;inset:0;pointer-events:none}
+.ni-boite{position:relative;max-width:48rem;width:100%;text-align:center}
+.ni-av{width:6rem;aspect-ratio:4/5;object-fit:cover;object-position:50% 30%;border-radius:50% / 46%;border:3px solid #00849C;background:#fff;box-shadow:0 8px 20px rgba(20,35,60,.15)}
+#nrIntro h1{font-size:clamp(2.2rem,7vh,3.6rem);margin:.3rem 0 1.4rem;font-weight:900;letter-spacing:-.02em}
+#nrIntro h1 .w1{color:var(--p)}#nrIntro h1 .w2{color:#C77A10}
+.ni-cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.ni-carte{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:1rem .8rem .9rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;box-shadow:0 6px 18px rgba(20,35,60,.07)}
+.ni-carte b{font-size:1.05rem}
+.ni-vis{height:6.2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem}
+.ni-svg{height:4.4rem;width:auto}
+.ni-ondes path{animation:niOnde 1.6s ease-in-out infinite;opacity:.15}
+.ni-ondes path:nth-child(2){animation-delay:.25s}.ni-ondes path:nth-child(3){animation-delay:.5s}
+@keyframes niOnde{0%,100%{opacity:.15}40%,70%{opacity:1}}
+.ni-vol{position:relative;width:7rem;height:1rem;display:flex;align-items:center}
+.ni-vol-bar{display:block;width:100%;height:.45rem;border-radius:99px;background:var(--line);overflow:hidden}
+.ni-vol-bar i{display:block;height:100%;width:20%;background:var(--p);border-radius:99px;animation:niVol 2.4s ease-in-out infinite}
+.ni-vol-pt{position:absolute;left:20%;top:50%;width:1rem;height:1rem;margin:-.5rem 0 0 -.5rem;border-radius:50%;background:#fff;border:3px solid var(--p);box-shadow:0 2px 6px rgba(0,0,0,.2);animation:niVolPt 2.4s ease-in-out infinite}
+@keyframes niVol{0%,15%{width:20%}55%,100%{width:90%}}
+@keyframes niVolPt{0%,15%{left:20%}55%,100%{left:90%}}
+.ni-f11{display:flex;align-items:center;gap:.9rem}
+.ni-touche{display:inline-flex;align-items:center;justify-content:center;min-width:4rem;height:3.6rem;padding:0 .6rem;font:800 1.35rem Consolas,monospace;color:var(--ink);background:linear-gradient(#fff,#EEE8DD);border:2px solid #C9C2B6;border-bottom-width:6px;border-radius:12px;animation:niTouche 2.4s ease-in-out infinite}
+@keyframes niTouche{0%,40%,100%{transform:none;border-bottom-width:6px}48%,58%{transform:translateY(3px);border-bottom-width:3px}}
+.ni-plein{height:3.6rem;animation:niPlein 2.4s ease-in-out infinite}
+@keyframes niPlein{0%,50%{transform:scale(.8)}65%,100%{transform:scale(1.08)}}
+.ni-go{width:5.4rem;height:5.4rem;border-radius:50%;border:0;background:#F0A23A;color:#2A1A00;cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(240,162,58,.6);animation:niPulse 1.8s infinite}
+.ni-go:hover{filter:brightness(1.06);transform:scale(1.04)}
+.ni-play{font-size:2.2rem;margin-left:.3rem;line-height:1}
+.ni-carte-go{border-color:#F0A23A;background:#FFFBF4}
 @keyframes niPulse{0%{box-shadow:0 0 0 0 rgba(240,162,58,.55)}70%{box-shadow:0 0 0 18px rgba(240,162,58,0)}100%{box-shadow:0 0 0 0 rgba(240,162,58,0)}}
-.ni-note{color:#B9C7DD;font-size:.9rem;margin:1rem auto .6rem;max-width:32rem}
-.ni-seul{background:none;border:0;color:#8A97AB;text-decoration:underline;font:inherit;font-size:.85rem;cursor:pointer}
-.ni-seul:hover{color:#fff}
+.ni-note{color:var(--muted);font-size:.85rem;margin:1.2rem auto 0;max-width:34rem}
+.ni-seul{background:none;border:0;padding:0;color:var(--p);text-decoration:underline;font:inherit;cursor:pointer}
+@media (max-width:640px){.ni-cartes{grid-template-columns:1fr}.ni-vis{height:4.6rem}}
 /* Fin de la visite : le présentateur s'efface */
 .nr.nr-sortie{transition:opacity .8s,transform .8s;opacity:0;transform:translateY(20px)}
 .nr[hidden]{display:none}
@@ -2797,19 +2814,15 @@ var NR = (function(){
     $("#nrStop").onclick = function(){ arreter(true); };
     try{ speechSynthesis.getVoices(); speechSynthesis.addEventListener("voiceschanged", function(){}); }catch(e){}
     var intro = document.createElement("div"); intro.id = "nrIntro"; intro.setAttribute("role", "dialog"); intro.setAttribute("aria-modal", "true"); intro.setAttribute("aria-labelledby", "nrIntroT");
-    intro.innerHTML = '<div class="ni-boite">' +
+    intro.innerHTML = '<div class="blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="ni-boite">' +
       '<img class="ni-av" src="' + IMG_PRES + '" alt="Le présentateur virtuel">' +
-      '<h1 id="nrIntroT">L\'IA + HTML</h1>' +
-      '<p class="ni-sous">Présentation interactive · Centre d\'éducation des adultes</p>' +
-      '<p class="ni-reco">Pour une meilleure expérience :</p>' +
-      '<ol class="ni-liste">' +
-        '<li><span>🔊</span><div><b>Ouvre le volume</b> de ton ordinateur : un présentateur virtuel va te parler.</div></li>' +
-        '<li><span><kbd>F11</kbd></span><div>Appuie sur <b>F11</b> pour passer en <b>plein écran</b> (F11 à nouveau pour en sortir).</div></li>' +
-        '<li><span>▶</span><div><b>Clique sur le bouton</b> ci-dessous pour lancer la présentation.</div></li>' +
-      '</ol>' +
-      '<button class="ni-go" id="nrGo">▶ Lancer la présentation</button>' +
-      '<p class="ni-note">Le présentateur débute automatiquement avec son mot d\'accueil, puis te guide diapo par diapo. Tu peux le mettre en pause à tout moment.</p>' +
-      '<button class="ni-seul" id="nrSeul">Naviguer sans le présentateur</button>' +
+      '<h1 id="nrIntroT"><span class="w1">L\'IA</span> + <span class="w2">HTML</span></h1>' +
+      '<div class="ni-cartes">' +
+        '<div class="ni-carte"><div class="ni-vis"><svg class="ni-svg" viewBox="0 0 120 90" aria-hidden="true"><path d="M18 34h14l20-16v54L32 56H18z" fill="#2548A8"/><g class="ni-ondes" fill="none" stroke="#2548A8" stroke-width="5" stroke-linecap="round"><path d="M62 33q8 12 0 24"/><path d="M72 25q15 20 0 40"/><path d="M82 17q22 28 0 56"/></g></svg><div class="ni-vol" aria-hidden="true"><span class="ni-vol-bar"><i></i></span><span class="ni-vol-pt"></span></div></div><b>Monte le volume</b></div>' +
+        '<div class="ni-carte"><div class="ni-vis"><div class="ni-f11" aria-hidden="true"><span class="ni-touche">F11</span><svg class="ni-svg ni-plein" viewBox="0 0 90 90"><g fill="none" stroke="#C77A10" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 34V14h20"/><path d="M56 14h20v20"/><path d="M76 56v20H56"/><path d="M34 76H14V56"/></g></svg></div></div><b>Plein écran</b></div>' +
+        '<div class="ni-carte ni-carte-go"><button class="ni-go" id="nrGo" aria-label="Lancer la présentation"><span class="ni-play">▶</span></button><b>Lance la présentation</b></div>' +
+      '</div>' +
+      '<p class="ni-note">La voix de synthèse est optionnelle : tu peux la couper en tout temps ou <button class="ni-seul" id="nrSeul">naviguer sans le présentateur</button>.</p>' +
       '</div>';
     document.body.appendChild(intro);
     function fermerIntro(){ intro.classList.add("ni-sortie"); setTimeout(function(){ intro.hidden = true; }, 500); }
